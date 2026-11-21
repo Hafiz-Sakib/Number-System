@@ -1,12 +1,13 @@
 import { useSyncExternalStore } from "react";
 
-/* ছোট রাউটার: /  /convert  /calc  /practice  /learn - অন্য যেকোনো ঠিকানা হোমে যায়। */
+/* ছোট রাউটার: /  /convert  /calc  /practice  /learn  /dev - অন্য যেকোনো ঠিকানা হোমে যায়। */
 export const ROUTES = [
-  { path: "/", id: "home", label: "হোম", icon: "home", title: "সংখ্যা পদ্ধতি - বাইনারি, অক্টাল, ডেসিমাল, হেক্সাডেসিমাল" },
-  { path: "/convert", id: "convert", label: "রূপান্তর", icon: "convert", title: "রূপান্তর - সংখ্যা পদ্ধতি" },
-  { path: "/calc", id: "calc", label: "হিসাব", icon: "calc", title: "যোগ বিয়োগ গুণ ভাগ - সংখ্যা পদ্ধতি" },
-  { path: "/practice", id: "practice", label: "অনুশীলন", icon: "practice", title: "অনুশীলন - সংখ্যা পদ্ধতি" },
-  { path: "/learn", id: "learn", label: "শিখুন", icon: "learn", title: "নিয়মকানুন - সংখ্যা পদ্ধতি" },
+  { path: "/", id: "home", label: "হোম", icon: "home" },
+  { path: "/convert", id: "convert", label: "রূপান্তর", icon: "convert" },
+  { path: "/calc", id: "calc", label: "হিসাব", icon: "calc" },
+  { path: "/practice", id: "practice", label: "অনুশীলন", icon: "practice" },
+  { path: "/learn", id: "learn", label: "শিখুন", icon: "learn" },
+  { path: "/dev", id: "dev", label: "ডেভ পেজ", icon: "dev" },
 ];
 const norm = (p) => { const x = "/" + String(p).replace(/^\/+|\/+$/g, ""); return ROUTES.some((r) => r.path === x) ? x : "/"; };
 const sub = (cb) => { addEventListener("popstate", cb); addEventListener("route", cb); return () => { removeEventListener("popstate", cb); removeEventListener("route", cb); }; };

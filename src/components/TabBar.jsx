@@ -97,6 +97,18 @@ function BookIcon({ active, className, strokeWidth }) {
   );
 }
 
+/* ডেভ পেজ: </> কোড আইকন, ট্যাপে দুই বন্ধনী বাইরের দিকে সরে (পোর্টফোলিওর Projects আইকন) */
+function DevIcon({ active, className, strokeWidth }) {
+  const c = useIcon(active);
+  return (
+    <Shell className={className} strokeWidth={strokeWidth}>
+      <motion.path animate={c} d="m18 16 4-4-4-4" transition={{ duration: 0.5, ease: "easeInOut" }} variants={{ normal: { x: 0 }, animate: { x: [0, 3, 0] } }} />
+      <motion.path animate={c} d="m6 8-4 4 4 4" transition={{ duration: 0.5, ease: "easeInOut" }} variants={{ normal: { x: 0 }, animate: { x: [0, -3, 0] } }} />
+      <path d="m14.5 4-5 16" />
+    </Shell>
+  );
+}
+
 function PlusIcon({ className, strokeWidth }) {
   return (
     <Shell className={className} strokeWidth={strokeWidth}>
@@ -105,14 +117,14 @@ function PlusIcon({ className, strokeWidth }) {
   );
 }
 
-export const ICONS = { home: HomeIcon, convert: ConvertIcon, calc: CalcIcon, practice: PracticeIcon, learn: BookIcon };
+export const ICONS = { home: HomeIcon, convert: ConvertIcon, calc: CalcIcon, practice: PracticeIcon, learn: BookIcon, dev: DevIcon };
 
 const GLIDE = [0.22, 1, 0.36, 1];
 const SPRING = { type: "spring", stiffness: 500, damping: 34 };
 const POP = { type: "spring", stiffness: 600, damping: 26 };
 
 /**
- * tabs: [{ id, label, icon: "home"|"convert"|"calc"|"practice"|"learn", badge? }]
+ * tabs: [{ id, label, icon: "home"|"convert"|"calc"|"practice"|"learn"|"dev", badge? }]
  * variant: "pill" | "labels" | "action"
  */
 export const TabBar = React.forwardRef(function TabBar(

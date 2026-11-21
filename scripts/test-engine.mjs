@@ -1,4 +1,4 @@
-import { convert, calc, parseNum, ratToBase, showVal, BASES, availableMethods } from "../src/lib/engine.js";
+import { convert, calc, calcMulti, parseNum, ratToBase, showVal, BASES, availableMethods } from "../src/lib/engine.js";
 
 let pass = 0, fail = 0;
 const ok = (cond, msg) => { if (cond) pass++; else { fail++; console.log("FAIL:", msg); } };
@@ -110,6 +110,38 @@ for (let it = 0; it < 500; it++) {
         eq(r.all.find((x) => x.base === base).int, r.value.int, `all-bases int ${a} ${op} ${b} b${base}`);
       }
     }
+  }
+}
+
+/* ---------- 1-এর পরিপূরক এবং অনেক সংখ্যার যোগ ---------- */
+eq(calc("1010", "0111", "-", 2, "ones").text, "11", "1's comp 10-7");
+eq(calc("0111", "1010", "-", 2, "ones").text, "-11", "1's comp 7-10");
+eq(calc("101", "101", "-", 2, "ones").text, "0", "1's comp x-x");
+eq(calc("1101.1", "101.01", "-", 2, "ones").text, "1000.01", "1's comp fraction");
+ok(availableMethods(2, "-", parseNum("11", 2), parseNum("1", 2)).map((m) => m.id).join() === "direct,decimal,ones,complement", "binary sub methods");
+eq(calcMulti(["1011", "110", "101"], 2).text, "10110", "multi 11+6+5");
+eq(calcMulti(["A", "B", "C", "D"], 16).text, "2E", "multi hex");
+eq(calcMulti(["1011", "-110", "-101"], 2).text, "0", "multi mixed → 0");
+eq(calcMulti(["101", "-1111", "11"], 2).text, "-111", "multi negative result");
+eq(calcMulti(["7", "7", "7", "7", "7"], 8).text, "43", "multi octal carry>1");
+ok(!calcMulti(["1", "12", "1"], 2).ok && calcMulti(["1", "12", "1"], 2).which === 1, "multi invalid operand index");
+for (let t = 0; t < 400; t++) {
+  const base = [2, 8, 10, 16][t % 4];
+  const k = 3 + (t % 5);
+  const rnd = () => {
+    const d = "0123456789ABCDEF".slice(0, base);
+    const L = (n) => Array.from({ length: n }, () => d[Math.floor(Math.random() * base)]).join("");
+    return (Math.random() < 0.35 ? "-" : "") + L(1 + Math.floor(Math.random() * 6)) + (Math.random() < 0.4 ? "." + L(1 + Math.floor(Math.random() * 3)) : "");
+  };
+  const raws = Array.from({ length: k }, rnd);
+  let tot = { n: 0n, d: 1n };
+  for (const x of raws) { const q = parseNum(x, base).rat; tot = { n: tot.n * q.d + q.n * tot.d, d: tot.d * q.d }; }
+  if (tot.d < 0n) tot = { n: -tot.n, d: -tot.d };
+  for (const m of ["direct", "decimal"]) {
+    if (m === "decimal" && base === 10) continue;
+    const r = calcMulti(raws, base, m, 8);
+    ok(r.ok, `multi ok ${raws} b${base} ${m}`);
+    if (r.ok) eq(r.text, showVal(ratToBase(tot, base, 400)), `multi ${raws.join(" + ")} b${base} [${m}]`);
   }
 }
 console.log(`\n${pass} passed, ${fail} failed`);

@@ -153,31 +153,45 @@ function decToBase(p, to, precision) {
   return { blocks, int: intStr, frac: fracStr, exact };
 }
 
-/* 2/8/16 -> ডেসিমাল */
+/* 2/8/16 -> ডেসিমাল: পূর্ণ অংশ ও ভগ্নাংশ অংশের আলাদা টেবিল */
 function baseToDec(p, from) {
   const blocks = [];
-  const digs = [];
-  const n = p.int.length;
-  for (let i = 0; i < n; i++) digs.push({ ch: p.int[i], pos: n - 1 - i });
-  for (let i = 0; i < p.frac.length; i++) digs.push({ ch: p.frac[i], pos: -(i + 1) });
   const B = BigInt(from);
-  const terms = [];
-  let total = rat(0n);
-  const rows = digs.map(({ ch, pos }) => {
-    const v = dv(ch);
-    const place = pos >= 0 ? rat(B ** BigInt(pos)) : rat(1n, B ** BigInt(-pos));
-    const prod = rat(BigInt(v) * place.n, place.d);
-    total = rAdd(total, prod);
-    const placeStr = showVal(ratToBase(place, 10, 40));
-    const prodStr = showVal(ratToBase(prod, 10, 40));
-    terms.push(`${dshow(ch, from)} × ${from}${sup(pos)}`);
-    return [dshow(ch, from), `${from}${sup(pos)}`, placeStr, prodStr];
-  });
-  blocks.push({ t: "p", text: `প্রতিটি অঙ্ককে তার **স্থানীয় মান** (${from}${sup("অবস্থান")}) দিয়ে গুণ করে যোগ করি। দশমিক বিন্দুর বামে অবস্থান 0, 1, 2 … এবং ডানে −1, −2 …` });
-  blocks.push({ t: "p", text: `${N(p.int + (p.frac ? "." + p.frac : ""), from)} = ${terms.join(" + ")}` });
-  blocks.push({ t: "table", head: ["অঙ্ক", "অবস্থান", "স্থানীয় মান", "গুণফল"], rows, hlCol: 3 });
+  const head = ["অঙ্ক", "অবস্থান", "স্থানীয় মান", "গুণফল"];
+  const part = (str, isInt) => {
+    let sub = rat(0n);
+    const terms = [], prods = [];
+    const rows = [...str].map((ch, i) => {
+      const pos = isInt ? str.length - 1 - i : -(i + 1);
+      const v = dv(ch);
+      const place = pos >= 0 ? rat(B ** BigInt(pos)) : rat(1n, B ** BigInt(-pos));
+      const prod = rat(BigInt(v) * place.n, place.d);
+      sub = rAdd(sub, prod);
+      const prodStr = showVal(ratToBase(prod, 10, 40));
+      terms.push(`${dshow(ch, from)} × ${from}${sup(pos)}`);
+      prods.push(prodStr);
+      return [dshow(ch, from), `${from}${sup(pos)}`, showVal(ratToBase(place, 10, 40)), prodStr];
+    });
+    return { rows, terms, prods, sub, text: showVal(ratToBase(sub, 10, 60)) };
+  };
+  blocks.push({ t: "p", text: `প্রতিটি অঙ্ককে তার **স্থানীয় মান** (${from}${sup("অবস্থান")}) দিয়ে গুণ করে যোগ করি। পূর্ণ অংশ ও ভগ্নাংশ অংশের হিসাব আলাদা টেবিলে করে শেষে দুটি যোগ করব। দশমিক বিন্দুর বামে অবস্থান 0, 1, 2 … এবং ডানে −1, −2 …` });
+  const I = part(p.int, true);
+  blocks.push({ t: "h", text: "পূর্ণ অংশ (দশমিক বিন্দুর আগে)" });
+  blocks.push({ t: "p", text: `${N(p.int, from)} = ${I.terms.join(" + ")}` });
+  blocks.push({ t: "table", head, rows: I.rows, hlCol: 3 });
+  blocks.push({ t: "p", text: `পূর্ণ অংশের যোগফল: ${I.prods.join(" + ")} = **${I.text}**` });
+  let total = I.sub;
+  if (p.frac) {
+    const F = part(p.frac, false);
+    blocks.push({ t: "h", text: "ভগ্নাংশ অংশ (দশমিক বিন্দুর পর)" });
+    blocks.push({ t: "p", text: `${N("0." + p.frac, from)} = ${F.terms.join(" + ")}` });
+    blocks.push({ t: "table", head, rows: F.rows, hlCol: 3 });
+    blocks.push({ t: "p", text: `ভগ্নাংশ অংশের যোগফল: ${F.prods.join(" + ")} = **${F.text}**` });
+    total = rAdd(total, F.sub);
+    blocks.push({ t: "h", text: "দুই অংশ যোগ" });
+    blocks.push({ t: "box", text: `${M(I.text)} + ${M(F.text)} = ${M(showVal(ratToBase(total, 10, 60)))}` });
+  }
   const res = ratToBase(total, 10, 60);
-  blocks.push({ t: "p", text: `সবগুলো গুণফল যোগ করে পাই: ${rows.map((r) => r[3]).join(" + ")} = **${showVal(res)}**` });
   return { blocks, int: res.int, frac: res.frac, exact: true };
 }
 
@@ -498,6 +512,151 @@ function twosComplementSub(A, B) {
   return { blocks, neg, int: trimInt(iS), frac: trimFrac(fS), exact: true };
 }
 
+/* বাইনারি বিয়োগ: 1-এর পরিপূরক (end-around carry) */
+function onesComplementSub(A, B) {
+  const blocks = [];
+  const [a, b, fi, ff] = align(A, B);
+  const da = a.int + a.frac, db = b.int + b.frac, n = da.length;
+  const flip = (x) => [...x].map((c) => (c === "0" ? "1" : "0")).join("");
+  const split = (x) => ({ int: x.slice(0, fi), frac: x.slice(fi) });
+  const show = (x) => x.slice(0, fi) + (ff ? "." + x.slice(fi) : "");
+  if (/^0*$/.test(db)) {
+    blocks.push({ t: "p", text: "B = 0, তাই A − 0 = A। (শূন্যের পরিপূরকের দরকার নেই।)" });
+    return { blocks, neg: false, int: trimInt(a.int), frac: trimFrac(a.frac), exact: true };
+  }
+  blocks.push({ t: "p", text: `বিয়োগ ${N(show(da), 2)} − ${N(show(db), 2)} কে যোগে বদলাই: **A − B = A + (B এর 1-এর পরিপূরক)**। দুই সংখ্যার ঘরসংখ্যা সমান করে নিয়েছি (মোট ${n} বিট)।` });
+  const ones = flip(db);
+  blocks.push({ t: "h", text: "ধাপ 1: B এর 1-এর পরিপূরক (0 কে 1, 1 কে 0)" });
+  blocks.push({ t: "box", text: `${M(db)} → ${M(ones)}` });
+  const sum = addCols(split(da), split(ones), 2);
+  blocks.push({ t: "h", text: "ধাপ 2: A এর সাথে B এর 1-এর পরিপূরক যোগ করি" });
+  blocks.push(sum.grid);
+  let neg = false, rd = sum.digits;
+  if (sum.cout) {
+    const one = "0".repeat(n - 1) + "1";
+    const ar = addCols(split(sum.digits), split(one), 2);
+    blocks.push({ t: "p", text: "সবচেয়ে বামে **ক্যারি 1** এসেছে। নিয়ম: ক্যারি এলে তা ফেলে দিয়ে সবচেয়ে ডানের বিটে যোগ করি (এটিকে **end-around carry** বলে)। ফল **ধনাত্মক**।" });
+    blocks.push({ t: "h", text: "ধাপ 3: end-around carry যোগ করি" });
+    blocks.push(ar.grid);
+    rd = ar.digits;
+  } else {
+    neg = true;
+    const back = flip(rd);
+    blocks.push({ t: "p", text: "বামে **ক্যারি আসেনি**। নিয়ম: ক্যারি না এলে ফল **ঋণাত্মক**। তখন যোগফলের আবার 1-এর পরিপূরক নিলেই মান পাই।" });
+    blocks.push({ t: "box", text: `${M(rd)} এর 1-এর পরিপূরক = ${M(back)}` });
+    rd = back;
+  }
+  return { blocks, neg, int: trimInt(rd.slice(0, fi)), frac: trimFrac(rd.slice(fi)), exact: true };
+}
+
+/* দুইয়ের বেশি অঋণাত্মক সংখ্যার যোগ (কলাম পদ্ধতি; ক্যারি 1-এর বেশিও হতে পারে) */
+function addColsMany(list, base) {
+  const fi = Math.max(...list.map((x) => x.int.length)), ff = Math.max(...list.map((x) => x.frac.length));
+  const rows = list.map((x) => x.int.padStart(fi, "0") + x.frac.padEnd(ff, "0"));
+  const n = fi + ff;
+  const res = Array(n), cin = Array(n).fill(0), lines = [];
+  let c = 0, step = 0;
+  for (let i = n - 1; i >= 0; i--) {
+    if (ff > 0 && i === fi - 1) lines.push("দশমিক বিন্দু (.) এর বাঁয়ের কলামে যাওয়ার আগে ফলেও দশমিক বিন্দু বসালাম।");
+    cin[i] = c;
+    const vals = rows.map((r) => dv(r[i]));
+    const s = vals.reduce((x, y) => x + y, 0) + c;
+    const q = Math.floor(s / base), r = s % base;
+    res[i] = dl(r);
+    lines.push(`কলাম ${++step}: ${vals.map((v, k) => dshow(dl(v), base)).join(" + ")}${c ? " + ক্যারি " + c : ""} = ${s}${q > 0 ? ` = ${q}×${base} + ${r} → লিখি **${dl(r)}**, ক্যারি **${q}**` : ` < ${base}, তাই লিখি **${dl(r)}**, ক্যারি **0**`}`);
+    c = q;
+  }
+  const lead = c > 0 ? bigStr(BigInt(c), base) : "";
+  if (c > 0) lines.push(`সবশেষে বাকি ক্যারি ${c} কে বামে নামিয়ে লিখি **${lead}**।`);
+  const digits = res.join("");
+  const grid = { t: "cols", rows: [
+    { kind: "carry", label: "ক্যারি", cells: cellsOf(cin.map((v) => (v ? String(v) : "")), fi, ff) },
+    ...rows.map((r, k) => ({ kind: "num", label: k === 0 ? "" : "+", cells: cellsOf(r, fi, ff) })),
+    { kind: "sep" },
+    { kind: "res", label: "", cells: cellsOf(digits, fi, ff, lead) },
+  ] };
+  const intS = lead + digits.slice(0, fi);
+  return { int: trimInt(intS), frac: trimFrac(digits.slice(fi)), lines, grid };
+}
+
+export const MAX_OPERANDS = 10;
+const ORD = ["প্রথম", "দ্বিতীয়", "তৃতীয়", "চতুর্থ", "পঞ্চম", "ষষ্ঠ", "সপ্তম", "অষ্টম", "নবম", "দশম"];
+export const ordinal = (i) => ORD[i] || `${toBnDigits(i + 1)}তম`;
+
+/* অনেকগুলো সংখ্যার যোগ: raws = ["1011", "110", "-101", ...] (একই ভিত্তিতে) */
+export function calcMulti(raws, base, method = "direct", precision = 8) {
+  const P = [];
+  for (let i = 0; i < raws.length; i++) {
+    const x = parseNum(raws[i], base);
+    if (!x.ok) return { ok: false, which: i, msg: x.msg, empty: x.empty };
+    P.push(x);
+  }
+  const r = P.reduce((acc, x) => rAdd(acc, x.rat), rat(0n));
+  const mag = (x) => ({ int: x.int, frac: x.frac });
+  const txt = (x) => `${x.neg ? "−" : ""}${x.int}${x.frac ? "." + x.frac : ""}`;
+  const plain = (x) => x.int + (x.frac ? "." + x.frac : "");
+  const sTxt = P.map(txt);
+  const blocks = [];
+  let out;
+  if (method === "decimal" && base !== 10) {
+    blocks.push({ t: "p", text: `ধাপে ধাপে: (1) প্রতিটি সংখ্যাকে ডেসিমালে বদলাই, (2) ডেসিমালে সবগুলো যোগ করি, (3) ফলকে আবার ${BASE_NAME[base]}-এ বদলাই।` });
+    blocks.push({ t: "h", text: "ধাপ 1: ডেসিমালে রূপান্তর" });
+    const cs = raws.map((x) => convert(x, base, 10));
+    cs.forEach((c, i) => blocks.push({ t: "detail", title: `${N(sTxt[i], base)} কে ডেসিমালে: = ${M(c.text)}`, blocks: c.blocks }));
+    blocks.push({ t: "h", text: "ধাপ 2: ডেসিমালে যোগ" });
+    const fk = P.reduce((m, x) => Math.max(m, x.frac.length), 0);
+    const dres = ratToBase(r, 10, Math.max(precision + 8, 4 * fk + 4));
+    const dText = showVal(dres);
+    blocks.push({ t: "box", text: `${cs.map((c) => M(c.text)).join(" + ")} = ${M(dText)}` });
+    blocks.push({ t: "h", text: `ধাপ 3: ফলকে ${BASE_NAME[base]}-এ রূপান্তর` });
+    const cr = convert(dText, 10, base, Math.max(precision, fk + 1));
+    blocks.push({ t: "detail", title: `${M(dText)} কে ${BASE_NAME[base]}-এ রূপান্তর`, blocks: cr.blocks, open: true });
+    out = { neg: cr.value.neg, int: cr.value.int, frac: cr.value.frac, exact: cr.value.exact };
+  } else {
+    const pos = P.filter((x) => !x.neg), neg = P.filter((x) => x.neg);
+    const group = (list, title) => {
+      if (list.length === 1) return { int: list[0].int, frac: list[0].frac };
+      const g = addColsMany(list.map(mag), base);
+      blocks.push({ t: "h", text: title });
+      blocks.push(g.grid);
+      blocks.push({ t: "detail", title: "কলাম ধরে ধাপে-ধাপে হিসাব (ডান থেকে বামে)", blocks: [{ t: "p", text: "মাঝের যোগফলগুলো ডেসিমালে লেখা হয়েছে; ক্যারি ঘরেও ডেসিমাল সংখ্যা বসেছে।" }, { t: "list", items: g.lines }], open: list === pos || !pos.length });
+      return { int: g.int, frac: g.frac };
+    };
+    if (!neg.length) {
+      blocks.push({ t: "p", text: `সবগুলো সংখ্যা ধনাত্মক (বা 0), তাই ${P.length}টি সংখ্যা একসাথে কলাম ধরে যোগ করি। প্রতি কলামে সবগুলো অঙ্ক ও আগের ক্যারি যোগ হয়।` });
+      out = { neg: false, ...group(pos, "যোগ") };
+    } else if (!pos.length) {
+      blocks.push({ t: "p", text: `সবগুলো সংখ্যা ঋণাত্মক, তাই চিহ্ন ছাড়া মানগুলো যোগ করি এবং ফলের আগে (−) বসাই।` });
+      out = { neg: true, ...group(neg, "মানগুলোর যোগ") };
+    } else {
+      blocks.push({ t: "p", text: "কিছু সংখ্যা ধনাত্মক, কিছু ঋণাত্মক। তাই (1) ধনাত্মকগুলো একসাথে যোগ করি, (2) ঋণাত্মকগুলোর মান একসাথে যোগ করি, (3) বড় মান থেকে ছোট মান বিয়োগ করে বড়টির চিহ্ন বসাই।" });
+      const sp = group(pos, `ধাপ 1: ধনাত্মক সংখ্যাগুলোর যোগফল`);
+      if (pos.length === 1) blocks.push({ t: "h", text: "ধাপ 1: ধনাত্মক সংখ্যা" }, { t: "box", text: `${N(plain(sp), base)}` });
+      const sn = group(neg, `ধাপ 2: ঋণাত্মক সংখ্যাগুলোর মানের যোগফল`);
+      if (neg.length === 1) blocks.push({ t: "h", text: "ধাপ 2: ঋণাত্মক সংখ্যা (মান)" }, { t: "box", text: `${N(plain(sn), base)}` });
+      const pr = parseNum(plain(sp), base).rat, nr = parseNum(plain(sn), base).rat;
+      const c = rCmpAbs(pr, nr);
+      blocks.push({ t: "h", text: "ধাপ 3: বড় মান − ছোট মান" });
+      if (c === 0) { blocks.push({ t: "p", text: "দুই মান সমান, তাই ফল 0।" }); out = { neg: false, int: "0", frac: "" }; }
+      else {
+        const big_ = c > 0 ? sp : sn, small = c > 0 ? sn : sp;
+        blocks.push({ t: "p", text: `বড় মান ${N(plain(big_), base)} (${c > 0 ? "ধনাত্মক দলের" : "ঋণাত্মক দলের"}), ছোট মান ${N(plain(small), base)}। ফলের চিহ্ন বড় মানের দলের চিহ্ন।` });
+        const d = subCols(big_, small, base);
+        blocks.push(d.grid);
+        blocks.push({ t: "detail", title: "কলাম ধরে ধাপে-ধাপে হিসাব (ডান থেকে বামে)", blocks: [{ t: "p", text: "মাঝের সংখ্যাগুলো ডেসিমালে লেখা হয়েছে।" }, { t: "list", items: d.lines }] });
+        out = { neg: c < 0, int: d.int, frac: d.frac };
+      }
+    }
+    out.exact = true;
+  }
+  const isZero = out.int === "0" && !out.frac;
+  out.neg = out.neg && !isZero;
+  const resultText = showVal(out);
+  blocks.push({ t: "box", text: `${sTxt.map((x, i) => (i === 0 ? N(x, base) : x.startsWith("−") ? `+ (${N(x, base)})` : `+ ${N(x, base)}`)).join(" ")} = ${out.neg ? "−" : ""}${N(join(false, out.int, out.frac), base)}` });
+  const all = BASES.map((b) => ({ base: b, ...ratToBase(r, b, precision) }));
+  return { ok: true, value: out, text: resultText, blocks, all, rat: r };
+}
+
 /* ===========================================================================
    calc: A (op) B  একই ভিত্তিতে
    =========================================================================== */
@@ -511,7 +670,7 @@ export const OPS = {
 export function availableMethods(base, op, a, b) {
   const m = [{ id: "direct", label: "সরাসরি পদ্ধতি" }];
   if (base !== 10) m.push({ id: "decimal", label: "ডেসিমালে রূপান্তর করে" });
-  if (base === 2 && op === "-" && a?.ok && b?.ok && !a.neg && !b.neg) m.push({ id: "complement", label: "2-এর পরিপূরক" });
+  if (base === 2 && op === "-" && a?.ok && b?.ok && !a.neg && !b.neg) m.push({ id: "ones", label: "1-এর পরিপূরক" }, { id: "complement", label: "2-এর পরিপূরক" });
   return m;
 }
 
@@ -551,6 +710,10 @@ export function calc(aRaw, bRaw, op, base, method = "direct", precision = 8) {
     const cr = convert(dText, 10, base, op === "/" ? precision : Math.max(precision, fk + 1));
     blocks.push({ t: "detail", title: `${M(dText)} কে ${BASE_NAME[base]}-এ রূপান্তর`, blocks: cr.blocks, open: true });
     out = { neg: cr.value.neg, int: cr.value.int, frac: cr.value.frac, exact: cr.value.exact && dres.exact };
+  } else if (method === "ones" && base === 2 && op === "-" && !A.neg && !B.neg) {
+    const t = onesComplementSub(A, B);
+    blocks.push(...t.blocks);
+    out = { neg: t.neg && !(t.int === "0" && !t.frac), int: t.int, frac: t.frac, exact: true };
   } else if (method === "complement" && base === 2 && op === "-" && !A.neg && !B.neg) {
     const t = twosComplementSub(A, B);
     blocks.push(...t.blocks);

@@ -46,7 +46,7 @@ export function BaseTabs({ value, onChange, label, id }) {
 }
 
 /* সংখ্যা লেখার ঘর: ভুল অঙ্ক দিলে বাংলায় কারণ বলে; নিচে ট্যাপ করার মতো অঙ্ক-বোতাম */
-export function NumberField({ label, base, value, onChange, error, id, placeholder, chips = true }) {
+export function NumberField({ label, base, value, onChange, error, id, placeholder, chips = true, onFocus, action }) {
   const fmt = useFmt();
   const uid = useId();
   const fid = id || uid;
@@ -56,9 +56,12 @@ export function NumberField({ label, base, value, onChange, error, id, placehold
   const ph = placeholder ?? (base === 2 ? "1010.11" : base === 8 ? "725.4" : base === 10 ? "25.625" : "3A.8");
   return (
     <div>
-      <label htmlFor={fid} className="mb-2 block text-sm font-semibold text-ink/60">{label}</label>
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <label htmlFor={fid} className="block text-sm font-semibold text-ink/60">{label}</label>
+        {action}
+      </div>
       <div className={`flex items-center gap-2 rounded-2xl bg-surface px-4 ring-1 transition focus-within:ring-2 ${error ? "ring-rose-500/60 focus-within:ring-rose-500" : "ring-ink/10 focus-within:ring-violet-500/70"}`}>
-        <input id={fid} value={value} onChange={(e) => onChange(e.target.value)} placeholder={fmt(ph)} inputMode="text" autoCapitalize="characters" autoCorrect="off" autoComplete="off" spellCheck={false}
+        <input id={fid} value={value} onChange={(e) => onChange(e.target.value)} onFocus={onFocus} placeholder={fmt(ph)} inputMode="text" autoCapitalize="characters" autoCorrect="off" autoComplete="off" spellCheck={false}
           aria-invalid={!!error} aria-describedby={error ? `${fid}-err` : undefined}
           className="num min-w-0 flex-1 bg-transparent py-3.5 text-2xl font-semibold outline-none placeholder:text-ink/25" />
         <span className={`num shrink-0 rounded-lg px-2 py-1 text-sm font-bold ${CLR[base].bg} ${CLR[base].text}`}>({fmt(base)})</span>

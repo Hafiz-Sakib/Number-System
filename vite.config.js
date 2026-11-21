@@ -17,7 +17,7 @@ export default defineConfig({
       injectRegister: "auto",
       includeAssets: ["favicon.ico", "favicon.svg", "favicon-16.png", "favicon-32.png", "apple-touch-icon.png"],
       manifest: {
-        name: "সংখ্যা পদ্ধতি - এইচএসসি আইসিটি",
+        name: "সংখ্যা পদ্ধতি",
         short_name: "সংখ্যা পদ্ধতি",
         description: "বাইনারি, অক্টাল, ডেসিমাল ও হেক্সাডেসিমাল: রূপান্তর এবং যোগ-বিয়োগ-গুণ-ভাগ, ধাপে ধাপে বাংলা ব্যাখ্যাসহ।",
         lang: "bn",
