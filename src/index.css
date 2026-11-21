@@ -1,0 +1,67 @@
+@tailwind base; @tailwind components; @tailwind utilities;
+
+/* ---------- রঙের টোকেন (Tailwind opacity-এর জন্য space-separated RGB) ---------- */
+:root {
+  color-scheme: light;
+  --ink: 20 21 26;
+  --mist: 243 244 247;
+  --surface: 255 255 255;
+  --paper: 255 255 255;
+  --lilac: 231 227 255; --mint: 218 243 228; --peach: 255 229 211; --sky: 217 236 255; --lemon: 255 243 196;
+  --glare: .55;
+  --card-edge: transparent;
+  --card-shadow: 0 1px 2px rgba(20,21,26,.04), 0 12px 40px -12px rgba(20,21,26,.12);
+}
+:root.dark {
+  color-scheme: dark;
+  --ink: 232 233 244;
+  --mist: 14 15 26;
+  --surface: 22 24 40;
+  --paper: 14 15 26;
+  --lilac: 49 43 98; --mint: 21 62 49; --peach: 74 46 30; --sky: 24 59 92; --lemon: 68 59 22;
+  --glare: .12;
+  --card-edge: rgba(255,255,255,.07);
+  --card-shadow: 0 1px 2px rgba(0,0,0,.4), 0 18px 48px -16px rgba(0,0,0,.65);
+}
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body { @apply bg-mist text-ink font-body antialiased; line-height: 1.6; padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+h1,h2,h3,h4 { @apply font-display tracking-tight; line-height: 1.25; }
+.card { @apply bg-surface rounded-3xl; box-shadow: 0 0 0 1px var(--card-edge), var(--card-shadow); }
+:focus-visible { outline: 2px solid rgb(var(--ink)); outline-offset: 3px; border-radius: 12px; }
+.num { font-family: "JetBrains Mono Variable", "JetBrains Mono", "Anek Bangla Variable", monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+::selection { background: rgb(124 108 246 / .3); }
+button { -webkit-tap-highlight-color: transparent; }
+
+:root.dark body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(60rem 38rem at 12% -8%, rgba(124,108,246,.16), transparent 60%),
+    radial-gradient(48rem 32rem at 100% 105%, rgba(56,189,248,.08), transparent 60%);
+}
+
+/* ---------- দিন / রাত বদলের অ্যানিমেশন (বোতাম থেকে বৃত্ত ছড়ায়) ---------- */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 2; }
+:root[data-theme-switch]::view-transition-old(root) { z-index: 2; }
+:root[data-theme-switch]::view-transition-new(root) { z-index: 1; }
+@property --vt-r { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@keyframes vt-hole { from { --vt-r: 0px; } to { --vt-r: var(--vt-reach); } }
+:root[data-theme-switch="to-dark"]::view-transition-old(root) {
+  -webkit-mask-image: radial-gradient(circle at var(--vt-x) var(--vt-y), transparent var(--vt-r), #000 calc(var(--vt-r) + 1.5px));
+  mask-image: radial-gradient(circle at var(--vt-x) var(--vt-y), transparent var(--vt-r), #000 calc(var(--vt-r) + 1.5px));
+  animation: vt-hole var(--vt-ms) var(--vt-ease) both;
+}
+@keyframes vt-close {
+  from { clip-path: circle(var(--vt-reach) at var(--vt-x) var(--vt-y)); }
+  to   { clip-path: circle(0px at var(--vt-x) var(--vt-y)); }
+}
+:root[data-theme-switch="to-light"]::view-transition-old(root) { animation: vt-close var(--vt-ms) var(--vt-ease) both; }
+.theme-fade, .theme-fade *, .theme-fade *::before, .theme-fade *::after {
+  transition: background-color 1s ease, color 1s ease, border-color 1s ease, fill 1s ease, stroke 1s ease, box-shadow 1s ease !important;
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* ইনপুটের চারপাশে আলাদা রিং আছে, তাই ডিফল্ট আউটলাইন দরকার নেই */
+input:focus-visible { outline: none; }
