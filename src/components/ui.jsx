@@ -110,9 +110,9 @@ export function Reveal({ children, className = "", delay = 0, y = 28, as = "div"
 
 export function SectionTitle({ title, sub, className = "" }) {
   return (
-    <div className={`mb-6 max-w-2xl sm:mb-8 ${className}`}>
-      <BlurText as="h1" text={title} className="text-4xl font-extrabold sm:text-5xl" />
-      {sub && <Reveal y={14} delay={0.2}><p className="mt-3 text-lg text-ink/60">{sub}</p></Reveal>}
+    <div className={`mb-4 max-w-2xl sm:mb-8 ${className}`}>
+      <BlurText as="h1" text={title} className="text-3xl font-extrabold sm:text-5xl" />
+      {sub && <Reveal y={14} delay={0.2}><p className="mt-3 hidden text-lg text-ink/60 sm:block">{sub}</p></Reveal>}
     </div>
   );
 }

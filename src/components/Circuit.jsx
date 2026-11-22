@@ -152,7 +152,7 @@ export function Circuit({ net, state, onToggle, label = "লজিক সার�
   const off = wires.filter((w) => !vals[w.src]);
   const on = wires.filter((w) => vals[w.src]);
   return (
-    <svg viewBox={`0 0 ${net.w} ${net.h}`} width={net.w} height={net.h} role="group" aria-label={label} className="mx-auto block h-auto w-full min-w-[var(--mw)] text-ink sm:min-w-[min(var(--mw),380px)]" style={{ "--mw": Math.min(net.w, 540) + "px", maxWidth: Math.round(net.w * 1.45) }}>
+    <svg viewBox={`0 0 ${net.w} ${net.h}`} width={net.w} height={net.h} role="group" aria-label={label} className="mx-auto block h-auto w-full min-w-[var(--mw)] max-w-[var(--mx)] text-ink sm:min-w-[min(var(--mw),380px)] lg:max-w-[var(--mxl)] 2xl:max-w-[var(--mxx)]" style={{ "--mw": Math.round(Math.min(net.w * 0.58, 430)) + "px", "--mx": Math.round(net.w * 1.45) + "px", "--mxl": Math.round(net.w * 2.1) + "px", "--mxx": Math.round(net.w * 2.5) + "px" }}>
       {off.map((w) => <path key={`o${w.k}`} d={w.d} className="sw wire-off" />)}
       {on.map((w) => <path key={`n${w.k}`} d={w.d} className="sw wire-on" />)}
       {on.map((w) => <path key={`f${w.k}`} d={w.d} className="flow" />)}
@@ -217,7 +217,7 @@ export function Lab({ net, table, radio = false, init, className = "", hideTable
   const active = tbl.rows.findIndex((r) => r.in.every((b, i) => b === st[ids[i]]));
   return (
     <div className={className}>
-      <div className="board overflow-x-auto no-sb rounded-2xl p-2 ring-1 ring-ink/10 sm:p-3">
+      <div className="board overflow-x-auto no-sb rounded-2xl p-2 ring-1 ring-ink/10 sm:p-3 lg:p-5">
         <Circuit net={net} state={st} onToggle={toggle} />
       </div>
       <p className="mt-2 text-center text-xs text-ink/45">সুইচে চাপ দিয়ে ইনপুট বদলান; সবুজ তারে সিগন্যাল 1 চলছে।</p>

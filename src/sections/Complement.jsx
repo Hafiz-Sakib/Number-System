@@ -5,7 +5,7 @@ import { useFmt } from "../lib/settings";
 import { navigate } from "../lib/router";
 import { Blocks, Detail, Rich } from "../components/Steps";
 import { SectionTitle, Reveal } from "../components/ui";
-import { NumberField, PillChoice } from "../components/controls";
+import { MobileResultBar, NumberField, PillChoice } from "../components/controls";
 
 const dot = (i, f) => (f ? `${i}.${f}` : i);
 const EX_LIVE = ["1011.01", "0110.1", "10100", "1101.101", "0.011"];
@@ -21,9 +21,9 @@ const EX_SOLVED = [
 const Tile = ({ label, value, bg }) => {
   const fmt = useFmt();
   return (
-    <div className={`min-w-0 rounded-2xl px-4 py-3 ring-1 ring-ink/[.06] ${bg}`}>
+    <div className={`min-w-0 rounded-2xl px-3 py-2.5 ring-1 ring-ink/[.06] sm:px-4 sm:py-3 ${bg}`}>
       <p className="text-sm font-semibold text-ink/60">{label}</p>
-      <p className="num mt-0.5 break-all text-2xl font-extrabold sm:text-3xl">{fmt(value)}<sub className="text-sm font-bold">{fmt(2)}</sub></p>
+      <p className="num mt-0.5 break-all text-xl font-extrabold sm:text-3xl">{fmt(value)}<sub className="text-sm font-bold">{fmt(2)}</sub></p>
     </div>
   );
 };
@@ -40,17 +40,17 @@ function addCols(a, b) {
 }
 const sumBlock = (la, a, lb, b) => { const r = addCols(a, b); return { t: "cols", rows: [r.carry, row(la, a), row(lb, b), { kind: "sep" }, row("", r.res, "res")] }; };
 const WHY = [
-  { t: "সমস্যাটা কী?", p: "কম্পিউটারে আছে শুধু 0 আর 1। খাতায় যেমন সংখ্যার আগে (−) লিখি, সার্কিটে তেমন চিহ্ন বসানোর জায়গা নেই। তাহলে ঋণাত্মক সংখ্যা লিখব কীভাবে? আর বিয়োগের জন্য আলাদা সার্কিট না বানিয়ে যোগের সার্কিটেই কি বিয়োগ চালানো যায়?" },
-  { t: "ঋণাত্মক সংখ্যা আসলে কী?", p: "যে সংখ্যা যোগ করলে ফল **শূন্য** হয়, সেটিই ওই সংখ্যার ঋণাত্মক রূপ। যেমন 5 + (−5) = 0। বাইনারিতেও আমরা এমন একটি সংখ্যা খুঁজব।" },
+  { t: "সমস্যাটা কী?", p: "কম্পিউটারে আছে শুধু 0 আর 1। খাতায় যেমন সংখ্যার আগে (−) লিখি, সার্কিটে তেমন চিহ্ন বসানোর জায়গা নেই। তাহলে Negative সংখ্যা লিখব কীভাবে? আর বিয়োগের জন্য আলাদা সার্কিট না বানিয়ে যোগের সার্কিটেই কি বিয়োগ চালানো যায়?" },
+  { t: "Negative সংখ্যা আসলে কী?", p: "যে সংখ্যা যোগ করলে ফল **শূন্য** হয়, সেটিই ওই সংখ্যার Negative রূপ। যেমন 5 + (−5) = 0। বাইনারিতেও আমরা এমন একটি সংখ্যা খুঁজব।" },
   { t: "1-এর পরিপূরক দিয়ে শুরু", p: "8 বিটের সংখ্যা {{10110011|2}} ধরি। প্রতিটি বিট উল্টালে পাই {{01001100|2}}। দুটি যোগ করলে সবগুলো বিট 1 হয়, মানে 8 বিটের সবচেয়ে বড় সংখ্যা।",
     blocks: [{ t: "cols", rows: [row("মূল", "10110011"), row("1's", "01001100"), { kind: "sep" }, row("যোগ", "11111111", "res")] }] },
   { t: "আর 1 যোগ করলেই শূন্য", p: "{{11111111|2}} এর সাথে 1 যোগ করলে 9 বিটের {{100000000|2}} হয়। আমরা 8 বিটেই থাকতে চাই, তাই বাড়তি 9ম বিটটি ফেলে দিই। থাকে {{00000000|2}} = শূন্য।",
     blocks: [sumBlock("", "11111111", "+", "00000001"), { t: "warn", text: "সবচেয়ে বামে যে বাড়তি 1 (9ম বিট) এসেছে সেটি ফেলে দিই; থাকে {{00000000|2}}।" }] },
-  { t: "তাহলে নিয়মটা দাঁড়াল", p: "বিট উল্টে (1's) তার সাথে 1 যোগ করলে ঋণাত্মক রূপ পাই। এটাই **2-এর পরিপূরক**। দুইবার করলে মূল সংখ্যায় ফিরে আসে: {{10110011|2}} → {{01001101|2}} → {{10110011|2}}।" },
-  { t: "কোনটি ধনাত্মক, কোনটি ঋণাত্মক?", p: "4 বিটে {{1001|2}} আর {{0111|2}} একে অপরের 2's, কিন্তু কোনটি +7 আর কোনটি −7? এর জন্য নিয়ম: সবচেয়ে বামের বিট (MSB) **0** হলে সংখ্যা ধনাত্মক, **1** হলে ঋণাত্মক। তাই {{0111|2}} = +7 এবং {{1001|2}} = −7।" },
+  { t: "তাহলে নিয়মটা দাঁড়াল", p: "বিট উল্টে (1's) তার সাথে 1 যোগ করলে Negative রূপ পাই। এটাই **2-এর পরিপূরক**। দুইবার করলে মূল সংখ্যায় ফিরে আসে: {{10110011|2}} → {{01001101|2}} → {{10110011|2}}।" },
+  { t: "কোনটি Positive, কোনটি Negative?", p: "4 বিটে {{1001|2}} আর {{0111|2}} একে অপরের 2's, কিন্তু কোনটি +7 আর কোনটি −7? এর জন্য নিয়ম: সবচেয়ে বামের বিট (MSB) **0** হলে সংখ্যা Positive, **1** হলে Negative। তাই {{0111|2}} = +7 এবং {{1001|2}} = −7।" },
   { t: "আসল লাভ: বিয়োগ হয়ে গেল যোগ", p: "A − B = A + (B-এর 2's)। তাই বিয়োগের জন্য আলাদা সার্কিট লাগে না। 50 − 25 করে দেখি: 25 এর 2's হলো {{11100111|2}}, এটি 50 এর সাথে যোগ করি।",
-    blocks: [sumBlock("+50", "00110010", "−25", "11100111"), { t: "p", text: "যোগফল {{100011001|2}}; বাড়তি 9ম বিট ফেলে দিই। ফল {{00011001|2}}, MSB 0 (ধনাত্মক) এবং মান 25 ✓" }] },
-  { t: "ফল ঋণাত্মক এলে?", p: "এবার 25 − 50। 50 এর 2's হলো {{11001110|2}}। যোগ করলে {{11100111|2}}, MSB **1** মানে ঋণাত্মক। আবার 2's নিলে {{00011001|2}} = 25, তাই উত্তর **−25** ✓",
+    blocks: [sumBlock("+50", "00110010", "−25", "11100111"), { t: "p", text: "যোগফল {{100011001|2}}; বাড়তি 9ম বিট ফেলে দিই। ফল {{00011001|2}}, MSB 0 (Positive) এবং মান 25 ✓" }] },
+  { t: "ফল Negative এলে?", p: "এবার 25 − 50। 50 এর 2's হলো {{11001110|2}}। যোগ করলে {{11100111|2}}, MSB **1** মানে Negative। আবার 2's নিলে {{00011001|2}} = 25, তাই উত্তর **−25** ✓",
     blocks: [sumBlock("+25", "00011001", "−50", "11001110")] },
 ];
 
@@ -82,25 +82,26 @@ function Live() {
   const p = useMemo(() => parseBits(v), [v]);
   const d = useMemo(() => (p.ok ? { c: complements(p.int, p.frac), blocks: complementBlocks(p.int, p.frac) } : null), [p]);
   return (
-    <div className="card p-5 sm:p-7">
+    <div className="card p-4 sm:p-7">
       <h2 className="text-2xl font-extrabold">নিজে করে দেখুন</h2>
-      <p className="mt-1 text-ink/55">যেকোনো বাইনারি সংখ্যা (দশমিক বিন্দুসহ) দিন, ধাপে ধাপে সমাধান পাবেন।</p>
-      <div className="mt-4">
+      <p className="mt-1 hidden text-ink/55 sm:block">যেকোনো বাইনারি সংখ্যা (দশমিক বিন্দুসহ) দিন, ধাপে ধাপে সমাধান পাবেন।</p>
+      <div className="mt-3 sm:mt-4">
         <NumberField label="বাইনারি সংখ্যা" base={2} value={v} onChange={setV} error={p.ok || p.empty ? null : p.msg} id="comp-in" />
       </div>
-      <div className="mt-3 flex flex-wrap items-center gap-1.5 text-sm">
-        <span className="text-ink/50">উদাহরণ:</span>
-        {EX_LIVE.map((e) => <button key={e} type="button" onClick={() => setV(e)} className="num rounded-full bg-ink/[.06] px-3 py-1.5 font-semibold transition hover:bg-ink/[.12] active:scale-95">{e}</button>)}
+      <div className="-mx-4 mt-3 flex items-center gap-1.5 overflow-x-auto px-4 pb-1 text-sm sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
+        <span className="shrink-0 text-ink/50">উদাহরণ:</span>
+        {EX_LIVE.map((e) => <button key={e} type="button" onClick={() => setV(e)} className="num shrink-0 rounded-full bg-ink/[.06] px-3 py-1.5 font-semibold transition hover:bg-ink/[.12] active:scale-95">{e}</button>)}
       </div>
       {d && (
-        <div className="mt-5">
-          <div className="grid gap-3 sm:grid-cols-2">
+        <div className="mt-4 sm:mt-5">
+          <div id="comp-result" className="grid scroll-mt-20 grid-cols-2 gap-2 sm:gap-3">
             <Tile label="1-এর পরিপূরক" value={dot(d.c.ones.int, d.c.ones.frac)} bg="bg-lilac" />
             <Tile label="2-এর পরিপূরক" value={dot(d.c.twos.int, d.c.twos.frac)} bg="bg-mint" />
           </div>
           <Detail title="ধাপে ধাপে সমাধান দেখুন" blocks={d.blocks} open />
         </div>
       )}
+      {d && <MobileResultBar targetId="comp-result" items={[{ label: "1-এর পরিপূরক", value: dot(d.c.ones.int, d.c.ones.frac), base: 2 }, { label: "2-এর পরিপূরক", value: dot(d.c.twos.int, d.c.twos.frac), base: 2 }]} />}
     </div>
   );
 }
@@ -167,7 +168,7 @@ function Signed() {
     <Reveal y={16}>
       <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-5 lg:grid-cols-2">
         <div className="card p-5 sm:p-7">
-          <h2 className="text-2xl font-extrabold">ঋণাত্মক সংখ্যা বাইনারিতে</h2>
+          <h2 className="text-2xl font-extrabold">Negative সংখ্যা বাইনারিতে</h2>
           <p className="mt-1 text-ink/55">ডেসিমাল পূর্ণসংখ্যাকে n বিটের সাইন-ম্যাগনিটিউড, 1's ও 2's রূপে লিখুন।</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
             <div>
@@ -193,8 +194,8 @@ function Signed() {
         </div>
         <div className="card p-5 sm:p-7">
           <h2 className="text-2xl font-extrabold">4 বিটের সব প্যাটার্ন</h2>
-          <p className="mt-1 text-ink/55">একই বিট প্যাটার্ন তিন পদ্ধতিতে কোন মান বোঝায়। সবচেয়ে বামের বিট হলো সাইন বিট (0 = ধনাত্মক, 1 = ঋণাত্মক)।</p>
-          <Blocks nested blocks={[{ t: "table", head: ["বিট", "সাইন-ম্যাগ.", "1's", "2's"], rows, hlCol: 3, note: "সাইন-ম্যাগনিটিউড ও 1's এ দুটি শূন্য (+0, −0) থাকে; 2's এ শূন্য একটিই, আর একটি বাড়তি ঋণাত্মক মান (−8) পাওয়া যায়।" }]} />
+          <p className="mt-1 text-ink/55">একই বিট প্যাটার্ন তিন পদ্ধতিতে কোন মান বোঝায়। সবচেয়ে বামের বিট হলো সাইন বিট (0 = Positive, 1 = Negative)।</p>
+          <Blocks nested blocks={[{ t: "table", head: ["বিট", "সাইন-ম্যাগ.", "1's", "2's"], rows, hlCol: 3, note: "সাইন-ম্যাগনিটিউড ও 1's এ দুটি শূন্য (+0, −0) থাকে; 2's এ শূন্য একটিই, আর একটি বাড়তি Negative মান (−8) পাওয়া যায়।" }]} />
         </div>
       </div>
     </Reveal>
@@ -203,8 +204,8 @@ function Signed() {
 
 function Subtract() {
   const ex = useMemo(() => [
-    { a: "1101.1", b: "101.01", title: "{{1101.1|2}} − {{101.01|2}} (ফল ধনাত্মক)" },
-    { a: "101.01", b: "1101.1", title: "{{101.01|2}} − {{1101.1|2}} (ফল ঋণাত্মক)" },
+    { a: "1101.1", b: "101.01", title: "{{1101.1|2}} − {{101.01|2}} (ফল Positive)" },
+    { a: "101.01", b: "1101.1", title: "{{101.01|2}} − {{1101.1|2}} (ফল Negative)" },
   ].map((e) => ({ ...e, ones: calc(e.a, e.b, "-", 2, "ones"), twos: calc(e.a, e.b, "-", 2, "complement") })), []);
   return (
     <Reveal y={16}>
@@ -216,8 +217,8 @@ function Subtract() {
             <ol className="mt-2 space-y-1.5 text-[15px] leading-relaxed text-ink/80">
               <li><Rich text="1. B এর 1-এর পরিপূরক নিই (বিট উল্টাই)।" /></li>
               <li><Rich text="2. A এর সাথে সেটি যোগ করি।" /></li>
-              <li><Rich text="3. বামে ক্যারি এলে ক্যারিটি ডানের বিটে যোগ করি (end-around carry); ফল **ধনাত্মক**।" /></li>
-              <li><Rich text="4. ক্যারি না এলে যোগফলের আবার 1's নিই, সামনে (−) বসাই; ফল **ঋণাত্মক**।" /></li>
+              <li><Rich text="3. বামে ক্যারি এলে ক্যারিটি ডানের বিটে যোগ করি (end-around carry); ফল **Positive**।" /></li>
+              <li><Rich text="4. ক্যারি না এলে যোগফলের আবার 1's নিই, সামনে (−) বসাই; ফল **Negative**।" /></li>
             </ol>
           </div>
           <div className="rounded-2xl bg-mint p-4 ring-1 ring-emerald-500/20">
@@ -225,8 +226,8 @@ function Subtract() {
             <ol className="mt-2 space-y-1.5 text-[15px] leading-relaxed text-ink/80">
               <li><Rich text="1. B এর 2-এর পরিপূরক নিই (উল্টে 1 যোগ)।" /></li>
               <li><Rich text="2. A এর সাথে সেটি যোগ করি।" /></li>
-              <li><Rich text="3. বামে ক্যারি এলে ফেলে দিই; ফল **ধনাত্মক**।" /></li>
-              <li><Rich text="4. ক্যারি না এলে যোগফলের আবার 2's নিই, সামনে (−) বসাই; ফল **ঋণাত্মক**।" /></li>
+              <li><Rich text="3. বামে ক্যারি এলে ফেলে দিই; ফল **Positive**।" /></li>
+              <li><Rich text="4. ক্যারি না এলে যোগফলের আবার 2's নিই, সামনে (−) বসাই; ফল **Negative**।" /></li>
             </ol>
           </div>
         </div>
@@ -246,14 +247,14 @@ function Subtract() {
 
 export default function Complement() {
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 pb-10 pt-6 sm:px-6 sm:pt-10 lg:px-8">
-      <SectionTitle title="1's ও 2's পরিপূরক" sub="এটি কেন লাগে, কীভাবে বের করে, দশমিকসহ উদাহরণ, ঋণাত্মক সংখ্যা ও পরিপূরক দিয়ে বিয়োগ।" />
-      <Why />
-      <div className="mt-5 grid grid-cols-[minmax(0,1fr)] items-start gap-5 lg:grid-cols-2">
+    <div className="mx-auto w-full max-w-7xl px-4 pb-10 pt-4 sm:px-6 sm:pt-10 lg:px-8">
+      <SectionTitle title="1's ও 2's পরিপূরক" sub="এটি কেন লাগে, কীভাবে বের করে, দশমিকসহ উদাহরণ, Negative সংখ্যা ও পরিপূরক দিয়ে বিয়োগ।" />
+      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-5 lg:grid-cols-2">
         <Reveal y={16}><Live /></Reveal>
         <Reveal y={16}><Rules /></Reveal>
       </div>
       <div className="mt-5 space-y-5">
+        <Why />
         <Solved />
         <Signed />
         <Subtract />

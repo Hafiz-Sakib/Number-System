@@ -3,16 +3,22 @@ import { motion } from "framer-motion";
 import { SectionTitle } from "../../components/ui";
 import { Rich } from "../../components/Steps";
 
+const LAST = new Map();
+
 /* বুলিয়ান এলজেবরা ও লজিক গেট পেজের একই কাঠামো: বামে টপিক তালিকা (ফোনে আড়াআড়ি চিপ), ডানে বিষয়বস্তু। */
 export default function TopicPage({ title: pageTitle, sub: pageSub, topics: TOPICS }) {
-  const fromHash = () => { const h = decodeURIComponent(location.hash.slice(1)); return TOPICS.some((t) => t[0] === h) ? h : TOPICS[0][0]; };
-  const [id, setId] = useState(fromHash);
+  /* ঠিকানায় কোনো # থাকে না (যেমন শুধু /algebra)। টপিক মনে থাকে মেমরিতে, তাই অন্য পেজ ঘুরে এলেও শেষ টপিকেই ফেরা যায়। */
+  const [id, setId] = useState(() => {
+    const h = decodeURIComponent(location.hash.slice(1)); // পুরনো #লিংক খুললে সেই টপিক দেখাই
+    return TOPICS.some((t) => t[0] === h) ? h : LAST.get(pageTitle) || TOPICS[0][0];
+  });
   const nav = useRef(null);
   const idx = TOPICS.findIndex((t) => t[0] === id);
   const [, , title, en, View, note] = TOPICS[idx];
 
-  useEffect(() => { const on = () => setId(fromHash()); addEventListener("hashchange", on); return () => removeEventListener("hashchange", on); }, []);
-  const pick = (k) => { setId(k); history.replaceState(null, "", `#${k}`); window.scrollTo({ top: 0, behavior: "auto" }); };
+  useEffect(() => { if (location.hash) history.replaceState(null, "", location.pathname + location.search); }, []);
+  useEffect(() => { LAST.set(pageTitle, id); }, [id, pageTitle]);
+  const pick = (k) => { setId(k); window.scrollTo({ top: 0, behavior: "auto" }); };
   // বাছাই করা চিপ স্ক্রল করে দৃশ্যমান রাখি (মোবাইলের আড়াআড়ি তালিকায়)
   useEffect(() => { nav.current?.querySelector('[aria-current="true"]')?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" }); }, [id]);
 

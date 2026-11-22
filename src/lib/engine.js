@@ -267,7 +267,7 @@ export function convert(raw, from, to, precision = 8) {
     blocks.push(...b.blocks);
     res = b;
   }
-  if (p.neg) blocks.push({ t: "p", text: "সংখ্যাটি ঋণাত্মক ছিল, তাই চিহ্ন (−) আলাদা রেখে মান রূপান্তর করেছি এবং ফলের আগে বসিয়েছি।" });
+  if (p.neg) blocks.push({ t: "p", text: "সংখ্যাটি Negative ছিল, তাই চিহ্ন (−) আলাদা রেখে মান রূপান্তর করেছি এবং ফলের আগে বসিয়েছি।" });
   const value = { neg: p.neg, int: res.int, frac: res.frac, exact: res.exact };
   blocks.push({ t: "box", text: `${p.neg ? "−" : ""}${N(src, from)} = ${res.exact ? "" : "≈ "}${p.neg ? "−" : ""}${N(join(false, res.int, res.frac), to)}` });
   return { ok: true, value, text: showVal(value), blocks, input: join(p.neg, p.int, p.frac), rat: p.rat };
@@ -294,7 +294,7 @@ function sumLine(a, b, c, base, op) {
   return { s, q, r, line: `${head}। ${tail}` };
 }
 
-/* দুটি অঋণাত্মক সংখ্যার যোগ (কলাম পদ্ধতি) */
+/* দুটি non-negative সংখ্যার যোগ (কলাম পদ্ধতি) */
 function addCols(A, B, base) {
   const [a, b, fi, ff] = align(A, B);
   const da = a.int + a.frac, db = b.int + b.frac;
@@ -325,7 +325,7 @@ function addCols(A, B, base) {
   return { int: trimInt(intS), frac: trimFrac(fracS), rawInt: intS, rawFrac: fracS, cout: lead, digits, fi, ff, lines, grid: { t: "cols", rows } };
 }
 
-/* বড় - ছোট (অঋণাত্মক, A >= B) */
+/* বড় - ছোট (non-negative, A >= B) */
 function subCols(A, B, base) {
   const [a, b, fi, ff] = align(A, B);
   const da = a.int + a.frac, db = b.int + b.frac;
@@ -341,7 +341,7 @@ function subCols(A, B, base) {
     const head = `${dshow(da[i], base)} − ${dshow(db[i], base)}${bo ? " − ধার 1" : ""} = ${d}`;
     if (d < 0) {
       res[i] = dl(d + base);
-      lines.push(`কলাম ${++step}: ${head}। ঋণাত্মক, তাই পাশের কলাম থেকে ধার নিই: ${d} + ${base} = ${d + base} → লিখি **${dl(d + base)}**, ধার **1**`);
+      lines.push(`কলাম ${++step}: ${head}। Negative, তাই পাশের কলাম থেকে ধার নিই: ${d} + ${base} = ${d + base} → লিখি **${dl(d + base)}**, ধার **1**`);
       bo = 1;
       if (i > 0) brw[i - 1] = "1";
     } else {
@@ -499,10 +499,10 @@ function twosComplementSub(A, B) {
   blocks.push(sum.grid);
   let neg = false, rd = sum.digits;
   if (sum.cout) {
-    blocks.push({ t: "p", text: "সবচেয়ে বামে **ক্যারি 1** এসেছে। নিয়ম: ক্যারি এলে তা ফেলে দিই, ফল **ধনাত্মক** এবং বাকি অংশই উত্তর।" });
+    blocks.push({ t: "p", text: "সবচেয়ে বামে **ক্যারি 1** এসেছে। নিয়ম: ক্যারি এলে তা ফেলে দিই, ফল **Positive** এবং বাকি অংশই উত্তর।" });
   } else {
     neg = true;
-    blocks.push({ t: "p", text: "বামে **ক্যারি আসেনি**। নিয়ম: ক্যারি না এলে ফল **ঋণাত্মক**। তখন যোগফলের আবার 2-এর পরিপূরক নিয়ে মান পাই।" });
+    blocks.push({ t: "p", text: "বামে **ক্যারি আসেনি**। নিয়ম: ক্যারি না এলে ফল **Negative**। তখন যোগফলের আবার 2-এর পরিপূরক নিয়ে মান পাই।" });
     const ones2 = [...rd].map((c) => (c === "0" ? "1" : "0")).join("");
     const t2 = addCols({ int: ones2.slice(0, fi), frac: ones2.slice(fi) }, { int: one.slice(0, fi), frac: one.slice(fi) }, 2);
     blocks.push({ t: "p", text: `যোগফল ${M(rd)} → 1-এর পরিপূরক ${M(ones2)} → 1 যোগ করে ${M(t2.digits)}` });
@@ -535,21 +535,21 @@ function onesComplementSub(A, B) {
   if (sum.cout) {
     const one = "0".repeat(n - 1) + "1";
     const ar = addCols(split(sum.digits), split(one), 2);
-    blocks.push({ t: "p", text: "সবচেয়ে বামে **ক্যারি 1** এসেছে। নিয়ম: ক্যারি এলে তা ফেলে দিয়ে সবচেয়ে ডানের বিটে যোগ করি (এটিকে **end-around carry** বলে)। ফল **ধনাত্মক**।" });
+    blocks.push({ t: "p", text: "সবচেয়ে বামে **ক্যারি 1** এসেছে। নিয়ম: ক্যারি এলে তা ফেলে দিয়ে সবচেয়ে ডানের বিটে যোগ করি (এটিকে **end-around carry** বলে)। ফল **Positive**।" });
     blocks.push({ t: "h", text: "ধাপ 3: end-around carry যোগ করি" });
     blocks.push(ar.grid);
     rd = ar.digits;
   } else {
     neg = true;
     const back = flip(rd);
-    blocks.push({ t: "p", text: "বামে **ক্যারি আসেনি**। নিয়ম: ক্যারি না এলে ফল **ঋণাত্মক**। তখন যোগফলের আবার 1-এর পরিপূরক নিলেই মান পাই।" });
+    blocks.push({ t: "p", text: "বামে **ক্যারি আসেনি**। নিয়ম: ক্যারি না এলে ফল **Negative**। তখন যোগফলের আবার 1-এর পরিপূরক নিলেই মান পাই।" });
     blocks.push({ t: "box", text: `${M(rd)} এর 1-এর পরিপূরক = ${M(back)}` });
     rd = back;
   }
   return { blocks, neg, int: trimInt(rd.slice(0, fi)), frac: trimFrac(rd.slice(fi)), exact: true };
 }
 
-/* দুইয়ের বেশি অঋণাত্মক সংখ্যার যোগ (কলাম পদ্ধতি; ক্যারি 1-এর বেশিও হতে পারে) */
+/* দুইয়ের বেশি non-negative সংখ্যার যোগ (কলাম পদ্ধতি; ক্যারি 1-এর বেশিও হতে পারে) */
 function addColsMany(list, base) {
   const fi = Math.max(...list.map((x) => x.int.length)), ff = Math.max(...list.map((x) => x.frac.length));
   const rows = list.map((x) => x.int.padStart(fi, "0") + x.frac.padEnd(ff, "0"));
@@ -623,24 +623,24 @@ export function calcMulti(raws, base, method = "direct", precision = 8) {
       return { int: g.int, frac: g.frac };
     };
     if (!neg.length) {
-      blocks.push({ t: "p", text: `সবগুলো সংখ্যা ধনাত্মক (বা 0), তাই ${P.length}টি সংখ্যা একসাথে কলাম ধরে যোগ করি। প্রতি কলামে সবগুলো অঙ্ক ও আগের ক্যারি যোগ হয়।` });
+      blocks.push({ t: "p", text: `সবগুলো সংখ্যা Positive (বা 0), তাই ${P.length}টি সংখ্যা একসাথে কলাম ধরে যোগ করি। প্রতি কলামে সবগুলো অঙ্ক ও আগের ক্যারি যোগ হয়।` });
       out = { neg: false, ...group(pos, "যোগ") };
     } else if (!pos.length) {
-      blocks.push({ t: "p", text: `সবগুলো সংখ্যা ঋণাত্মক, তাই চিহ্ন ছাড়া মানগুলো যোগ করি এবং ফলের আগে (−) বসাই।` });
+      blocks.push({ t: "p", text: `সবগুলো সংখ্যা Negative, তাই চিহ্ন ছাড়া মানগুলো যোগ করি এবং ফলের আগে (−) বসাই।` });
       out = { neg: true, ...group(neg, "মানগুলোর যোগ") };
     } else {
-      blocks.push({ t: "p", text: "কিছু সংখ্যা ধনাত্মক, কিছু ঋণাত্মক। তাই (1) ধনাত্মকগুলো একসাথে যোগ করি, (2) ঋণাত্মকগুলোর মান একসাথে যোগ করি, (3) বড় মান থেকে ছোট মান বিয়োগ করে বড়টির চিহ্ন বসাই।" });
-      const sp = group(pos, `ধাপ 1: ধনাত্মক সংখ্যাগুলোর যোগফল`);
-      if (pos.length === 1) blocks.push({ t: "h", text: "ধাপ 1: ধনাত্মক সংখ্যা" }, { t: "box", text: `${N(plain(sp), base)}` });
-      const sn = group(neg, `ধাপ 2: ঋণাত্মক সংখ্যাগুলোর মানের যোগফল`);
-      if (neg.length === 1) blocks.push({ t: "h", text: "ধাপ 2: ঋণাত্মক সংখ্যা (মান)" }, { t: "box", text: `${N(plain(sn), base)}` });
+      blocks.push({ t: "p", text: "কিছু সংখ্যা Positive, কিছু Negative। তাই (1) Positiveগুলো একসাথে যোগ করি, (2) Negativeগুলোর মান একসাথে যোগ করি, (3) বড় মান থেকে ছোট মান বিয়োগ করে বড়টির চিহ্ন বসাই।" });
+      const sp = group(pos, `ধাপ 1: Positive সংখ্যাগুলোর যোগফল`);
+      if (pos.length === 1) blocks.push({ t: "h", text: "ধাপ 1: Positive সংখ্যা" }, { t: "box", text: `${N(plain(sp), base)}` });
+      const sn = group(neg, `ধাপ 2: Negative সংখ্যাগুলোর মানের যোগফল`);
+      if (neg.length === 1) blocks.push({ t: "h", text: "ধাপ 2: Negative সংখ্যা (মান)" }, { t: "box", text: `${N(plain(sn), base)}` });
       const pr = parseNum(plain(sp), base).rat, nr = parseNum(plain(sn), base).rat;
       const c = rCmpAbs(pr, nr);
       blocks.push({ t: "h", text: "ধাপ 3: বড় মান − ছোট মান" });
       if (c === 0) { blocks.push({ t: "p", text: "দুই মান সমান, তাই ফল 0।" }); out = { neg: false, int: "0", frac: "" }; }
       else {
         const big_ = c > 0 ? sp : sn, small = c > 0 ? sn : sp;
-        blocks.push({ t: "p", text: `বড় মান ${N(plain(big_), base)} (${c > 0 ? "ধনাত্মক দলের" : "ঋণাত্মক দলের"}), ছোট মান ${N(plain(small), base)}। ফলের চিহ্ন বড় মানের দলের চিহ্ন।` });
+        blocks.push({ t: "p", text: `বড় মান ${N(plain(big_), base)} (${c > 0 ? "Positive দলের" : "Negative দলের"}), ছোট মান ${N(plain(small), base)}। ফলের চিহ্ন বড় মানের দলের চিহ্ন।` });
         const d = subCols(big_, small, base);
         blocks.push(d.grid);
         blocks.push({ t: "detail", title: "কলাম ধরে ধাপে-ধাপে হিসাব (ডান থেকে বামে)", blocks: [{ t: "p", text: "মাঝের সংখ্যাগুলো ডেসিমালে লেখা হয়েছে।" }, { t: "list", items: d.lines }] });
@@ -720,7 +720,7 @@ export function calc(aRaw, bRaw, op, base, method = "direct", precision = 8) {
     out = { neg: t.neg && !(t.int === "0" && !t.frac), int: t.int, frac: t.frac, exact: true };
   } else {
     /* সরাসরি (কলাম) পদ্ধতি - চিহ্ন সামলে মান (magnitude) দিয়ে কাজ */
-    let sB = op === "-" ? !B.neg : B.neg; // কার্যকর চিহ্ন (true = ঋণাত্মক)
+    let sB = op === "-" ? !B.neg : B.neg; // কার্যকর চিহ্ন (true = Negative)
     if (op === "-" && B.rat.n === 0n) sB = false;
     const sA = A.neg;
     let res;
@@ -753,13 +753,13 @@ export function calc(aRaw, bRaw, op, base, method = "direct", precision = 8) {
       const rs = mulDirect(A, B, base);
       blocks.push(...rs.blocks);
       neg = (sA !== sB) && A.rat.n !== 0n && B.rat.n !== 0n;
-      if (neg) blocks.push({ t: "p", text: "দুই সংখ্যার চিহ্ন ভিন্ন, তাই গুণফল ঋণাত্মক।" });
+      if (neg) blocks.push({ t: "p", text: "দুই সংখ্যার চিহ্ন ভিন্ন, তাই গুণফল Negative।" });
       out = { neg, int: rs.int, frac: rs.frac, exact: true };
     } else {
       const rs = divDirect(A, B, base, precision);
       blocks.push(...rs.blocks);
       neg = (sA !== sB) && A.rat.n !== 0n;
-      if (neg) blocks.push({ t: "p", text: "দুই সংখ্যার চিহ্ন ভিন্ন, তাই ভাগফল ঋণাত্মক।" });
+      if (neg) blocks.push({ t: "p", text: "দুই সংখ্যার চিহ্ন ভিন্ন, তাই ভাগফল Negative।" });
       out = { neg, int: rs.int, frac: rs.frac, exact: rs.exact };
     }
   }

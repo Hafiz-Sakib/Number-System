@@ -1,4 +1,5 @@
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { BASES, BASE_NAME, BASE_SHORT } from "../lib/engine";
 import { PRECISIONS, useFmt, usePrecision } from "../lib/settings";
@@ -26,7 +27,7 @@ export function BaseTabs({ value, onChange, label, id }) {
         {BASES.map((b) => {
           const on = value === b;
           return (
-            <button key={b} type="button" role="radio" aria-checked={on} onClick={() => onChange(b)} className="relative min-w-0 rounded-xl px-1 py-2 text-center outline-none focus-visible:ring-2 focus-visible:ring-violet-500/60">
+            <button key={b} type="button" role="radio" aria-checked={on} onClick={() => onChange(b)} className="relative min-w-0 rounded-xl px-1 py-2.5 text-center outline-none sm:py-2 focus-visible:ring-2 focus-visible:ring-violet-500/60">
               {on && <motion.span layoutId={`${id || uid}-base`} transition={still ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 32 }} className="absolute inset-0 rounded-xl bg-surface shadow-sm ring-1 ring-ink/[.06]" />}
               <span className="relative block">
                 <span className="flex items-center justify-center gap-1.5">
@@ -35,7 +36,7 @@ export function BaseTabs({ value, onChange, label, id }) {
                     {BASE_SHORT[b]}
                   </span>
                 </span>
-                <span className={`num block text-[11px] sm:text-xs ${on ? "text-ink/60" : "text-ink/35"}`}>ভিত্তি {fmt(b)}</span>
+                <span className={`num hidden text-[11px] sm:block sm:text-xs ${on ? "text-ink/60" : "text-ink/35"}`}>ভিত্তি {fmt(b)}</span>
               </span>
             </button>
           );
@@ -52,27 +53,27 @@ export function NumberField({ label, base, value, onChange, error, id, placehold
   const fid = id || uid;
   const add = (ch) => onChange(value + ch);
   const toggleSign = () => onChange(/^[-−]/.test(value) ? value.replace(/^[-−]/, "") : "-" + value);
-  const chip = "grid h-10 min-w-10 place-items-center rounded-xl bg-ink/[.06] px-2 text-[17px] font-semibold transition active:scale-90 hover:bg-ink/[.11]";
+  const chip = "grid h-9 min-w-9 place-items-center rounded-xl bg-ink/[.06] px-2 text-[16px] sm:h-10 sm:min-w-10 sm:text-[17px] font-semibold transition active:scale-90 hover:bg-ink/[.11]";
   const ph = placeholder ?? (base === 2 ? "1010.11" : base === 8 ? "725.4" : base === 10 ? "25.625" : "3A.8");
   return (
     <div>
-      <div className="mb-2 flex items-center justify-between gap-2">
+      <div className="mb-1.5 flex items-center justify-between gap-2 sm:mb-2">
         <label htmlFor={fid} className="block text-sm font-semibold text-ink/60">{label}</label>
         {action}
       </div>
       <div className={`flex items-center gap-2 rounded-2xl bg-surface px-4 ring-1 transition focus-within:ring-2 ${error ? "ring-rose-500/60 focus-within:ring-rose-500" : "ring-ink/10 focus-within:ring-violet-500/70"}`}>
         <input id={fid} value={value} onChange={(e) => onChange(e.target.value)} onFocus={onFocus} placeholder={fmt(ph)} inputMode="text" autoCapitalize="characters" autoCorrect="off" autoComplete="off" spellCheck={false}
           aria-invalid={!!error} aria-describedby={error ? `${fid}-err` : undefined}
-          className="num min-w-0 flex-1 bg-transparent py-3.5 text-2xl font-semibold outline-none placeholder:text-ink/25" />
+          className="num min-w-0 flex-1 bg-transparent py-2.5 text-2xl font-semibold outline-none sm:py-3.5 placeholder:text-ink/25" />
         <span className={`num shrink-0 rounded-lg px-2 py-1 text-sm font-bold ${CLR[base].bg} ${CLR[base].text}`}>({fmt(base)})</span>
       </div>
       {error ? (
         <p id={`${fid}-err`} role="alert" className="mt-2 text-sm font-medium text-rose-600 dark:text-rose-300">{error}</p>
       ) : chips && (
-        <div className="mt-2 flex flex-wrap gap-1.5" aria-label="অঙ্ক বোতাম">
+        <div className="mt-2 flex flex-wrap gap-1 sm:gap-1.5" aria-label="অঙ্ক বোতাম">
           {[...DIGITS.slice(0, base)].map((d) => <button key={d} type="button" onClick={() => add(fmt(d))} className={`num ${chip}`}>{fmt(d)}</button>)}
           <button type="button" onClick={() => add(".")} className={chip} aria-label="দশমিক বিন্দু">.</button>
-          <button type="button" onClick={toggleSign} className={chip} aria-label="চিহ্ন বদল (ধনাত্মক/ঋণাত্মক)">±</button>
+          <button type="button" onClick={toggleSign} className={chip} aria-label="চিহ্ন বদল (Positive/Negative)">±</button>
           <button type="button" onClick={() => onChange(value.slice(0, -1))} className={chip} aria-label="শেষ অঙ্ক মুছুন">⌫</button>
           {value && <button type="button" onClick={() => onChange("")} className={`${chip} text-[14px]`}>মুছুন</button>}
         </div>
@@ -125,13 +126,13 @@ export function CopyButton({ text, label = "কপি" }) {
 }
 
 /* বড় উত্তর-কার্ড: রং সংখ্যা পদ্ধতির, অঙ্কগুলো গড়িয়ে বদলায় */
-export function ResultCard({ title, base, value, exact = true, children }) {
+export function ResultCard({ title, base, value, exact = true, children, id }) {
   const fmt = useFmt();
   const t = disp(value);
   const len = t.length;
   const size = len <= 12 ? "text-4xl sm:text-5xl" : len <= 24 ? "text-3xl sm:text-4xl" : "text-xl sm:text-2xl";
   return (
-    <div className={`rounded-3xl p-5 ring-1 sm:p-6 ${CLR[base].bg} ${CLR[base].ring}`}>
+    <div id={id} className={`scroll-mt-20 rounded-3xl p-4 ring-1 sm:p-6 ${CLR[base].bg} ${CLR[base].ring}`}>
       <p className={`text-sm font-bold ${CLR[base].text}`}>{title}</p>
       <div className={`num mt-2 break-all font-extrabold leading-tight ${CLR[base].text} ${size}`}>
         {!exact && <span className="mr-1 font-semibold opacity-70" title="আসন্ন মান">≈</span>}
@@ -140,6 +141,47 @@ export function ResultCard({ title, base, value, exact = true, children }) {
       {!exact && <p className="mt-2 text-sm font-medium text-ink/65">ভগ্নাংশ শেষ হয় না, তাই সীমিত ঘর পর্যন্ত আসন্ন মান দেখানো হলো।</p>}
       {children && <div className="mt-4 flex flex-wrap items-center gap-2">{children}</div>}
     </div>
+  );
+}
+
+/* ফোনে নিচে ভাসমান ছোট উত্তর-বার: ইনপুট লেখার সময় স্ক্রল না করেই উত্তর দেখা যায়। আসল উত্তর-কার্ড পর্দায় থাকলে বা ফুটারে পৌঁছালে লুকিয়ে যায়। */
+export function MobileResultBar({ items, targetId, copyText }) {
+  const fmt = useFmt();
+  const has = !!items && items.length > 0;
+  const [inView, setInView] = useState(false);
+  const [atFooter, setAtFooter] = useState(false);
+  useEffect(() => {
+    if (!has) return undefined;
+    const watch = (el, set) => {
+      if (!el) { set(false); return () => {}; }
+      const io = new IntersectionObserver(([e]) => set(e.isIntersecting), { rootMargin: "0px 0px -140px 0px" });
+      io.observe(el);
+      return () => io.disconnect();
+    };
+    const a = watch(document.getElementById(targetId), setInView);
+    const b = watch(document.querySelector("footer"), setAtFooter);
+    return () => { a(); b(); };
+  }, [has, targetId]);
+  if (!has) return null;
+  const show = !inView && !atFooter;
+  const base0 = items[0].base ?? 2;
+  const go = () => document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth", block: "center" });
+  return createPortal(
+    <div aria-hidden={!show} className={`pointer-events-none fixed inset-x-0 z-40 flex justify-center px-3 transition duration-200 lg:hidden ${show ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"}`} style={{ bottom: "max(5.1rem, calc(env(safe-area-inset-bottom) + 4.7rem))" }}>
+      <div className={`flex w-full max-w-[460px] items-center gap-2 rounded-2xl p-2 pl-3 shadow-[0_10px_30px_-10px_rgba(0,0,0,.45)] ring-1 ${show ? "pointer-events-auto" : ""} ${CLR[base0].bg} ${CLR[base0].ring}`} aria-live="polite">
+        {items.map((it, k) => {
+          const b = it.base ?? 2;
+          return (
+            <button key={k} type="button" tabIndex={show ? 0 : -1} onClick={go} className="min-w-0 flex-1 text-left">
+              <span className={`block truncate text-[11px] font-bold ${CLR[b].text}`}>{it.label}</span>
+              <span className={`num block truncate text-lg font-extrabold leading-tight ${CLR[b].text}`}>{it.exact === false && "≈ "}{fmt(disp(it.value))}<sub className="ml-0.5 text-[.6em] font-bold">({fmt(b)})</sub></span>
+            </button>
+          );
+        })}
+        {copyText && <CopyButton text={copyText} />}
+      </div>
+    </div>,
+    document.body,
   );
 }
 
