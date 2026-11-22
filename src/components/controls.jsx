@@ -186,3 +186,25 @@ export function MobileResultBar({ items, targetId, copyText }) {
 }
 
 export { disp };
+
+/** গোছানো উদাহরণ-তালিকা: ছোট কার্ডের গ্রিড (শিরোনাম + ছোট ব্যাখ্যা)। limit-এর বেশি হলে "আরও দেখান"। */
+export function ExampleGrid({ items, onPick, limit = 4, label = "উদাহরণ", cols = "grid-cols-2 sm:grid-cols-4", mono = true }) {
+  const [all, setAll] = useState(false);
+  const list = all ? items : items.slice(0, limit);
+  return (
+    <div>
+      <div className="mb-1.5 flex items-center justify-between gap-2">
+        <span className="text-sm font-semibold text-ink/55">{label}</span>
+        {items.length > limit && <button type="button" aria-expanded={all} onClick={() => setAll((x) => !x)} className="rounded-full px-2.5 py-1 text-sm font-semibold text-ink/60 transition hover:bg-ink/[.06] active:scale-95">{all ? "কম দেখান" : `আরও ${items.length - limit}টি`}</button>}
+      </div>
+      <div className={`grid gap-2 ${cols}`}>
+        {list.map((it) => (
+          <button key={it.key ?? it.title} type="button" onClick={() => onPick(it)} className="group min-w-0 rounded-2xl bg-ink/[.04] px-3 py-2 text-left ring-1 ring-ink/[.05] transition hover:bg-ink/[.08] hover:ring-ink/10 active:scale-[.97]">
+            <span className={`block truncate text-[15px] font-bold ${mono ? "num" : ""}`}>{it.title}</span>
+            {it.sub && <span className="mt-0.5 block truncate text-xs text-ink/50">{it.sub}</span>}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}

@@ -297,3 +297,211 @@ export function simplify(ast, vars) {
   const p = parseExpr(sop);
   return { minterms, sop, ast2: p.ok ? p.ast : null };
 }
+
+/* ---------- ধাপে ধাপে সরলীকরণ (বীজগণিতের নিয়ম প্রয়োগ করে) ----------
+   প্রতিটি ধাপে ঠিক একটি নিয়ম প্রয়োগ হয়। ফল: [{ ast, law, eq }], সবশেষে সত্যক সারণী দিয়ে মিলিয়ে নেওয়া হয়।
+   P, Q, R এখানে যেকোনো রাশি (A, B, C … থেকে আলাদা রাখতে)। */
+const LAW = {
+  invol: ["দ্বিপরিপূরক (Involution)", "(P')' = P"],
+  dm_and: ["ডি-মরগান (De Morgan)", "(P·Q)' = P' + Q'"],
+  dm_or: ["ডি-মরগান (De Morgan)", "(P + Q)' = P'·Q'"],
+  xor: ["XOR এর সংজ্ঞা", "P ⊕ Q = P'·Q + P·Q'"],
+  not_c: ["ধ্রুবকের পরিপূরক", "0' = 1 , 1' = 0"],
+  id_or: ["অভেদ (Identity)", "P + 0 = P"],
+  id_and: ["অভেদ (Identity)", "P·1 = P"],
+  nul_or: ["নাল (Null)", "P + 1 = 1"],
+  nul_and: ["নাল (Null)", "P·0 = 0"],
+  idem_or: ["সমশক্তি (Idempotent)", "P + P = P"],
+  idem_and: ["সমশক্তি (Idempotent)", "P·P = P"],
+  comp_or: ["পরিপূরক (Complement)", "P + P' = 1"],
+  comp_and: ["পরিপূরক (Complement)", "P·P' = 0"],
+  abs_or: ["শোষণ (Absorption)", "P + P·Q = P"],
+  abs_and: ["শোষণ (Absorption)", "P·(P + Q) = P"],
+  red_or: ["অপ্রয়োজনীয়তা (Redundancy)", "P + P'·Q = P + Q"],
+  red_and: ["অপ্রয়োজনীয়তা (Redundancy)", "P·(P' + Q) = P·Q"],
+  con_or: ["কনসেনসাস (Consensus)", "P·Q + P'·R + Q·R = P·Q + P'·R"],
+  con_and: ["কনসেনসাস (Consensus)", "(P + Q)·(P' + R)·(Q + R) = (P + Q)·(P' + R)"],
+  cmb_or: ["বণ্টন (Distributive): সাধারণ উৎপাদক", "P·Q + P·Q' = P·(Q + Q')"],
+  cmb_and: ["বণ্টন (Distributive): সাধারণ উৎপাদক", "(P + Q)·(P + Q') = P + Q·Q'"],
+  dist: ["বণ্টন (Distributive)", "P·(Q + R) = P·Q + P·R"],
+  qm: ["Quine–McCluskey (কার্নো ম্যাপের মতো)", "সব মিনটার্ম মিলিয়ে সবচেয়ে ছোট SOP"],
+};
+const K = toStr;
+const V = (n) => ({ t: "var", n });
+const NOT = (a) => ({ t: "not", a });
+const CONST = (v) => ({ t: "const", v });
+const comp = (x) => (x.t === "not" ? x.a : NOT(x));
+const lits = (n) => (n.t === "var" ? 1 : n.t === "const" ? 0 : n.t === "not" ? lits(n.a) : n.args.reduce((s, a) => s + lits(a), 0));
+const same = (a, b) => K(a) === K(b);
+const flat = (n) => {
+  if (n.t === "and" || n.t === "or" || n.t === "xor") {
+    const args = n.args.map(flat).flatMap((a) => (a.t === n.t && n.t !== "xor" ? a.args : [a]));
+    return { t: n.t, args };
+  }
+  if (n.t === "not") return NOT(flat(n.a));
+  return n;
+};
+const mkN = (t, args) => (args.length === 0 ? CONST(t === "or" ? 0 : 1) : args.length === 1 ? args[0] : { t, args });
+const inOf = (t) => (t === "or" ? "and" : "or");
+const facs = (a, inT) => (a.t === inT ? a.args : [a]);
+const hasK = (list, x) => list.some((y) => same(y, x));
+const subset = (s, big) => s.every((x) => hasK(big, x));
+
+function naryRule(node) {
+  const t = node.t, inT = inOf(t), A = node.args, ident = t === "or" ? 0 : 1, absorb = 1 - ident;
+  const R = (args, law) => ({ node: mkN(t, args), law: LAW[`${law}_${t}`] });
+  // ১) ধ্রুবক
+  const cAbs = A.find((a) => a.t === "const" && a.v === absorb);
+  if (cAbs) return { node: CONST(absorb), law: LAW[`nul_${t}`] };
+  if (A.some((a) => a.t === "const" && a.v === ident) && A.length > 1) return R(A.filter((a) => !(a.t === "const" && a.v === ident)), "id");
+  // ২) সমশক্তি
+  const uniq = []; A.forEach((a) => !hasK(uniq, a) && uniq.push(a));
+  if (uniq.length < A.length) return R(uniq, "idem");
+  // ৩) পরিপূরক
+  if (A.some((a) => hasK(A, comp(a)))) return { node: CONST(absorb), law: LAW[`comp_${t}`] };
+  const F = A.map((a) => facs(a, inT));
+  // ৪) শোষণ
+  for (let i = 0; i < A.length; i++) for (let j = 0; j < A.length; j++) {
+    if (i !== j && F[i].length < F[j].length && subset(F[i], F[j])) return R(A.filter((_, k) => k !== j), "abs");
+  }
+  // ৫) অপ্রয়োজনীয়তা: P + P'·Q = P + Q
+  for (let i = 0; i < A.length; i++) if (F[i].length === 1) for (let j = 0; j < A.length; j++) {
+    if (i === j || F[j].length < 2) continue;
+    const c = comp(F[i][0]);
+    if (hasK(F[j], c)) {
+      const nj = mkN(inT, F[j].filter((y) => !same(y, c)));
+      return R(A.map((a, k) => (k === j ? nj : a)), "red");
+    }
+  }
+  // ৬) কনসেনসাস
+  for (let i = 0; i < A.length; i++) for (let j = i + 1; j < A.length; j++) {
+    const opp = F[i].filter((x) => hasK(F[j], comp(x)));
+    if (opp.length !== 1) continue;
+    const x = opp[0];
+    const cons = [...F[i].filter((y) => !same(y, x)), ...F[j].filter((y) => !same(y, comp(x)))];
+    if (!cons.length || cons.some((c) => hasK(cons, comp(c)))) continue;
+    const k = A.findIndex((_, q) => q !== i && q !== j && subset(cons, F[q]));
+    if (k >= 0) return R(A.filter((_, q) => q !== k), "con");
+  }
+  // ৭) সাধারণ উৎপাদক: P·Q + P·Q' = P·(Q + Q')
+  for (let i = 0; i < A.length; i++) for (let j = i + 1; j < A.length; j++) {
+    if (F[i].length !== F[j].length || F[i].length < 2) continue;
+    const di = F[i].filter((x) => !hasK(F[j], x)), dj = F[j].filter((x) => !hasK(F[i], x));
+    if (di.length !== 1 || dj.length !== 1 || !same(comp(di[0]), dj[0])) continue;
+    const common = F[i].filter((x) => hasK(F[j], x));
+    const merged = mkN(inT, [...common, mkN(t, [di[0], dj[0]])]);
+    return R(A.filter((_, q) => q !== j).map((a, q) => (q === (j < i ? i - 1 : i) ? merged : a)), "cmb");
+  }
+  return null;
+}
+
+function stepOnce(n, dist) {
+  if (n.t === "var" || n.t === "const") return null;
+  if (n.t === "not") {
+    const c = stepOnce(n.a, dist);
+    if (c) return { ...c, node: NOT(c.node) };
+    const a = n.a;
+    if (a.t === "const") return { node: CONST(1 - a.v), law: LAW.not_c };
+    if (a.t === "not") return { node: a.a, law: LAW.invol };
+    if (a.t === "and") return { node: { t: "or", args: a.args.map(NOT) }, law: LAW.dm_and };
+    if (a.t === "or") return { node: { t: "and", args: a.args.map(NOT) }, law: LAW.dm_or };
+    return null;
+  }
+  for (let i = 0; i < n.args.length; i++) {
+    const c = stepOnce(n.args[i], dist);
+    if (c) return { ...c, node: { t: n.t, args: n.args.map((a, k) => (k === i ? c.node : a)) } };
+  }
+  if (n.t === "xor") {
+    const [a, b, ...rest] = n.args;
+    const x = { t: "or", args: [{ t: "and", args: [comp(a), b] }, { t: "and", args: [a, comp(b)] }] };
+    return { node: mkN("xor", [x, ...rest]), law: LAW.xor };
+  }
+  const r = naryRule(n);
+  if (r) return r;
+  if (dist && n.t === "and") {
+    const oi = n.args.findIndex((a) => a.t === "or");
+    if (oi >= 0) {
+      const rest = n.args.filter((_, k) => k !== oi);
+      return { node: { t: "or", args: n.args[oi].args.map((x) => ({ t: "and", args: [...rest, x] })) }, law: LAW.dist };
+    }
+  }
+  return null;
+}
+
+function runSteps(ast, dist) {
+  let cur = flat(ast); const steps = [];
+  for (let i = 0; i < 60; i++) {
+    let r = stepOnce(cur, false);
+    if (!r && dist) r = stepOnce(cur, true);
+    if (!r) break;
+    cur = flat(r.node);
+    if (lits(cur) > 40) return null;
+    steps.push({ ast: cur, law: r.law[0], eq: r.law[1] });
+  }
+  return { start: flat(ast), steps, last: cur };
+}
+
+/** রাশি → { start, steps:[{ast,law,eq}], final, already } ; steps খালি হলে রাশি আগে থেকেই সরল */
+export function simplifySteps(ast, vars) {
+  const base = flat(ast);
+  const cands = [runSteps(ast, false), runSteps(ast, true)].filter((c) => c && equivalent(ast, c.last));
+  cands.sort((a, b) => lits(a.last) - lits(b.last) || a.steps.length - b.steps.length);
+  const best = cands[0] || { start: base, steps: [], last: base };
+  const qm = simplify(ast, vars);
+  const steps = best.steps.slice();
+  let final = best.last;
+  if (qm.ast2 && equivalent(ast, qm.ast2) && lits(qm.ast2) < lits(final)) {
+    steps.push({ ast: qm.ast2, law: LAW.qm[0], eq: LAW.qm[1], qm: true });
+    final = qm.ast2;
+  }
+  return { start: base, steps, final, already: steps.length === 0 };
+}
+
+/* ---------- Quine–McCluskey এর হিসাবের খাতা ----------
+   minimize() শুধু ফল দেয়; এটি প্রতিটি ধাপ রেকর্ড করে, যাতে পর্দায় হিসাব দেখানো যায়:
+   ১) মিনটার্ম 1-এর সংখ্যা ধরে গ্রুপ  ২) পাশের গ্রুপের জোড়া মিলিয়ে একটি চলক বাদ ("-")
+   ৩) যা আর মেলে না সেগুলো প্রাইম ইমপ্লিক্যান্ট  ৪) কভারেজ ছক: কোনটি অপরিহার্য, কোনটি বাছাই */
+export function qmTrace(minterms, n, vars) {
+  const bin = (m) => m.toString(2).padStart(n, "0");
+  const lit = (p) => sopString([p], vars);
+  const covers = (p, m) => [...p].every((ch, i) => ch === "-" || ch === m[i]);
+  const ms = minterms.map(bin);
+  if (!minterms.length || minterms.length === 1 << n) return { trivial: minterms.length ? "1" : "0", n };
+  const ones = (s) => [...s].filter((c) => c === "1").length;
+  let cur = minterms.map((m) => ({ bits: bin(m), ms: [m], used: false }));
+  const columns = [];
+  const primes = [];
+  while (cur.length) {
+    const buckets = new Map();
+    cur.forEach((t) => { const k = ones(t.bits); if (!buckets.has(k)) buckets.set(k, []); buckets.get(k).push(t); });
+    const keys = [...buckets.keys()].sort((a, b) => a - b);
+    const next = new Map();
+    const pairs = [];
+    for (const k of keys) {
+      for (const a of buckets.get(k) || []) for (const b of buckets.get(k + 1) || []) {
+        let d = -1, ok = true;
+        for (let i = 0; i < n; i++) {
+          if (a.bits[i] === b.bits[i]) continue;
+          if (a.bits[i] === "-" || b.bits[i] === "-" || d >= 0) { ok = false; break; }
+          d = i;
+        }
+        if (!ok || d < 0) continue;
+        a.used = b.used = true;
+        const bits = a.bits.slice(0, d) + "-" + a.bits.slice(d + 1);
+        const set = [...new Set([...a.ms, ...b.ms])].sort((x, y) => x - y);
+        if (!next.has(bits)) next.set(bits, { bits, ms: set, used: false });
+        pairs.push({ a: a.ms.join(","), b: b.ms.join(","), bits });
+      }
+    }
+    columns.push({ groups: keys.map((k) => ({ ones: k, terms: buckets.get(k).map((t) => ({ bits: t.bits, ms: t.ms, used: t.used })) })), pairs });
+    cur.forEach((t) => { if (!t.used) primes.push({ bits: t.bits, ms: t.ms }); });
+    cur = [...next.values()];
+  }
+  const uniq = new Map(primes.map((p) => [p.bits, p]));
+  const P = [...uniq.values()].map((p) => ({ ...p, expr: lit(p.bits), cover: minterms.filter((m) => covers(p.bits, bin(m))) }));
+  const essential = new Set();
+  minterms.forEach((m) => { const c = P.filter((p) => p.cover.includes(m)); if (c.length === 1) essential.add(c[0].bits); });
+  const chosen = new Set(minimize(minterms, n));
+  P.forEach((p) => { p.essential = essential.has(p.bits); p.chosen = chosen.has(p.bits); });
+  return { n, minterms, columns, primes: P, sop: sopString([...chosen], vars), trivial: null };
+}

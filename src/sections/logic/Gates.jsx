@@ -60,7 +60,7 @@ export function TruthTables() {
         <div className="mb-4"><PillChoice id="tt-gate" value={t} onChange={setT} options={Object.keys(INFO).map((g) => ({ id: g, label: g }))} /></div>
         <GateBody key={t} type={t} />
       </Panel>
-      <Panel title="নিজের রাশির সত্যক সারণী" sub="যেকোনো রাশি লিখে তার সারণী বানিয়ে নিন (সর্বোচ্চ 4 চলক = 16 সারি)।"><ExprLab initial="A·B' + C" /></Panel>
+      <Panel title="নিজের রাশির সত্যক সারণী" sub="যেকোনো রাশি (ফাংশন) লিখে তার সারণী বানিয়ে নিন (সর্বোচ্চ 4 চলক = 16 সারি)। সরল রূপের সার্কিটে রাশিটা কীভাবে ছোট হলো, তার হিসাবও নিচে দেখুন।"><ExprLab initial="A·B' + C" steps /></Panel>
     </div>
   );
 }
@@ -112,10 +112,8 @@ export function Universal() {
   return (
     <div className="space-y-4">
       <Panel>
-        <P>**NAND** ও **NOR** কে **সর্বজনীন গেট (Universal Gate)** বলা হয়, কারণ শুধু একটি ধরনের গেট দিয়েই AND, OR ও NOT তিনটিই বানানো যায়। বাস্তবে এগুলো সস্তা ও ছোট, তাই আইসি-তে সবচেয়ে বেশি ব্যবহৃত হয়।</P>
+        <P>আগের ধাপগুলোতে মৌলিক গেট (AND, OR, NOT), NAND-NOR ও বিশেষ গেট (XOR, XNOR) দেখেছেন। এবার জানবেন, কেন **NAND** ও **NOR** কে **সর্বজনীন গেট (Universal Gate)** বলা হয়: শুধু একটি ধরনের গেট দিয়েই AND, OR ও NOT তিনটিই বানানো যায়। বাস্তবে এগুলো সস্তা ও ছোট, তাই আইসি-তে সবচেয়ে বেশি ব্যবহৃত হয়।</P>
       </Panel>
-      <GateLab type="NAND" />
-      <GateLab type="NOR" />
       <Panel title="শুধু একটি গেট দিয়ে সব বানাই" sub="কোন গেট দিয়ে, কী বানাবেন বেছে নিন।">
         <div className="flex flex-wrap gap-2">
           <PillChoice id="uni-base" value={base} onChange={setBase} options={[{ id: "NAND", label: "NAND দিয়ে" }, { id: "NOR", label: "NOR দিয়ে" }]} />
@@ -124,6 +122,29 @@ export function Universal() {
         <div className="mt-3 flex flex-wrap items-center gap-3"><Eq className="text-lg">{U.eq}</Eq></div>
         <P className="mb-4 mt-2">{U.say}</P>
         <Lab key={`${base}-${to}`} net={net} />
+      </Panel>
+    </div>
+  );
+}
+
+/* ---------- 3.7.6 ন্যান্ড ও নর গেট ---------- */
+const NN_AND = spec(["A", "B"], [["g1", "AND", ["A", "B"]], ["g2", "NOT", ["g1"]]], [["Y", "g2"]]);
+const NN_OR = spec(["A", "B"], [["g1", "OR", ["A", "B"]], ["g2", "NOT", ["g1"]]], [["Y", "g2"]]);
+export function NandNor() {
+  const nandNet = useMemo(() => autoLayout(NN_AND, { inGap: 52 }), []);
+  const norNet = useMemo(() => autoLayout(NN_OR, { inGap: 52 }), []);
+  return (
+    <div className="space-y-4">
+      <Panel>
+        <P>**NAND** মানে **NOT-AND** এবং **NOR** মানে **NOT-OR**: অর্থাৎ AND বা OR গেটের আউটপুটকে উল্টে দিলে এই গেটগুলো পাওয়া যায়। তাই এদের আউটপুট AND ও OR এর ঠিক উল্টো। গেটের আউটপুটে যে ছোট বৃত্ত (○) দেখেন, সেটিই এই উল্টে দেওয়ার চিহ্ন।</P>
+      </Panel>
+      <GateLab type="NAND" />
+      <Panel title="AND + NOT = NAND" sub="একটি AND গেটের পর NOT বসালে ঠিক NAND এর মতোই আচরণ পাওয়া যায়। সুইচ টিপে দেখুন, সারণী উপরের NAND এর সাথে হুবহু মেলে।">
+        <Lab net={nandNet} />
+      </Panel>
+      <GateLab type="NOR" />
+      <Panel title="OR + NOT = NOR" sub="একটি OR গেটের পর NOT বসালে NOR পাওয়া যায়।">
+        <Lab net={norNet} />
       </Panel>
     </div>
   );

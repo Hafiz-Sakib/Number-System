@@ -1,122 +1,133 @@
-import { useState } from "react";
-import { Reveal, SectionTitle } from "../components/ui";
+import { useRef } from "react";
+import { BookOpen, GraduationCap, School } from "lucide-react";
+import { motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
+import { BlurText, Reveal } from "../components/ui";
+import { BackspaceText } from "../components/BackspaceText";
+import { HighlightText, ProfileCard } from "../components/devui";
 import { Icon } from "../components/icons";
+import { GlobeCard } from "@/components/globe-card";
 import { ME, SOCIAL } from "../lib/site";
+import { HUB, team } from "../lib/team";
 
-/* Developer page: a light summary of the motion-brew portfolio. Content is English (it is about the developer, not the app). */
-const STATS = [["647", "Codeforces problems"], ["1574", "LeetCode rating"], ["10", "Projects shipped"], ["4+", "Years building"]];
-const SKILLS = [
-  ["Languages", "bg-lilac", ["C", "C++", "Java", "Python", "JavaScript", "TypeScript"]],
-  ["Frontend", "bg-sky", ["React", "Next.js", "Tailwind CSS", "Redux"]],
-  ["Backend & data", "bg-mint", ["Node.js", "Express.js", "Firebase", "MongoDB", "PostgreSQL"]],
-  ["Algorithms & ML", "bg-peach", ["Dynamic Programming", "Graph Theory", "Number Theory", "NLP", "LSTM"]],
-];
-const WORK = [
-  ["Software Engineering Intern", "Pathao Courier", "2024 – Present"],
-  ["Junior Frontend Developer", "CodeStack", "2022 – 2023"],
-  ["Course Instructor", "ICT School", "2021 – 2022"],
-];
+/* Developer page (English): profile card, marker-highlighted bio, education, four projects and the Motion Brew GlobeCard.
+   Links: only Portfolio, GitHub, LinkedIn and Instagram (lib/site.js). */
+const MARKS = ["full-stack", "clean UI", "competitive programming", "Competitive programming", "Natural Language Processing", "NLP", "Codeforces", "LeetCode"];
+const WORDS = ["full-stack developer.", "competitive programmer.", "NLP researcher."];
 const EDU = [
-  ["B.Sc in Computer Science & Engineering", "Premier University, Chittagong", "2022 – 2026"],
-  ["Higher Secondary Certificate", "Govt. Hazi Mohammad Mohsin College", "2017 – 2019"],
+  { t: "B.Sc in Computer Science & Engineering", o: "Premier University, Chittagong", p: "2022 – 2026", d: "Software engineering, algorithms and full-stack development. Undergraduate thesis on applied AI/ML.", done: true, icon: GraduationCap },
+  { t: "Higher Secondary Certificate", o: "Govt. Hazi Mohammad Mohsin College", p: "2017 – 2019", d: "Science group, GPA 5.00.", icon: BookOpen },
+  { t: "Secondary School Certificate", o: "Govt. Muslim High School", p: "2015 – 2017", d: "Science group, GPA 5.00.", icon: School },
 ];
 const PROJECTS = [
-  ["CP Pathshala", "Offline-first C++ competitive programming course in Bangla", "https://cp-pathshala.vercel.app/"],
-  ["AlgoViz", "60+ algorithms with frame-by-frame playback", "https://algorithm-hunter.vercel.app/"],
-  ["NOVA MathPlot", "Browser-based 2D/3D math plotting", "https://nova-mathplot.vercel.app/"],
-  ["SubCalc Pro", "IPv4 subnetting toolkit with FLSM and VLSM", "https://subcalc-pro.vercel.app/"],
+  { img: "cp-pathshala", t: "CP Pathshala", k: "Educational PWA", d: "An offline app for learning C++ competitive programming in Bangla: 144 lessons and 200 runnable examples.", u: "https://cp-pathshala.vercel.app/", tags: ["React", "Vite", "PWA"], bg: "bg-lilac" },
+  { img: "subcalc", t: "SubCalc Pro", k: "Networking tool", d: "IPv4 subnetting with FLSM and VLSM splits, overlap detection and a subnet tree.", u: "https://subcalc-pro.vercel.app/", tags: ["React", "Tailwind", "VLSM"], bg: "bg-peach" },
+  { img: "algoviz", t: "AlgoViz", k: "Algorithm visualizer", d: "60+ algorithms play frame by frame, with live C++ code and Three.js scenes.", u: "https://algorithm-hunter.vercel.app/", tags: ["React", "Three.js", "TypeScript"], bg: "bg-mint" },
+  { img: "nova", t: "NOVA MathPlot", k: "2D / 3D math plots", d: "60+ surfaces, parametric curves and neural activation functions, right in the browser.", u: "https://nova-mathplot.vercel.app/", tags: ["React", "R3F", "Math.js"], bg: "bg-sky" },
 ];
 
 const Arrow = () => <svg viewBox="0 0 24 24" aria-hidden className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17 17 7M8 7h9v9" /></svg>;
-const btn = "inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[15px] font-semibold transition active:scale-95";
+const btnDark = "inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-paper transition hover:bg-ink/85";
+const btnSoft = "inline-flex items-center gap-2 rounded-full bg-ink/10 px-5 py-2.5 text-sm font-semibold transition hover:bg-ink/15";
+const pill = "mb-3 inline-block rounded-full bg-ink/10 px-3 py-1 text-xs font-semibold tracking-wide text-ink/70";
 
-function Timeline({ title, rows }) {
+/* Education path: the line on the left fills as you scroll, the current step pulses */
+function Path({ items }) {
+  const reduce = useReducedMotion();
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 70%", "end 65%"] });
+  const fill = useSpring(scrollYProgress, { stiffness: 120, damping: 24, mass: 0.4 });
   return (
-    <div className="card p-5 sm:p-6">
-      <h2 className="text-lg font-bold">{title}</h2>
-      <ul className="mt-3 divide-y divide-ink/[.07]">
-        {rows.map(([t, o, p]) => (
-          <li key={t} className="py-3 first:pt-0 last:pb-0">
-            <p className="font-semibold">{t}</p>
-            <p className="text-sm text-ink/60">{o}</p>
-            <p className="num mt-0.5 text-xs font-semibold text-violet-600 dark:text-violet-300">{p}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <ol ref={ref} className="relative space-y-8">
+      <span aria-hidden className="absolute bottom-3 left-[13px] top-3 w-[3px] rounded-full bg-ink/10" />
+      <motion.span aria-hidden className="absolute bottom-3 left-[13px] top-3 w-[3px] origin-top rounded-full bg-gradient-to-b from-violet-500 to-pink-500" style={{ scaleY: reduce ? 1 : fill }} />
+      {items.map((r) => (
+        <li key={r.t} className="relative grid grid-cols-[28px_1fr] gap-x-5 sm:grid-cols-[28px_9rem_1fr]">
+          <span className="relative z-10 mt-0.5 grid h-7 w-7 place-items-center">
+            {r.now && !reduce && <motion.span aria-hidden className="absolute h-7 w-7 rounded-full ring-2 ring-emerald-400" animate={{ scale: [1, 1.6], opacity: [0.7, 0] }} transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }} />}
+            <span className={`grid h-7 w-7 place-items-center rounded-full text-white ring-4 ring-surface ${r.now ? "bg-emerald-500" : "bg-gradient-to-br from-violet-500 to-pink-500"}`}>
+              {r.now ? <span className="h-2 w-2 rounded-full bg-white" /> : r.icon ? <r.icon aria-hidden className="h-4 w-4" strokeWidth={2.4} /> : <svg viewBox="0 0 24 24" aria-hidden className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 5 5 9-10" /></svg>}
+            </span>
+          </span>
+          <p className="col-start-2 text-sm font-semibold text-ink/50 sm:pt-1"><span className="whitespace-nowrap">{r.p}</span>{r.done && <span className="mt-1 block w-fit rounded-full bg-mint px-2 py-0.5 text-xs text-ink">Graduated</span>}</p>
+          <div className="col-start-2 mt-1 sm:col-start-3 sm:mt-0">
+            <h3 className="font-display text-lg font-bold leading-snug sm:text-xl">{r.t}</h3>
+            <p className="text-sm font-semibold text-violet-600 dark:text-violet-300">{r.o}</p>
+            <p className="mt-2 max-w-xl text-ink/65">{r.d}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
   );
 }
 
 export default function Dev() {
-  const [copied, setCopied] = useState(false);
-  const copy = async () => { try { await navigator.clipboard.writeText(ME.email); setCopied(true); setTimeout(() => setCopied(false), 1600); } catch { /* clipboard blocked */ } };
+  const portfolio = SOCIAL[0];
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 pb-6 pt-6 sm:px-6 sm:pt-10 lg:px-8">
-      <SectionTitle title="Developer" sub="The person behind this app." />
+    <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+      className="mx-auto w-full max-w-5xl px-4 pb-6 pt-8 sm:px-6 sm:pt-12 lg:px-8">
+      <header className="mb-10 sm:mb-14">
+        <p className={pill}>Developer</p>
+        <h1 className="font-display text-4xl font-semibold leading-none sm:text-6xl">
+          <BlurText text={ME.name} />
+          <span className="bg-gradient-to-r from-violet-500 to-pink-500 bg-clip-text text-transparent">.</span>
+        </h1>
+        <Reveal y={16} delay={0.25}>
+          <p className="mt-3 min-h-[3.2rem] max-w-xl text-lg text-ink/65 sm:min-h-0 sm:text-xl">
+            <BackspaceText before="I'm a" words={WORDS} caretClassName="text-violet-500" />
+          </p>
+        </Reveal>
+      </header>
 
-      <Reveal y={16}>
-        <div className="card grid items-center gap-6 p-5 sm:grid-cols-[auto_1fr] sm:gap-8 sm:p-8">
-          <img src="/profile.webp" alt={`Portrait of ${ME.name}`} width="160" height="160" className="mx-auto h-36 w-36 rounded-full object-cover ring-4 ring-surface shadow-lg sm:h-44 sm:w-44" />
-          <div className="min-w-0 text-center sm:text-left">
-            <h2 className="font-display text-2xl font-extrabold sm:text-3xl">{ME.full}</h2>
-            <p className="mt-1 text-ink/60">{ME.tagline}</p>
-            <p className="mt-3 max-w-2xl leading-relaxed text-ink/75">{ME.bio}</p>
-            <div className="mt-5 flex flex-wrap justify-center gap-2 sm:justify-start">
-              <button type="button" onClick={copy} className={`${btn} bg-ink text-paper hover:bg-ink/85`}>{copied ? "Email copied" : ME.email}</button>
-              <a href={ME.cv} download className={`${btn} bg-ink/[.07] hover:bg-ink/[.12]`}>Download CV</a>
-              <a href={SOCIAL[0].href} target="_blank" rel="noreferrer" className={`${btn} bg-ink/[.07] hover:bg-ink/[.12]`}><Icon name="GitHub" className="h-4 w-4" />GitHub</a>
-            </div>
-          </div>
-        </div>
-      </Reveal>
+      <div className="grid gap-6 lg:grid-cols-[22rem_1fr] lg:gap-10">
+        <Reveal x={-28} y={0}>
+          <ProfileCard name={ME.name} line="Full-stack developer · Competitive programmer · NLP researcher" place={ME.place}>
+            <a href={portfolio.href} target="_blank" rel="noreferrer" className={btnDark}><Icon name="Portfolio" className="h-4 w-4 !text-paper" />Visit portfolio</a>
+          </ProfileCard>
+        </Reveal>
+        <Reveal x={28} y={0} delay={0.08}>
+          <HighlightText className="text-xl leading-[1.75] text-ink/80 sm:text-2xl" text={ME.bio} marks={MARKS} />
+        </Reveal>
+      </div>
 
-      <Reveal y={16} delay={0.05}>
-        <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {STATS.map(([v, l], i) => (
-            <div key={l} className={`flex flex-col rounded-3xl px-4 py-4 text-center ring-1 ring-ink/[.06] ${["bg-lilac", "bg-lemon", "bg-mint", "bg-sky"][i]}`}>
-              <dt className="order-2 text-xs font-semibold text-ink/60">{l}</dt>
-              <dd className="num text-3xl font-extrabold">{v}</dd>
-            </div>
+      <section className="mt-20" aria-labelledby="edu-h">
+        <Reveal y={16}><p className={pill}>Education</p><h2 id="edu-h" className="font-display text-3xl font-semibold leading-tight sm:text-4xl">Where I studied.</h2></Reveal>
+        <Reveal y={16}><div className="card mt-6 p-5 sm:p-8"><Path items={EDU} /></div></Reveal>
+      </section>
+
+      <section className="mt-20" aria-labelledby="pro-h">
+        <Reveal y={16}><p className={pill}>Projects</p><h2 id="pro-h" className="font-display text-3xl font-semibold leading-tight sm:text-4xl">Things I've built.</h2><p className="mt-2 text-ink/60">Tap a card to open the live site.</p></Reveal>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          {PROJECTS.map((p, k) => (
+            <Reveal key={p.t} y={20} delay={(k % 2) * 0.06}>
+              <a href={p.u} target="_blank" rel="noreferrer" className="group card flex h-full flex-col overflow-hidden transition hover:-translate-y-1">
+                <div className={`overflow-hidden ${p.bg}`}><img src={`/dev/${p.img}.webp`} alt={`${p.t} screenshot`} width="800" height="450" loading="lazy" className="aspect-video w-full object-cover object-top transition duration-500 group-hover:scale-[1.04]" /></div>
+                <div className="flex flex-1 flex-col p-4 sm:p-5">
+                  <p className="text-xs font-bold text-ink/45">{p.k}</p>
+                  <div className="mt-0.5 flex items-center justify-between gap-2"><h3 className="font-display text-xl font-extrabold">{p.t}</h3><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-ink/[.06] transition group-hover:bg-ink group-hover:text-paper"><Arrow /></span></div>
+                  <p className="mt-1.5 flex-1 text-[15px] leading-[1.75] text-ink/65">{p.d}</p>
+                  <div className="mt-3 flex flex-wrap gap-1.5">{p.tags.map((x) => <span key={x} className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-ink/[.06] ${p.bg}`}>{x}</span>)}</div>
+                </div>
+              </a>
+            </Reveal>
           ))}
-        </dl>
-      </Reveal>
-
-      <Reveal y={16}>
-        <div className="card mt-4 p-5 sm:p-6">
-          <h2 className="text-lg font-bold">What I work with</h2>
-          <div className="mt-3 grid gap-4 sm:grid-cols-2">
-            {SKILLS.map(([g, bg, items]) => (
-              <div key={g}>
-                <p className="mb-1.5 text-sm font-semibold text-ink/55">{g}</p>
-                <div className="flex flex-wrap gap-1.5">{items.map((x) => <span key={x} className={`rounded-full px-3 py-1 text-[13px] font-semibold ring-1 ring-ink/[.06] ${bg}`}>{x}</span>)}</div>
-              </div>
-            ))}
-          </div>
         </div>
-      </Reveal>
+      </section>
 
-      <Reveal y={16}>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          <Timeline title="Experience" rows={WORK} />
-          <Timeline title="Education" rows={EDU} />
-        </div>
-      </Reveal>
-
-      <Reveal y={16}>
-        <div className="card mt-4 p-5 sm:p-6">
-          <h2 className="text-lg font-bold">Selected projects</h2>
-          <ul className="mt-2 divide-y divide-ink/[.07]">
-            {PROJECTS.map(([t, d, u]) => (
-              <li key={t}>
-                <a href={u} target="_blank" rel="noreferrer" className="group flex items-center justify-between gap-3 py-3 transition">
-                  <span className="min-w-0"><span className="block font-semibold">{t}</span><span className="block truncate text-sm text-ink/60">{d}</span></span>
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-ink/[.06] transition group-hover:bg-ink group-hover:text-paper"><Arrow /></span>
-                </a>
-              </li>
+      <section aria-labelledby="globe-title" className="mt-20 grid items-center gap-10 lg:grid-cols-[1fr_minmax(0,27.5rem)] lg:gap-14">
+        <Reveal x={-28} y={0} className="lg:order-1">
+          <p className={pill}>Let's build</p>
+          <h2 id="globe-title" className="font-display text-3xl font-semibold leading-tight sm:text-4xl">Let's build something together.</h2>
+          <p className="mt-4 max-w-md text-ink/60">A new idea, freelance work or an open-source project, anything is worth a chat. I work with designers, engineers and writers from many parts of the world. Wherever you are, I'm happy to hear from you.</p>
+          <ul className="mt-6 flex flex-wrap gap-2.5" aria-label="Links">
+            {SOCIAL.map((s) => (
+              <li key={s.name}><a href={s.href} target="_blank" rel="noreferrer" className={btnSoft}><Icon name={s.name} className="h-4 w-4" />{s.name}</a></li>
             ))}
           </ul>
-        </div>
-      </Reveal>
-    </div>
+        </Reveal>
+        <Reveal x={28} y={0} delay={0.08} className="lg:order-2">
+          <GlobeCard title="Global team" subtitle="AI, NLP, machine learning and full-stack work, all wired back to one place. Drag the globe to look around." cta="Meet the team" href="/team" members={team} hub={HUB} turn={22} arcs={9} className="mx-auto lg:mx-0" />
+        </Reveal>
+      </section>
+    </motion.div>
   );
 }

@@ -5,7 +5,7 @@ import { usePrecision } from "../lib/settings";
 import { navigate } from "../lib/router";
 import { Blocks } from "../components/Steps";
 import { SectionTitle, Reveal } from "../components/ui";
-import { BaseTabs, NumberField, PrecisionSelect, ResultCard, MobileResultBar, CopyButton, CLR, disp } from "../components/controls";
+import { BaseTabs, ExampleGrid, NumberField, PrecisionSelect, ResultCard, MobileResultBar, CopyButton, CLR, disp } from "../components/controls";
 
 const EXAMPLES = [
   { from: 10, to: 2, v: "25.625", label: "25.625 ডেসিমাল → বাইনারি" },
@@ -47,12 +47,7 @@ export default function Convert({ s, set, onUse }) {
               </div>
             </div>
           </Reveal>
-          <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0" aria-label="উদাহরণ">
-            <span className="shrink-0 py-1.5 text-sm font-semibold text-ink/50">উদাহরণ:</span>
-            {EXAMPLES.map((e) => (
-              <button key={e.label} type="button" onClick={() => set({ from: e.from, to: e.to, value: e.v })} className="shrink-0 whitespace-nowrap rounded-full bg-surface px-3.5 py-1.5 text-sm font-semibold ring-1 ring-ink/10 transition hover:bg-ink/[.05] active:scale-95">{e.label}</button>
-            ))}
-          </div>
+          <ExampleGrid items={EXAMPLES.map((e) => ({ ...e, key: e.label, title: e.v, sub: e.label.split(" ").slice(1).join(" ") }))} onPick={(e) => set({ from: e.from, to: e.to, value: e.v })} limit={4} cols="grid-cols-2" />
         </div>
 
         <div className="min-w-0 space-y-4">

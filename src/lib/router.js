@@ -8,7 +8,7 @@ export const ROUTES = [
   { path: "/complement", id: "complement", label: "পরিপূরক", icon: "complement", sub: "1's ও 2's কমপ্লিমেন্ট" },
   { path: "/algebra", id: "algebra", label: "বুলিয়ান এলজেবরা", icon: "algebra", sub: "রাশি · উপপাদ্য · সত্যক সারণী" },
   { path: "/gates", id: "gates", label: "লজিক গেট", icon: "gates", sub: "গেট · অ্যাডার · কাউন্টার" },
-  { path: "/dev", id: "dev", label: "ডেভ পেজ", icon: "dev" },
+  { path: "/dev", id: "dev", label: "ডেভেলপার", icon: "dev" },
 ];
 const ALIAS = { "/logic": "/gates" };
 const norm = (p) => { let x = "/" + String(p).replace(/^\/+|\/+$/g, ""); x = ALIAS[x] || x; return ROUTES.some((r) => r.path === x) ? x : "/"; };

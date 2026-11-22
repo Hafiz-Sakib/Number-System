@@ -1,8 +1,9 @@
 const v = (name) => `rgb(var(--${name}) / <alpha-value>)`;
 
+/* The two motion-brew chunks hold FluxCard and PixelBlast: scanned so their Tailwind classes are generated (re-check the chunk names after upgrading motion-brew). */
 export default {
   darkMode: "class",
-  content: ["./index.html", "./src/**/*.{js,jsx}"],
+  content: ["./index.html", "./src/**/*.{js,jsx}", "./node_modules/motion-brew/dist/chunk-PV3OYTMT.js", "./node_modules/motion-brew/dist/chunk-4IGMH34C.js"],
   theme: { extend: {
     fontFamily: {
       display: ["Anek Bangla Variable", "Anek Bangla", "sans-serif"],

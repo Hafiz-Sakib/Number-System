@@ -1,22 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { BASES, BASE_NAME, parseNum, ratToBase, showVal } from "../lib/engine";
-import { useFmt, usePrecision } from "../lib/settings";
+import { usePrecision } from "../lib/settings";
 import { navigate } from "../lib/router";
-import { BlurText, DigitRoll, Pill, Reveal, SwapWord, TiltCard } from "../components/ui";
+import { BlurText, DigitRoll, Pill, SwapWord, TiltCard } from "../components/ui";
 import { BaseTabs, CLR, NumberField, disp } from "../components/controls";
+import HomePlay from "../components/HomePlay";
 
 const WORDS = ["রূপান্তর", "যোগ", "বিয়োগ", "গুণ", "ভাগ"];
 
-const FEATURES = [
-  { to: "/convert", bg: "bg-lilac", t: "রূপান্তর", big: "12 জোড়া", d: "চার পদ্ধতির যেকোনোটি থেকে যেকোনোটিতে, ভগ্নাংশ ও Negativeসহ। ভাগ-গুণ, স্থানীয় মান, গ্রুপ পদ্ধতিতে সমাধান।" },
-  { to: "/calc", bg: "bg-mint", t: "যোগ · বিয়োগ · গুণ · ভাগ", big: "কলাম হিসাব", d: "ক্যারি ও ধার দেখিয়ে পাঠ্যবইয়ের মতো হিসাব। যোগে একসাথে অনেক সংখ্যা, বাইনারি বিয়োগে 1-এর ও 2-এর পরিপূরকও আছে।" },
-  { to: "/complement", bg: "bg-lilac", t: "1's ও 2's পরিপূরক", big: "ধাপে ধাপে", d: "দশমিকসহ পরিপূরক বের করা, Negative সংখ্যা ও পরিপূরক দিয়ে বিয়োগ।" },
-  { to: "/algebra", bg: "bg-sky", t: "বুলিয়ান এলজেবরা", big: "রাশি · সারণী", d: "উপপাদ্য, ডি-মরগান, আর নিজের রাশির সার্কিট ও সত্যক সারণী (4 চলক পর্যন্ত)।" },
-  { to: "/gates", bg: "bg-mint", t: "লজিক গেট", big: "গেট · অ্যাডার", d: "সব গেট অ্যানিমেটেড সার্কিটে। হাফ-ফুল অ্যাডার, এনকোডার, রেজিস্টার, কাউন্টারও আছে।" },
-];
-
 export default function Home({ onOpen }) {
-  const fmt = useFmt();
   const [prec] = usePrecision();
   const [i, setI] = useState(0);
   const [live, setLive] = useState({ base: 10, value: "202" });
@@ -65,24 +57,7 @@ export default function Home({ onOpen }) {
         </TiltCard>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {FEATURES.map((f, k) => (
-            <Reveal key={f.to} delay={k * 0.08}>
-              <button type="button" onClick={() => navigate(f.to)} className={`group h-full w-full rounded-3xl p-6 text-left ring-1 ring-ink/[.06] transition hover:-translate-y-1 active:scale-[.98] ${f.bg}`}>
-                <p className="text-sm font-bold text-ink/60">{f.t}</p>
-                <p className="mt-2 text-3xl font-extrabold">{fmt(f.big)}</p>
-                <p className="mt-3 leading-[1.8] text-ink/70">{f.d}</p>
-              </button>
-            </Reveal>
-          ))}
-        </div>
-        <Reveal className="mt-4" y={16}>
-          <div className="card flex flex-wrap items-center justify-between gap-3 p-5 sm:p-6">
-            <p className="max-w-xl leading-[1.8] text-ink/70"><b className="text-ink">ফোনে ইনস্টল করুন।</b> একবার খুললে ইন্টারনেট ছাড়াও চলে। সব হিসাব আপনার ডিভাইসেই হয়।</p>
-          </div>
-        </Reveal>
-      </section>
+      <HomePlay />
     </>
   );
 }

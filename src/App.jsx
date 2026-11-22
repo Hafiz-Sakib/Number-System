@@ -11,7 +11,6 @@ import { ROUTES, navigate, useRoute } from "./lib/router";
 import { ICONS } from "./components/TabBar";
 import { AnimatePresence } from "framer-motion";
 import { APP_NAME } from "./lib/site";
-import Dev from "./sections/Dev";
 
 /* বুলিয়ান ও লজিক গেট পেজ ভারী (সার্কিট ও 3D), তাই আলাদা চাঙ্কে; অ্যাপ খোলার পর অলস সময়ে আগেই নামিয়ে রাখি */
 const Loading = () => <div className="grid min-h-[60svh] place-items-center text-ink/50">লোড হচ্ছে…</div>;
@@ -20,6 +19,8 @@ const loadAlgebra = () => import("./sections/BooleanAlgebra");
 const loadGates = () => import("./sections/LogicGates");
 const Algebra = lazy(loadAlgebra);
 const Gates = lazy(loadGates);
+/* Developer page (three.js globe, motion-brew) is loaded only when opened */
+const Dev = lazy(() => import("./sections/Dev"));
 if (typeof window !== "undefined") (window.requestIdleCallback || ((f) => setTimeout(f, 2500)))(() => { loadAlgebra(); loadGates(); });
 
 /* ফোন-ট্যাবলেটের নিচের বারে ৪টি প্রধান পেজ + "আরও"; বাকি পেজ আরও-র শিটে। বড় পর্দায় সব মেনু হেডারে। */
@@ -92,7 +93,7 @@ export default function App() {
     : path === "/complement" ? <Complement onUse={useInCalc} />
     : path === "/algebra" ? <Suspense fallback={<Loading />}><Algebra /></Suspense>
     : path === "/gates" ? <Suspense fallback={<Loading />}><Gates /></Suspense>
-    : path === "/dev" ? <Dev />
+    : path === "/dev" ? <Suspense fallback={<Loading />}><Dev /></Suspense>
     : <Home onOpen={openConvert} />;
 
   return (

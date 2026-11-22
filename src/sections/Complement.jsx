@@ -5,7 +5,7 @@ import { useFmt } from "../lib/settings";
 import { navigate } from "../lib/router";
 import { Blocks, Detail, Rich } from "../components/Steps";
 import { SectionTitle, Reveal } from "../components/ui";
-import { MobileResultBar, NumberField, PillChoice } from "../components/controls";
+import { ExampleGrid, MobileResultBar, NumberField, PillChoice } from "../components/controls";
 
 const dot = (i, f) => (f ? `${i}.${f}` : i);
 const EX_LIVE = ["1011.01", "0110.1", "10100", "1101.101", "0.011"];
@@ -88,10 +88,7 @@ function Live() {
       <div className="mt-3 sm:mt-4">
         <NumberField label="বাইনারি সংখ্যা" base={2} value={v} onChange={setV} error={p.ok || p.empty ? null : p.msg} id="comp-in" />
       </div>
-      <div className="-mx-4 mt-3 flex items-center gap-1.5 overflow-x-auto px-4 pb-1 text-sm sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
-        <span className="shrink-0 text-ink/50">উদাহরণ:</span>
-        {EX_LIVE.map((e) => <button key={e} type="button" onClick={() => setV(e)} className="num shrink-0 rounded-full bg-ink/[.06] px-3 py-1.5 font-semibold transition hover:bg-ink/[.12] active:scale-95">{e}</button>)}
-      </div>
+      <div className="mt-3"><ExampleGrid items={EX_LIVE.map((e) => ({ key: e, title: e }))} onPick={(e) => setV(e.title)} limit={5} cols="grid-cols-3 sm:grid-cols-5" /></div>
       {d && (
         <div className="mt-4 sm:mt-5">
           <div id="comp-result" className="grid scroll-mt-20 grid-cols-2 gap-2 sm:gap-3">

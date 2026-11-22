@@ -26,10 +26,10 @@ export default function Footer() {
               </a>
               <p className="mt-2 max-w-md text-ink/60">{ME.tagline}</p>
             </div>
-            <ul className="grid grid-cols-8 gap-1.5 sm:flex sm:flex-wrap sm:gap-2" aria-label="Social links">
+            <ul className="flex flex-wrap gap-2" aria-label="Social links">
               {SOCIAL.map((s) => (
                 <li key={s.name}>
-                  <a href={s.href} target="_blank" rel="noreferrer" aria-label={s.name} title={s.name} className="grid aspect-square w-full place-items-center rounded-full bg-surface shadow-sm ring-1 ring-ink/[.08] transition duration-200 hover:-translate-y-1 hover:shadow-md sm:h-11 sm:w-11">
+                  <a href={s.href} target="_blank" rel="noreferrer" aria-label={s.name} title={s.name} className="grid h-11 w-11 place-items-center rounded-full bg-surface shadow-sm ring-1 ring-ink/[.08] transition duration-200 hover:-translate-y-1 hover:shadow-md">
                     <Icon name={s.name} className="h-5 w-5" />
                   </a>
                 </li>
@@ -37,7 +37,7 @@ export default function Footer() {
             </ul>
           </div>
           <div className="mt-6 flex flex-row items-center justify-between gap-4 text-sm text-ink/55">
-            <p>All rights reserved. <a href="/dev" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return; e.preventDefault(); navigate("/dev"); }} className="font-semibold text-ink/70 underline decoration-ink/25 underline-offset-4 transition hover:text-ink hover:decoration-ink/60">About the developer</a></p>
+            <p>All rights reserved. <a href="/dev" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return; e.preventDefault(); navigate("/dev"); }} className="font-semibold text-ink/70 underline decoration-ink/25 underline-offset-4 transition hover:text-ink hover:decoration-ink/60">ডেভেলপার সম্পর্কে</a></p>
             <a href="/" onClick={top} className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-ink/[.06] px-4 py-2 font-semibold text-ink/70 transition-colors hover:bg-ink/10 hover:text-ink">
               Back to top
               <svg viewBox="0 0 24 24" aria-hidden className="h-4 w-4 transition-transform duration-200 group-hover:-translate-y-0.5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M6 11l6-6 6 6" /></svg>

@@ -62,14 +62,22 @@ function Switch({ x, y, label, on, onToggle, fixed }) {
 }
 
 function Led({ x, y, label, on }) {
-  const reduce = useReducedMotion();
+  const cx = x + 17;
   return (
     <g>
+      <defs>
+        <radialGradient id={`ledg-${x}-${y}`} cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#34d399" stopOpacity=".5" />
+          <stop offset="55%" stopColor="#10b981" stopOpacity=".18" />
+          <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+        </radialGradient>
+      </defs>
       <line x1={x} x2={x + 5} y1={y} y2={y} className={cls(on)} />
-      <motion.circle cx={x + 17} cy={y} r="17" fill={ON} initial={false} animate={{ opacity: on ? 0.28 : 0, scale: on && !reduce ? [0.8, 1.15, 1] : 1 }} transition={{ duration: 0.35 }} style={{ transformBox: "fill-box", transformOrigin: "center" }} />
-      <motion.circle cx={x + 17} cy={y} r="11" initial={false} animate={{ fill: on ? ON : "rgba(120,124,150,.3)" }} transition={{ duration: 0.2 }} stroke="rgb(var(--ink) / .55)" strokeWidth="1.5" />
-      <text x={x + 17} y={y + 4} textAnchor="middle" className="pointer-events-none fill-white text-[11px] font-bold" opacity={on ? 1 : 0}>1</text>
-      <text x={x + 17} y={y + 4} textAnchor="middle" className="pointer-events-none fill-current text-[11px] font-bold" opacity={on ? 0 : 0.55}>0</text>
+      {/* হালকা স্থির glow: 1 হলে ফুটে ওঠে, নড়াচড়া/স্পন্দন নেই */}
+      <motion.circle cx={cx} cy={y} r="24" fill={`url(#ledg-${x}-${y})`} initial={false} pointerEvents="none" animate={{ opacity: on ? 1 : 0 }} transition={{ duration: 0.25 }} />
+      <motion.circle cx={cx} cy={y} r="11" initial={false} animate={{ fill: on ? ON : "rgba(120,124,150,.3)" }} transition={{ duration: 0.2 }} stroke={on ? "#6ee7b7" : "rgb(var(--ink) / .55)"} strokeWidth="1.5" style={on ? { filter: "drop-shadow(0 0 3px rgba(16,185,129,.55))" } : undefined} />
+      <text x={cx} y={y + 4} textAnchor="middle" className="pointer-events-none fill-white text-[11px] font-bold" opacity={on ? 1 : 0}>1</text>
+      <text x={cx} y={y + 4} textAnchor="middle" className="pointer-events-none fill-current text-[11px] font-bold" opacity={on ? 0 : 0.55}>0</text>
       <text x={x + 38} y={y + 4.5} className="fill-current text-[13px] font-bold">{label}</text>
     </g>
   );
@@ -152,7 +160,7 @@ export function Circuit({ net, state, onToggle, label = "লজিক সার�
   const off = wires.filter((w) => !vals[w.src]);
   const on = wires.filter((w) => vals[w.src]);
   return (
-    <svg viewBox={`0 0 ${net.w} ${net.h}`} width={net.w} height={net.h} role="group" aria-label={label} className="mx-auto block h-auto w-full min-w-[var(--mw)] max-w-[var(--mx)] text-ink sm:min-w-[min(var(--mw),380px)] lg:max-w-[var(--mxl)] 2xl:max-w-[var(--mxx)]" style={{ "--mw": Math.round(Math.min(net.w * 0.58, 430)) + "px", "--mx": Math.round(net.w * 1.45) + "px", "--mxl": Math.round(net.w * 2.1) + "px", "--mxx": Math.round(net.w * 2.5) + "px" }}>
+    <svg viewBox={`0 0 ${net.w} ${net.h}`} width={net.w} height={net.h} role="group" aria-label={label} className="mx-auto block h-auto w-full min-w-[var(--mw)] max-w-[var(--mx)] text-ink sm:min-w-[min(var(--mw),300px)] lg:max-w-[var(--mxl)]" style={{ "--mw": Math.round(Math.min(net.w * 0.52, 340)) + "px", "--mx": Math.round(net.w * 1.1) + "px", "--mxl": Math.round(net.w * 1.3) + "px" }}>
       {off.map((w) => <path key={`o${w.k}`} d={w.d} className="sw wire-off" />)}
       {on.map((w) => <path key={`n${w.k}`} d={w.d} className="sw wire-on" />)}
       {on.map((w) => <path key={`f${w.k}`} d={w.d} className="flow" />)}
@@ -216,8 +224,8 @@ export function Lab({ net, table, radio = false, init, className = "", hideTable
   const tbl = useMemo(() => table || truthRows(net), [net, table]);
   const active = tbl.rows.findIndex((r) => r.in.every((b, i) => b === st[ids[i]]));
   return (
-    <div className={className}>
-      <div className="board overflow-x-auto no-sb rounded-2xl p-2 ring-1 ring-ink/10 sm:p-3 lg:p-5">
+    <div className={`mx-auto max-w-2xl ${className}`}>
+      <div className="board overflow-x-auto no-sb rounded-2xl p-1.5 ring-1 ring-ink/10 sm:p-2 lg:p-3">
         <Circuit net={net} state={st} onToggle={toggle} />
       </div>
       <p className="mt-2 text-center text-xs text-ink/45">সুইচে চাপ দিয়ে ইনপুট বদলান; সবুজ তারে সিগন্যাল 1 চলছে।</p>
