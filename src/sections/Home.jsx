@@ -10,6 +10,7 @@ const WORDS = ["রূপান্তর", "যোগ", "বিয়োগ", "�
 const FEATURES = [
   { to: "/convert", bg: "bg-lilac", t: "রূপান্তর", big: "12 জোড়া", d: "চার পদ্ধতির যেকোনোটি থেকে যেকোনোটিতে, ভগ্নাংশ ও ঋণাত্মকসহ। ভাগ-গুণ, স্থানীয় মান, গ্রুপ পদ্ধতিতে সমাধান।" },
   { to: "/calc", bg: "bg-mint", t: "যোগ · বিয়োগ · গুণ · ভাগ", big: "কলাম হিসাব", d: "ক্যারি ও ধার দেখিয়ে পাঠ্যবইয়ের মতো হিসাব। যোগে একসাথে অনেক সংখ্যা, বাইনারি বিয়োগে 1-এর ও 2-এর পরিপূরকও আছে।" },
+  { to: "/logic", bg: "bg-sky", t: "ডিজিটাল লজিক", big: "গেট · অ্যাডার", d: "বুলিয়ান এলজেবরা, সত্যক সারণী ও সব গেট অ্যানিমেটেড সার্কিটে। হাফ-ফুল অ্যাডার, এনকোডার, রেজিস্টার, কাউন্টারও আছে।" },
   { to: "/practice", bg: "bg-peach", t: "অনুশীলন", big: "নিজে করুন", d: "এলোমেলো প্রশ্ন, সাথে সাথে যাচাই। ভুল হলে সঠিক উত্তর ও পুরো সমাধান।" },
 ];
 
@@ -64,7 +65,7 @@ export default function Home({ onOpen }) {
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map((f, k) => (
             <Reveal key={f.to} delay={k * 0.08}>
               <button type="button" onClick={() => navigate(f.to)} className={`group h-full w-full rounded-3xl p-6 text-left ring-1 ring-ink/[.06] transition hover:-translate-y-1 active:scale-[.98] ${f.bg}`}>

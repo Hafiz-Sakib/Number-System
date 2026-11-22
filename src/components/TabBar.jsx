@@ -109,6 +109,19 @@ function DevIcon({ active, className, strokeWidth }) {
   );
 }
 
+/* লজিক: AND গেটের প্রতীক; সক্রিয় হলে ইনপুট দুটি আগে-পরে আঁকা হয় */
+function LogicIcon({ active, className, strokeWidth }) {
+  const c = useIcon(active);
+  return (
+    <Shell className={className} strokeWidth={strokeWidth}>
+      <path d="M7 4h5a8 8 0 0 1 0 16H7Z" />
+      <motion.path animate={c} d="M2 9h5" variants={{ normal: { pathLength: 1, opacity: 1 }, animate: { pathLength: [0, 1], opacity: [0.3, 1] } }} transition={{ duration: 0.4 }} />
+      <motion.path animate={c} d="M2 15h5" variants={{ normal: { pathLength: 1, opacity: 1 }, animate: { pathLength: [0, 1], opacity: [0.3, 1] } }} transition={{ duration: 0.4, delay: 0.12 }} />
+      <motion.path animate={c} d="M20 12h2" variants={{ normal: { pathLength: 1, opacity: 1 }, animate: { pathLength: [0, 1], opacity: [0.3, 1] } }} transition={{ duration: 0.3, delay: 0.3 }} />
+    </Shell>
+  );
+}
+
 function PlusIcon({ className, strokeWidth }) {
   return (
     <Shell className={className} strokeWidth={strokeWidth}>
@@ -117,14 +130,14 @@ function PlusIcon({ className, strokeWidth }) {
   );
 }
 
-export const ICONS = { home: HomeIcon, convert: ConvertIcon, calc: CalcIcon, practice: PracticeIcon, learn: BookIcon, dev: DevIcon };
+export const ICONS = { home: HomeIcon, convert: ConvertIcon, calc: CalcIcon, practice: PracticeIcon, learn: BookIcon, logic: LogicIcon, dev: DevIcon };
 
 const GLIDE = [0.22, 1, 0.36, 1];
 const SPRING = { type: "spring", stiffness: 500, damping: 34 };
 const POP = { type: "spring", stiffness: 600, damping: 26 };
 
 /**
- * tabs: [{ id, label, icon: "home"|"convert"|"calc"|"practice"|"learn"|"dev", badge? }]
+ * tabs: [{ id, label, icon: "home"|"convert"|"calc"|"practice"|"learn"|"logic"|"dev", badge? }]
  * variant: "pill" | "labels" | "action"
  */
 export const TabBar = React.forwardRef(function TabBar(
@@ -137,8 +150,9 @@ export const TabBar = React.forwardRef(function TabBar(
   React.useImperativeHandle(ref, () => root.current);
   const seen = useInView(root, { once: true, amount: 0.4 });
   const shown = seen || still;
-  const list = variant === "action" ? tabs.slice(0, 4) : tabs.slice(0, 6);
+  const list = variant === "action" ? tabs.slice(0, 4) : tabs.slice(0, 7);
   const crowded = list.length > 5;
+  const packed = list.length > 6;
   const [own, setOwn] = React.useState(defaultValue ?? list[0]?.id ?? "");
   const current = value ?? own;
   const [playing, setPlaying] = React.useState(null);
@@ -188,7 +202,7 @@ export const TabBar = React.forwardRef(function TabBar(
         className={cn(
           "group relative flex cursor-pointer select-none items-center justify-center outline-none [-webkit-tap-highlight-color:transparent] focus-visible:ring-2 focus-visible:ring-ink/30",
           pill ? "h-12 rounded-full" : iconOnly ? "h-12 flex-1 rounded-2xl" : "h-14 min-w-0 flex-1 flex-col gap-1 rounded-2xl",
-          pill && (on ? "gap-1.5 pl-3 pr-4 min-[380px]:gap-2 min-[380px]:pl-4 min-[380px]:pr-5" : crowded ? "w-9 min-[360px]:w-10 min-[400px]:w-12" : "w-12"),
+          pill && (on ? "gap-1.5 pl-3 pr-4 min-[380px]:gap-2 min-[380px]:pl-4 min-[380px]:pr-5" : packed ? "w-8 min-[360px]:w-9 min-[400px]:w-10" : crowded ? "w-9 min-[360px]:w-10 min-[400px]:w-12" : "w-12"),
         )}
       >
         {pill && on && (

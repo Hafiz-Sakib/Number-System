@@ -1,12 +1,13 @@
 import { useSyncExternalStore } from "react";
 
-/* ছোট রাউটার: /  /convert  /calc  /practice  /learn  /dev - অন্য যেকোনো ঠিকানা হোমে যায়। */
+/* ছোট রাউটার: /  /convert  /calc  /practice  /learn  /logic  /dev - অন্য যেকোনো ঠিকানা হোমে যায়। */
 export const ROUTES = [
   { path: "/", id: "home", label: "হোম", icon: "home" },
   { path: "/convert", id: "convert", label: "রূপান্তর", icon: "convert" },
   { path: "/calc", id: "calc", label: "হিসাব", icon: "calc" },
   { path: "/practice", id: "practice", label: "অনুশীলন", icon: "practice" },
   { path: "/learn", id: "learn", label: "শিখুন", icon: "learn" },
+  { path: "/logic", id: "logic", label: "লজিক", icon: "logic" },
   { path: "/dev", id: "dev", label: "ডেভ পেজ", icon: "dev" },
 ];
 const norm = (p) => { const x = "/" + String(p).replace(/^\/+|\/+$/g, ""); return ROUTES.some((r) => r.path === x) ? x : "/"; };

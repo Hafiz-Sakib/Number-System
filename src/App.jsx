@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import TopBar from "./components/TopBar";
 import { TabBar } from "./components/TabBar";
@@ -11,6 +11,11 @@ import Learn from "./sections/Learn";
 import { ROUTES, navigate, useRoute } from "./lib/router";
 import { APP_NAME } from "./lib/site";
 import Dev from "./sections/Dev";
+
+/* লজিক পেজ ভারী (সার্কিট ও 3D), তাই আলাদা চাঙ্কে; অ্যাপ খোলার পর অলস সময়ে আগেই নামিয়ে রাখি */
+const loadLogic = () => import("./sections/Logic");
+const Logic = lazy(loadLogic);
+if (typeof window !== "undefined") (window.requestIdleCallback || ((f) => setTimeout(f, 2500)))(() => loadLogic());
 
 const tabs = ROUTES.map((r) => ({ id: r.path, label: r.label, icon: r.icon }));
 
@@ -34,6 +39,7 @@ export default function App() {
     : path === "/calc" ? <Calc s={ca} set={setCa} onConvert={openConvert} />
     : path === "/practice" ? <Practice />
     : path === "/learn" ? <Learn />
+    : path === "/logic" ? <Suspense fallback={<div className="grid min-h-[60svh] place-items-center text-ink/50">লোড হচ্ছে…</div>}><Logic /></Suspense>
     : path === "/dev" ? <Dev />
     : <Home onOpen={openConvert} />;
 

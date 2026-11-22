@@ -59,7 +59,7 @@ export default function TopBar() {
               const on = path === r.path;
               return (
                 <li key={r.path}>
-                  <a href={r.path} onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return; e.preventDefault(); navigate(r.path); }} aria-current={on ? "page" : undefined} className="relative block whitespace-nowrap rounded-full px-4 py-1.5 text-[15px] font-semibold">
+                  <a href={r.path} onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return; e.preventDefault(); navigate(r.path); }} aria-current={on ? "page" : undefined} className="relative block whitespace-nowrap rounded-full px-2.5 py-1.5 text-sm font-semibold lg:px-3 xl:px-4 xl:text-[15px]">
                     {on && <motion.span layoutId="nav-pill" transition={{ type: "spring", stiffness: 420, damping: 32 }} className="absolute inset-0 rounded-full bg-ink" />}
                     <span className={`relative flex items-center gap-2 ${on ? "text-paper" : "text-ink/60 hover:text-ink"}`}><Icon className="size-[16px]" strokeWidth={2.1} active={on} />{r.label}</span>
                   </a>

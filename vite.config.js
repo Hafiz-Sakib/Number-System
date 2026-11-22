@@ -41,6 +41,7 @@ export default defineConfig({
           { name: "রূপান্তর", short_name: "রূপান্তর", url: "/convert", icons: [{ src: "/pwa-192.png", sizes: "192x192" }] },
           { name: "যোগ-বিয়োগ-গুণ-ভাগ", short_name: "হিসাব", url: "/calc", icons: [{ src: "/pwa-192.png", sizes: "192x192" }] },
           { name: "অনুশীলন", short_name: "অনুশীলন", url: "/practice", icons: [{ src: "/pwa-192.png", sizes: "192x192" }] },
+          { name: "ডিজিটাল লজিক", short_name: "লজিক", url: "/logic", icons: [{ src: "/pwa-192.png", sizes: "192x192" }] },
         ],
       },
       workbox: {
