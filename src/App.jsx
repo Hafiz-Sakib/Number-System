@@ -6,8 +6,6 @@ import Footer from "./components/Footer";
 import Home from "./sections/Home";
 import Convert from "./sections/Convert";
 import Calc from "./sections/Calc";
-import Practice from "./sections/Practice";
-import Learn from "./sections/Learn";
 import Complement from "./sections/Complement";
 import { ROUTES, navigate, useRoute } from "./lib/router";
 import { ICONS } from "./components/TabBar";
@@ -25,7 +23,7 @@ const Gates = lazy(loadGates);
 if (typeof window !== "undefined") (window.requestIdleCallback || ((f) => setTimeout(f, 2500)))(() => { loadAlgebra(); loadGates(); });
 
 /* ফোন-ট্যাবলেটের নিচের বারে ৪টি প্রধান পেজ + "আরও"; বাকি পেজ আরও-র শিটে। বড় পর্দায় সব মেনু হেডারে। */
-const PRIMARY = ["/", "/convert", "/calc", "/learn"];
+const PRIMARY = ["/", "/convert", "/calc", "/complement"];
 const byPath = Object.fromEntries(ROUTES.map((r) => [r.path, r]));
 
 function MoreSheet({ open, onClose, path }) {
@@ -91,8 +89,6 @@ export default function App() {
   const view =
     path === "/convert" ? <Convert s={cv} set={setCv} onUse={useInCalc} />
     : path === "/calc" ? <Calc s={ca} set={setCa} onConvert={openConvert} />
-    : path === "/practice" ? <Practice />
-    : path === "/learn" ? <Learn />
     : path === "/complement" ? <Complement onUse={useInCalc} />
     : path === "/algebra" ? <Suspense fallback={<Loading />}><Algebra /></Suspense>
     : path === "/gates" ? <Suspense fallback={<Loading />}><Gates /></Suspense>

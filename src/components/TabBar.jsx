@@ -74,29 +74,6 @@ function CalcIcon({ active, className, strokeWidth }) {
   );
 }
 
-/* অনুশীলন: লক্ষ্যবস্তুর বৃত্তগুলো স্পন্দিত হয় */
-function PracticeIcon({ active, className, strokeWidth }) {
-  const c = useIcon(active);
-  return (
-    <Shell className={className} strokeWidth={strokeWidth}>
-      <circle cx="12" cy="12" r="10" />
-      <motion.circle cx="12" cy="12" r="6" animate={c} transition={{ duration: 0.6, ease: "easeInOut" }} variants={{ normal: { scale: 1 }, animate: { scale: [1, 1.25, 1] } }} style={{ transformBox: "fill-box", transformOrigin: "center" }} />
-      <motion.circle cx="12" cy="12" r="2" animate={c} transition={{ duration: 0.6, ease: "easeInOut" }} variants={{ normal: { scale: 1 }, animate: { scale: [1, 1.8, 1] } }} style={{ transformBox: "fill-box", transformOrigin: "center" }} />
-    </Shell>
-  );
-}
-
-/* শিখুন: খোলা বই, মাঝের রেখা আবার আঁকা হয় */
-function BookIcon({ active, className, strokeWidth }) {
-  const c = useIcon(active);
-  return (
-    <Shell className={className} strokeWidth={strokeWidth}>
-      <motion.path animate={c} d="M12 7v14" transition={{ duration: 0.6, opacity: { duration: 0.2 } }} variants={{ normal: { pathLength: 1, opacity: 1 }, animate: { opacity: [0, 1], pathLength: [0, 1] } }} />
-      <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
-    </Shell>
-  );
-}
-
 /* ডেভ পেজ: </> কোড আইকন, ট্যাপে দুই বন্ধনী বাইরের দিকে সরে (পোর্টফোলিওর Projects আইকন) */
 function DevIcon({ active, className, strokeWidth }) {
   const c = useIcon(active);
@@ -166,14 +143,14 @@ function PlusIcon({ className, strokeWidth }) {
   );
 }
 
-export const ICONS = { home: HomeIcon, convert: ConvertIcon, calc: CalcIcon, complement: ComplementIcon, practice: PracticeIcon, learn: BookIcon, algebra: AlgebraIcon, gates: LogicIcon, logic: LogicIcon, dev: DevIcon, more: MoreIcon };
+export const ICONS = { home: HomeIcon, convert: ConvertIcon, calc: CalcIcon, complement: ComplementIcon, algebra: AlgebraIcon, gates: LogicIcon, logic: LogicIcon, dev: DevIcon, more: MoreIcon };
 
 const GLIDE = [0.22, 1, 0.36, 1];
 const SPRING = { type: "spring", stiffness: 500, damping: 34 };
 const POP = { type: "spring", stiffness: 600, damping: 26 };
 
 /**
- * tabs: [{ id, label, icon: "home"|"convert"|"calc"|"practice"|"learn"|"logic"|"dev", badge? }]
+ * tabs: [{ id, label, icon: "home"|"convert"|"calc"|"logic"|"dev", badge? }]
  * variant: "pill" | "labels" | "action"
  */
 export const TabBar = React.forwardRef(function TabBar(

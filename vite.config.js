@@ -15,7 +15,7 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       injectRegister: "auto",
-      includeAssets: ["favicon.ico", "favicon.svg", "favicon-16.png", "favicon-32.png", "apple-touch-icon.png"],
+      includeAssets: ["favicon.ico", "favicon-16.png", "favicon-32.png", "apple-touch-icon.png"],
       manifest: {
         name: "সংখ্যা পদ্ধতি",
         short_name: "সংখ্যা পদ্ধতি",
@@ -28,19 +28,17 @@ export default defineConfig({
         display: "standalone",
         orientation: "any",
         categories: ["education"],
-        background_color: "#F3F4F7",
+        background_color: "#FFFFFF",
         theme_color: "#151633",
         icons: [
           { src: "/pwa-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
           { src: "/pwa-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
           { src: "/pwa-maskable-192.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
           { src: "/pwa-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
-          { src: "/favicon.svg", sizes: "any", type: "image/svg+xml" },
         ],
         shortcuts: [
           { name: "রূপান্তর", short_name: "রূপান্তর", url: "/convert", icons: [{ src: "/pwa-192.png", sizes: "192x192" }] },
           { name: "যোগ-বিয়োগ-গুণ-ভাগ", short_name: "হিসাব", url: "/calc", icons: [{ src: "/pwa-192.png", sizes: "192x192" }] },
-          { name: "অনুশীলন", short_name: "অনুশীলন", url: "/practice", icons: [{ src: "/pwa-192.png", sizes: "192x192" }] },
           { name: "1's ও 2's পরিপূরক", short_name: "পরিপূরক", url: "/complement", icons: [{ src: "/pwa-192.png", sizes: "192x192" }] },
           { name: "বুলিয়ান এলজেবরা", short_name: "বুলিয়ান", url: "/algebra", icons: [{ src: "/pwa-192.png", sizes: "192x192" }] },
           { name: "লজিক গেট", short_name: "গেট", url: "/gates", icons: [{ src: "/pwa-192.png", sizes: "192x192" }] },
