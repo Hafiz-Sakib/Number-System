@@ -5,12 +5,11 @@ import { CLR, PillChoice } from "./controls";
 import { Lab } from "./Circuit";
 import { gateNet, useInterval } from "../sections/logic/shared";
 import { navigate } from "../lib/router";
-import Bits3D from "./Bits3D";
 
-/* হোম পেজের ৭টি ইন্টারেক্টিভ / অ্যানিমেটেড সেকশন (একটির নিচে একটি, ক্রমানুসারে):
+/* হোম পেজের ৯টি ইন্টারেক্টিভ / অ্যানিমেটেড সেকশন (একটির নিচে একটি, ক্রমানুসারে):
    ১) ৮-বিট বাইট সুইচ  ২) গণনার দৌড় (চার পদ্ধতি)  ৩) ২ দিয়ে ভাগের অ্যানিমেশন
    ৪) মন-পড়া কার্ড (বাইনারির জাদু)  ৫) মিনি লজিক গেট ল্যাব (আউটপুট 1 হলে glow)
-   ৬) হেক্স রঙ মিক্সার  ৭) 3D বিট-কিউব */
+   ৬) হেক্স রঙ মিক্সার  ৭) ASCII/Unicode টেক্সট এনকোডার  ৮) IPv4 ঠিকানা  ৯) BCD ডিজিটাল ঘড়ি */
 
 const pad = (s, n) => s.toString(2).padStart(n, "0");
 
@@ -262,23 +261,117 @@ function ColorMixer() {
   );
 }
 
-/* ---------- ৭) 3D বিট-কিউব (three.js) ---------- */
-function CubeLab() {
-  const [v, setV] = useState(37);
-  const bits = [7, 6, 5, 4, 3, 2, 1, 0].map((i) => (v >> i) & 1);
-  const set = (f) => setV((x) => (f(x) & 255));
-  const act = [["−1", (x) => x - 1], ["+1", (x) => x + 1], ["× 2 (বাঁয়ে সরাই)", (x) => x << 1], ["÷ 2 (ডানে সরাই)", (x) => x >> 1], ["উল্টাই (NOT)", (x) => ~x]];
+/* ---------- ৭) টেক্সট থেকে বাইনারি (ASCII ও Unicode) ---------- */
+const TXT_PRESETS = ["Sakib", "Hi!", "আমি", "A", "৳100"];
+function TextEncoder2() {
+  const [txt, setTxt] = useState("Sakib");
+  const chars = [...txt].slice(0, 8);
+  const more = [...txt].length - chars.length;
   return (
-    <Block tag="3D বিট-কিউব" title="বিট-কিউব: সংখ্যা তোলে নামে" desc="1 হলে ঘনক উঠে সবুজ জ্বলে, 0 হলে নেমে যায়। বোতাম টিপে সংখ্যা বদলান: 2 দিয়ে গুণ মানে সব বিট এক ঘর বাঁয়ে, ভাগ মানে ডানে।">
-      <div className="grid grid-cols-8 gap-1.5">
-        {bits.map((b, k) => <button key={k} type="button" aria-label={`বিট ${7 - k} বদলান`} onClick={() => set((x) => x ^ (1 << (7 - k)))} className="num rounded-lg bg-ink/[.06] py-1 text-center text-[11px] font-bold text-ink/50 transition hover:bg-ink/[.12] active:scale-90">{128 >> k}</button>)}
+    <Block tag="ASCII ও Unicode" title="আপনার নাম কম্পিউটারে কীভাবে জমা থাকে?" desc="কম্পিউটার অক্ষর চেনে না, চেনে শুধু সংখ্যা। প্রতিটি অক্ষরের একটি কোড আছে (ইংরেজির জন্য ASCII, বাংলাসহ সব ভাষার জন্য Unicode) আর সেই কোডটিই বাইনারিতে জমা হয়। যেকোনো কিছু লিখে দেখুন।">
+      <input type="text" value={txt} maxLength={24} onChange={(e) => setTxt(e.target.value)} placeholder="এখানে লিখুন…" aria-label="অক্ষর লিখুন"
+        className="w-full rounded-2xl bg-ink/[.05] px-4 py-3 text-xl font-bold outline-none ring-1 ring-ink/10 transition focus:ring-2 focus:ring-violet-500" />
+      <div className="mt-2 flex flex-wrap gap-2">
+        {TXT_PRESETS.map((t) => <button key={t} type="button" onClick={() => setTxt(t)} className="rounded-full bg-ink/[.07] px-3.5 py-1.5 text-sm font-semibold transition hover:bg-ink/[.12] active:scale-95">{t}</button>)}
       </div>
-      <Bits3D bits={bits} height={118} className="mt-1" />
+      <div className="mt-3 space-y-2">
+        {chars.length === 0 && <p className="rounded-2xl bg-ink/[.04] px-4 py-3 text-ink/50">কিছু লিখলে এখানে প্রতিটি অক্ষরের কোড দেখা যাবে।</p>}
+        <AnimatePresence initial={false}>
+          {chars.map((ch, i) => {
+            const cp = ch.codePointAt(0), ascii = cp < 128;
+            const bin = cp.toString(2).padStart(ascii ? 8 : 16, "0");
+            return (
+              <motion.div key={`${i}-${ch}`} layout initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.22 }}
+                className={`flex flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl px-3 py-2 ring-1 ring-ink/[.06] ${ascii ? "bg-sky" : "bg-lilac"}`}>
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface text-2xl font-extrabold">{ch === " " ? "␣" : ch}</span>
+                <span className="num w-24 shrink-0 text-sm font-bold text-ink/65">{ascii ? "ASCII" : "Unicode"} {cp}<span className="ml-1 text-ink/40">({ascii ? cp.toString(16).toUpperCase() : "U+" + cp.toString(16).toUpperCase().padStart(4, "0")})</span></span>
+                <span className="num flex min-w-0 flex-wrap gap-0.5">
+                  {bin.split("").map((b, k) => <span key={k} className={`grid h-6 w-[1.15rem] place-items-center rounded text-[13px] font-extrabold ${b === "1" ? "bg-emerald-500 text-white" : "bg-ink/10 text-ink/45"} ${k % 4 === 3 && k < bin.length - 1 ? "mr-1" : ""}`}>{b}</span>)}
+                </span>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+        {more > 0 && <p className="text-sm text-ink/50">আরও {more}টি অক্ষর আছে: এখানে প্রথম 8টি দেখানো হলো।</p>}
+      </div>
+      <p className="mt-3 rounded-2xl bg-lemon px-4 py-2.5 text-sm font-semibold">মজার তথ্য: ASCII-তে <span className="num font-extrabold">A = 65</span> আর <span className="num font-extrabold">a = 97</span>। দুটোর পার্থক্য ঠিক 32, অর্থাৎ বাইনারিতে শুধু একটি বিট আলাদা।</p>
+    </Block>
+  );
+}
+
+/* ---------- ৮) IPv4 ঠিকানা: সংখ্যা পদ্ধতির নেটওয়ার্ক ব্যবহার ---------- */
+const IP_PRESETS = [["ঘরের রাউটার", [192, 168, 0, 1]], ["Google DNS", [8, 8, 8, 8]], ["লোকালহোস্ট", [127, 0, 0, 1]], ["বিশ্ববিদ্যালয়", [172, 16, 5, 20]]];
+const ipClass = (a) => (a < 128 ? "A" : a < 192 ? "B" : a < 224 ? "C" : a < 240 ? "D" : "E");
+const isPrivate = ([a, b]) => a === 10 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168);
+function IpLab() {
+  const [ip, setIp] = useState([192, 168, 0, 1]);
+  const flip = (o, bit) => setIp((a) => a.map((x, k) => (k === o ? x ^ (1 << bit) : x)));
+  const kind = ip[0] === 127 ? "লুপব্যাক (নিজের কম্পিউটার)" : isPrivate(ip) ? "প্রাইভেট (শুধু স্থানীয় নেটওয়ার্কে)" : "পাবলিক (ইন্টারনেটে চলে)";
+  return (
+    <Block tag="IPv4 ঠিকানা" title="ইন্টারনেটের ঠিকানাও আসলে বাইনারি" desc="প্রতিটি ডিভাইসের IP ঠিকানা চারটি বাইট (অক্টেট): প্রতিটি 0–255। বিট টিপে ঠিকানা বানান: ডটযুক্ত ডেসিমাল রূপটি পাবেন সাথে সাথে।">
+      <div className="space-y-2">
+        {ip.map((val, o) => (
+          <div key={o} className="flex items-center gap-2 rounded-2xl bg-ink/[.04] px-2.5 py-2 ring-1 ring-ink/[.06] sm:gap-3 sm:px-3">
+            <span className="num w-12 shrink-0 text-center text-xl font-extrabold sm:w-14 sm:text-2xl"><DigitRoll text={String(val)} /></span>
+            <div className="flex min-w-0 flex-1 justify-between gap-1">
+              {[7, 6, 5, 4, 3, 2, 1, 0].map((bit) => {
+                const on = (val >> bit) & 1;
+                return (
+                  <motion.button key={bit} type="button" role="switch" aria-checked={!!on} aria-label={`অক্টেট ${o + 1}, মান ${1 << bit}`} onClick={() => flip(o, bit)} whileTap={{ scale: 0.88 }} initial={false}
+                    animate={{ backgroundColor: on ? "#10b981" : "rgba(120,124,150,.16)", color: on ? "#fff" : "rgba(120,124,150,.95)", boxShadow: on ? "0 0 12px rgba(16,185,129,.55)" : "0 0 0 rgba(0,0,0,0)" }}
+                    className="num flex h-10 min-w-0 flex-1 flex-col items-center justify-center rounded-lg text-sm font-extrabold outline-none focus-visible:ring-2 focus-visible:ring-violet-500 sm:h-11">
+                    {on}<span className="text-[8px] font-semibold opacity-70 sm:text-[9px]">{1 << bit}</span>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-3 space-y-2">
+        <p className="num rounded-2xl bg-mint px-4 py-2.5 text-center text-2xl font-extrabold">{ip.join(".")}</p>
+        <p className="num break-all rounded-2xl bg-sky px-4 py-2.5 text-center text-[13px] font-bold sm:text-sm">{ip.map((x) => pad(x, 8)).join(".")}</p>
+        <p className="rounded-2xl bg-lilac px-4 py-2.5 text-center text-[15px] font-semibold">ক্লাস <span className="num font-extrabold">{ipClass(ip[0])}</span> · {kind}</p>
+      </div>
       <div className="mt-3 flex flex-wrap gap-2">
-        {act.map(([n, f]) => <button key={n} type="button" onClick={() => set(f)} className="rounded-full bg-ink px-3.5 py-1.5 text-sm font-semibold text-paper transition hover:bg-ink/85 active:scale-95">{n}</button>)}
-        <button type="button" onClick={() => setV(Math.floor(Math.random() * 256))} className="rounded-full bg-ink/[.07] px-3.5 py-1.5 text-sm font-semibold transition hover:bg-ink/[.12] active:scale-95">এলোমেলো</button>
+        {IP_PRESETS.map(([n, v]) => <button key={n} type="button" onClick={() => setIp(v)} className="rounded-full bg-ink/[.07] px-3.5 py-1.5 text-sm font-semibold transition hover:bg-ink/[.12] active:scale-95">{n}</button>)}
+        <button type="button" onClick={() => setIp([0, 0, 0, 0].map(() => Math.floor(Math.random() * 256)))} className="rounded-full bg-ink px-4 py-1.5 text-sm font-semibold text-paper transition hover:bg-ink/85 active:scale-95">র‍্যান্ডম</button>
       </div>
-      <p className="num mt-3 rounded-2xl bg-ink/[.05] px-4 py-2.5 text-center text-[15px] font-semibold"><span className="text-ink/55">{bits.join("")}</span><sub className="text-ink/40">2</sub> = <span className="font-extrabold">{v}</span><sub className="text-ink/40">10</sub> = <span className="font-extrabold">{v.toString(16).toUpperCase().padStart(2, "0")}</span><sub className="text-ink/40">16</sub></p>
+    </Block>
+  );
+}
+
+/* ---------- ৯) BCD ডিজিটাল ঘড়ি ---------- */
+const nowParts = () => { const d = new Date(), z = (n) => String(n).padStart(2, "0"); return z(d.getHours()) + z(d.getMinutes()) + z(d.getSeconds()); };
+function BcdClock() {
+  const [t, setT] = useState(nowParts);
+  const [run, setRun] = useState(true);
+  useInterval(() => setT(nowParts()), 1000, run);
+  const digits = t.split("").map(Number);
+  const secs = Number(t.slice(4));
+  const BIT = [8, 4, 2, 1];
+  return (
+    <Block tag="BCD কোড" title="ডিজিটাল ঘড়ির ভেতরের বাইনারি" desc="ডিজিটাল ঘড়ি, ক্যালকুলেটর ও মিটারে প্রতিটি দশমিক অঙ্ক আলাদা 4 বিটে রাখা হয়: একে বলে BCD (Binary Coded Decimal)। এখনকার সময়টি BCD-তে কেমন দেখায় দেখুন।">
+      <div className="mx-auto flex max-w-md justify-center gap-1 sm:gap-2">
+        {digits.map((d, i) => (
+          <div key={i} className={`flex flex-1 flex-col items-center gap-1.5 ${i === 1 || i === 3 ? "mr-2 sm:mr-4" : ""}`}>
+            {BIT.map((w) => {
+              const on = (d & w) !== 0;
+              return <motion.span key={w} initial={false} animate={{ backgroundColor: on ? "#f43f5e" : "rgba(120,124,150,.16)", boxShadow: on ? "0 0 12px rgba(244,63,94,.75), 0 0 26px rgba(244,63,94,.3)" : "0 0 0 rgba(0,0,0,0)" }} transition={{ duration: 0.18 }} className="block aspect-square w-full max-w-[2.4rem] rounded-full" title={`${w}`} />;
+            })}
+            <span className="num mt-0.5 text-2xl font-extrabold sm:text-3xl"><DigitRoll text={String(d)} /></span>
+            <span className="num text-[11px] font-bold text-ink/45">{pad(d, 4)}</span>
+          </div>
+        ))}
+      </div>
+      <p className="num mt-1 text-center text-xs font-semibold text-ink/40" aria-hidden>বাঁ থেকে: ঘণ্টা · মিনিট · সেকেন্ড। প্রতি কলামে ওপর থেকে নিচে বিটের মান 8, 4, 2, 1</p>
+      <p className="mt-3 rounded-2xl bg-ink/[.05] px-4 py-2.5 text-center text-[15px] font-semibold">
+        সেকেন্ড <span className="num font-extrabold">{String(secs).padStart(2, "0")}</span>: BCD-তে <span className="num font-extrabold text-rose-600 dark:text-rose-300">{pad(Math.floor(secs / 10), 4)} {pad(secs % 10, 4)}</span> (8 বিট), কিন্তু সাধারণ বাইনারিতে <span className="num font-extrabold">{secs.toString(2)}</span>
+      </p>
+      <div className="mt-3 flex gap-2">
+        <button type="button" aria-pressed={run} onClick={() => setRun((r) => !r)} className={`rounded-full px-5 py-2 font-semibold transition active:scale-95 ${run ? "bg-emerald-500 text-white" : "bg-ink text-paper"}`}>{run ? "থামান" : "চালান"}</button>
+        <button type="button" onClick={() => setT(nowParts())} className="rounded-full bg-ink/[.07] px-5 py-2 font-semibold transition hover:bg-ink/[.12] active:scale-95">এখনকার সময়</button>
+      </div>
     </Block>
   );
 }
@@ -299,7 +392,9 @@ export default function HomePlay() {
         <MagicCards />
         <MiniGate />
         <ColorMixer />
-        <CubeLab />
+        <TextEncoder2 />
+        <IpLab />
+        <BcdClock />
       </div>
     </section>
   );

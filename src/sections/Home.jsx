@@ -5,6 +5,7 @@ import { navigate } from "../lib/router";
 import { BlurText, DigitRoll, Pill, SwapWord, TiltCard } from "../components/ui";
 import { BaseTabs, CLR, NumberField, disp } from "../components/controls";
 import HomePlay from "../components/HomePlay";
+import { AnnotationText } from "@/components/annotation-text";
 
 const WORDS = ["রূপান্তর", "যোগ", "বিয়োগ", "গুণ", "ভাগ"];
 
@@ -25,7 +26,11 @@ export default function Home({ onOpen }) {
           </p>
           <h1 className="text-[2.7rem] font-extrabold leading-[1.15] min-[400px]:text-5xl sm:text-7xl">
             <BlurText text="সংখ্যা পদ্ধতি" delay={0.1} />
-            <span className="mt-1 block text-ink/45"><BlurText text="ধাপে ধাপে" delay={0.45} /> <SwapWord words={WORDS} index={i} className="text-ink" /></span>
+            <span className="mt-1 block text-ink/45">
+            <AnnotationText type="circle" color="#ec4899" duration={1.2} delay={1.2} className="text-violet-600 dark:text-violet-300"><BlurText text="ধাপে" delay={0.45} trim /></AnnotationText>{" "}
+            <AnnotationText type="underline" color="#8b5cf6" duration={0.9} delay={2.5} className="text-violet-600 dark:text-violet-300"><BlurText text="ধাপে" delay={0.55} trim /></AnnotationText>{" "}
+            <SwapWord words={WORDS} index={i} className="text-ink" />
+          </span>
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-[1.9] text-ink/65">বাইনারি, অক্টাল, ডেসিমাল ও হেক্সাডেসিমাল - ভগ্নাংশসহ যেকোনো সংখ্যা বসান। উত্তরের সাথে পাবেন পাঠ্যবইয়ের নিয়মে পুরো সমাধান।</p>
           <div className="mt-8 flex flex-wrap gap-3">

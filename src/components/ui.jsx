@@ -5,7 +5,7 @@ import { useFmt } from "../lib/settings";
 /* motion-brew শৈলীর ছোট অ্যানিমেটেড টুকরোগুলো (পোর্টফোলিও থেকে নেওয়া, বাংলার জন্য মানিয়ে) */
 
 /* শব্দগুলো হালকা ঝাপসা থেকে উঠে আসে। শব্দ ধরে ভাগ করা হয়, অক্ষর ধরে নয় - তাই বাংলা যুক্তাক্ষর ভাঙে না। */
-export function BlurText({ text, className = "", delay = 0, as: Tag = "span" }) {
+export function BlurText({ text, className = "", delay = 0, as: Tag = "span", trim = false }) {
   const reduce = useReducedMotion();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-10% 0px" });
@@ -15,7 +15,7 @@ export function BlurText({ text, className = "", delay = 0, as: Tag = "span" }) 
         <motion.span key={i} aria-hidden className="inline-block whitespace-pre"
           initial={reduce ? false : { opacity: 0, y: 18, filter: "blur(12px)" }}
           animate={inView ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}}
-          transition={{ duration: 0.7, delay: delay + i * 0.07, ease: [0.22, 1, 0.36, 1] }}>{w + " "}</motion.span>
+          transition={{ duration: 0.7, delay: delay + i * 0.07, ease: [0.22, 1, 0.36, 1] }}>{trim ? w : w + " "}</motion.span>
       ))}
     </Tag>
   );

@@ -67,8 +67,8 @@ export default function Dev() {
       className="mx-auto w-full max-w-5xl px-4 pb-6 pt-8 sm:px-6 sm:pt-12 lg:px-8">
       <header className="mb-10 sm:mb-14">
         <p className={pill}>Developer</p>
-        <h1 className="font-display text-4xl font-semibold leading-none sm:text-6xl">
-          <BlurText text={ME.name} />
+        <h1 className="font-display text-3xl font-semibold leading-[1.1] min-[400px]:text-4xl sm:text-5xl lg:text-6xl">
+          <BlurText text={ME.full} />
           <span className="bg-gradient-to-r from-violet-500 to-pink-500 bg-clip-text text-transparent">.</span>
         </h1>
         <Reveal y={16} delay={0.25}>
@@ -80,7 +80,7 @@ export default function Dev() {
 
       <div className="grid gap-6 lg:grid-cols-[22rem_1fr] lg:gap-10">
         <Reveal x={-28} y={0}>
-          <ProfileCard name={ME.name} line="Full-stack developer · Competitive programmer · NLP researcher" place={ME.place}>
+          <ProfileCard name={ME.full} line="Full-stack developer · Competitive programmer · NLP researcher" place={ME.place}>
             <a href={portfolio.href} target="_blank" rel="noreferrer" className={btnDark}><Icon name="Portfolio" className="h-4 w-4 !text-paper" />Visit portfolio</a>
           </ProfileCard>
         </Reveal>
