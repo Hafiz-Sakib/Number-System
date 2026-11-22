@@ -5,6 +5,7 @@ import { navigate } from "../lib/router";
 import { BlurText, DigitRoll, Pill, SwapWord, TiltCard } from "../components/ui";
 import { BaseTabs, CLR, NumberField, disp } from "../components/controls";
 import HomePlay from "../components/HomePlay";
+import HomeExtra from "../components/HomeExtra";
 import { AnnotationText } from "@/components/annotation-text";
 
 const WORDS = ["রূপান্তর", "যোগ", "বিয়োগ", "গুণ", "ভাগ"];
@@ -63,6 +64,7 @@ export default function Home({ onOpen }) {
       </section>
 
       <HomePlay />
+      <HomeExtra />
     </>
   );
 }
