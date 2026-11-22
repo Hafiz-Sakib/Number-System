@@ -43,7 +43,7 @@ function RowsDemo() {
     <div>
       <PillChoice id="rows-n" value={n} onChange={setN} options={[1, 2, 3, 4].map((x) => ({ id: x, label: `${x} ইনপুট` }))} />
       <p className="mt-3 text-ink/70"><Rich text={`{{${n}}} টি ইনপুটের সম্ভাব্য সংমিশ্রণ = 2^[${n}] = **${1 << n}** টি সারি। ইনপুটগুলো বাইনারি গণনার মতো 0 থেকে শুরু করে সাজানো হয়।`} /></p>
-      <div className="mt-3 max-h-72 overflow-auto rounded-2xl"><TruthTable ins={cols} outs={[]} rows={rows} /></div>
+      <div className="mt-3 overflow-x-auto no-sb rounded-2xl"><TruthTable ins={cols} outs={[]} rows={rows} /></div>
     </div>
   );
 }

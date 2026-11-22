@@ -78,3 +78,7 @@ input:focus-visible { outline: none; }
 .sw-toggle { cursor: pointer; outline: none; -webkit-tap-highlight-color: transparent; }
 .sw-toggle:focus-visible .sw-track { stroke: rgb(var(--ink)); stroke-width: 2; }
 @media (prefers-reduced-motion: reduce) { .flow { animation: none; display: none; } .sw { transition: none; } }
+
+/* স্ক্রলবার লুকানো (স্ক্রল/সোয়াইপ চলে) */
+.no-sb{scrollbar-width:none;-ms-overflow-style:none}
+.no-sb::-webkit-scrollbar{display:none}

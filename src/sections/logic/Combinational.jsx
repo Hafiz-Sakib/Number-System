@@ -114,7 +114,7 @@ function Ripple() {
   const col = [3, 2, 1, 0]; // বাম থেকে ডানে বিট নম্বর
   return (
     <div>
-      <div className="overflow-x-auto pb-1">
+      <div className="overflow-x-auto no-sb pb-1">
         <div className="mx-auto grid min-w-[430px] max-w-xl grid-cols-[auto_repeat(4,minmax(0,1fr))_auto] items-center gap-x-1.5 gap-y-2.5 text-center">
           <span />{col.map((bit) => <span key={bit} className="num text-sm font-bold text-ink/50">বিট {bit}</span>)}<span className="num text-sm font-bold text-ink/50">Cin</span>
           <span className="num font-bold">A</span>{col.map((bit, i) => <div key={bit} className="flex justify-center"><BitBtn v={a[i]} onClick={() => flip(setA, i)} label={`A বিট ${bit}`} /></div>)}<span />

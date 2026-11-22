@@ -74,7 +74,7 @@ function Timing({ hist }) {
   const W = 44, L = 46, rows = [["CLK"], ["Q₀", 0], ["Q₁", 1], ["Q₂", 2], ["Q₃", 3]];
   const rh = 34, H = rows.length * rh + 14;
   return (
-    <div className="overflow-x-auto rounded-2xl ring-1 ring-ink/10">
+    <div className="overflow-x-auto no-sb rounded-2xl ring-1 ring-ink/10">
       <svg viewBox={`0 0 ${L + 12 * W + 8} ${H}`} className="block w-full min-w-[520px] text-ink" role="img" aria-label="টাইমিং ডায়াগ্রাম">
         {rows.map(([name, bit], r) => {
           const top = 8 + r * rh + 6, bot = top + 18;

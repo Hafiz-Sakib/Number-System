@@ -57,7 +57,7 @@ export function ExprLab({ initial = "A·B + A'·C" }) {
           </div>
           {d.better ? <PillChoice id="expr-view" value={view} onChange={setView} options={[{ id: "orig", label: "আপনার রাশির সার্কিট" }, { id: "simple", label: "সরল রূপের সার্কিট" }]} />
             : <p className="text-sm text-ink/55">রাশিটি আগে থেকেই যথেষ্ট সরল, এর চেয়ে কম গেটে করা যায় না।</p>}
-          <div className="board overflow-x-auto rounded-2xl p-2 ring-1 ring-ink/10 sm:p-3">
+          <div className="board overflow-x-auto no-sb rounded-2xl p-2 ring-1 ring-ink/10 sm:p-3">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div key={view + src} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
                 <Circuit net={shown} state={st} onToggle={toggle} />
@@ -224,7 +224,7 @@ export function DeMorgan() {
           {[["বাম পক্ষ", L.l, nets.l], ["ডান পক্ষ", L.r, nets.r]].map(([h, e, net]) => (
             <div key={h}>
               <p className="mb-1.5 text-sm font-bold text-ink/60">{h}: <span className="num text-ink">{e}</span></p>
-              <div className="board overflow-x-auto rounded-2xl p-2 ring-1 ring-ink/10"><Circuit net={net} state={st} onToggle={toggle} /></div>
+              <div className="board overflow-x-auto no-sb rounded-2xl p-2 ring-1 ring-ink/10"><Circuit net={net} state={st} onToggle={toggle} /></div>
             </div>
           ))}
         </div>
