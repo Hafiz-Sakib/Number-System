@@ -59,9 +59,9 @@ export default function TopBar() {
               const on = path === r.path;
               return (
                 <li key={r.path}>
-                  <a href={r.path} onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return; e.preventDefault(); navigate(r.path); }} aria-current={on ? "page" : undefined} className="relative block whitespace-nowrap rounded-full px-2.5 py-1.5 text-sm font-semibold lg:px-3 xl:px-4 xl:text-[15px]">
+                  <a href={r.path} title={r.label} aria-label={r.label} onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return; e.preventDefault(); navigate(r.path); }} aria-current={on ? "page" : undefined} className="relative block whitespace-nowrap rounded-full px-2.5 py-1.5 text-sm font-semibold min-[1400px]:px-3 min-[1400px]:text-[15px]">
                     {on && <motion.span layoutId="nav-pill" transition={{ type: "spring", stiffness: 420, damping: 32 }} className="absolute inset-0 rounded-full bg-ink" />}
-                    <span className={`relative flex items-center gap-2 ${on ? "text-paper" : "text-ink/60 hover:text-ink"}`}><Icon className="size-[16px]" strokeWidth={2.1} active={on} />{r.label}</span>
+                    <span className={`relative flex items-center gap-1.5 ${on ? "text-paper" : "text-ink/60 hover:text-ink"}`}><Icon className="size-[18px]" strokeWidth={2.1} active={on} /><span className={on ? "" : "hidden min-[1400px]:inline"}>{r.label}</span></span>
                   </a>
                 </li>
               );

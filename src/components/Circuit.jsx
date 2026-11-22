@@ -79,24 +79,74 @@ function Led({ x, y, label, on }) {
 export function Circuit({ net, state, onToggle, label = "লজিক সার্কিট" }) {
   const vals = useMemo(() => evalNet(net, state), [net, state]);
   const { wires, dots } = useMemo(() => {
+    /* তার আঁকার নিয়ম: প্রতিটি উৎসের জন্য দুই গেট-সারির মাঝের ফাঁকে আলাদা উল্লম্ব "চ্যানেল";
+       মাঝে গেট থাকলে তার গেটের ফাঁক দিয়ে আলাদা অনুভূমিক "লেন" ধরে যায় - তাই কোনো তার গেটের ভেতর দিয়ে বা অন্য তারের ওপর দিয়ে যায় না। */
     const pos = {};
     net.inputs.forEach((p) => (pos[p.id] = { x: p.x, y: p.y }));
     (net.consts || []).forEach((p) => (pos[p.id] = { x: p.x, y: p.y }));
     net.gates.forEach((g) => (pos[g.id] = { x: g.x + GW, y: g.y + g.h / 2 }));
     const list = [];
-    net.gates.forEach((g) => g.in.forEach((src, i) => list.push({ src, to: { x: g.x, y: pinY(g, i) }, vx: g.x - 12 - i * 6 })));
-    net.outputs.forEach((o) => list.push({ src: o.from, to: { x: o.x, y: o.y }, vx: o.x - 16 }));
+    net.gates.forEach((g) => g.in.forEach((src, i) => list.push({ src, to: { x: g.x, y: pinY(g, i) } })));
+    net.outputs.forEach((o) => list.push({ src: o.from, to: { x: o.x, y: o.y } }));
+    const boxes = net.gates.map((g) => ({ x: g.x, r: g.x + GW, t: g.y - 6, b: g.y + g.h + 18 }));
+    const edges = [...net.gates.map((g) => g.x), ...net.outputs.map((o) => o.x)];
+    const srcX = [...net.inputs, ...(net.consts || [])].map((p) => p.x);
+    const nextLeft = (x) => Math.min(...edges.filter((e) => e > x + 1));
+    const leftOf = (key) => Math.max(...boxes.filter((q) => q.r <= key + 1).map((q) => q.r), ...srcX);
     const fan = {};
     list.forEach((w) => (fan[w.src] = (fan[w.src] || 0) + 1));
-    const dotsL = [];
-    const ws = list.map((w, k) => {
+
+    /* ধাপ ১: কোন তার সোজা/ছোট/লম্বা পথে যাবে ঠিক করা, আর কোন ফাঁকে কোন উৎসের চ্যানেল লাগবে গোনা */
+    const gaps = {};
+    const need = (key, src) => { (gaps[key] ||= []); if (!gaps[key].includes(src)) gaps[key].push(src); };
+    list.forEach((w) => {
       const a = pos[w.src] || { x: 0, y: 0 };
-      const vx = Math.max(a.x + 10, w.vx);
-      const d = a.y === w.to.y ? `M${a.x} ${a.y}H${w.to.x}` : `M${a.x} ${a.y}H${vx}V${w.to.y}H${w.to.x}`;
-      if (fan[w.src] > 1 && a.y !== w.to.y) dotsL.push({ x: vx, y: a.y, src: w.src, k });
+      w.a = a;
+      const clear = !boxes.some((q) => q.r > a.x + 1 && q.x < w.to.x - 1 && a.y > q.t && a.y < q.b);
+      w.mode = clear ? "short" : "long";
+      if (w.mode === "short" && a.y !== w.to.y) need(w.to.x, w.src);
+      if (w.mode === "long") { w.ex = nextLeft(a.x); need(w.ex, w.src); need(w.to.x, w.src); }
+    });
+    Object.values(gaps).forEach((l) => l.sort((p, q) => (pos[p]?.y ?? 0) - (pos[q]?.y ?? 0)));
+    const chx = (key, src) => {
+      const l = gaps[key], n = l.length, lb = leftOf(key);
+      const sp = n > 1 ? Math.min(11, Math.max(5, (key - 16 - lb - 8) / (n - 1))) : 0;
+      return key - 16 - l.indexOf(src) * sp;
+    };
+
+    /* ধাপ ২: পথ আঁকা; লম্বা তারের জন্য ফাঁকা লেন খোঁজা */
+    const lanes = [];
+    const dotSet = new Map();
+    const dot = (x, y, src) => dotSet.set(`${x},${y}`, { x, y, src });
+    const entryCount = {};
+    list.forEach((w) => { if (w.a.y !== w.to.y || w.mode === "long") { const k = `${w.to.x}|${w.src}`; entryCount[k] = (entryCount[k] || 0) + 1; } });
+    const ws = list.map((w, k) => {
+      const { a, to, src } = w;
+      let d, firstX = null;
+      if (w.mode === "short") {
+        if (a.y === to.y) d = `M${a.x} ${a.y}H${to.x}`;
+        else { const cx = chx(to.x, src); d = `M${a.x} ${a.y}H${cx}V${to.y}H${to.x}`; firstX = cx; if (entryCount[`${to.x}|${src}`] > 1) dot(cx, to.y, src); }
+      } else {
+        const ex = chx(w.ex, src), nx = chx(to.x, src);
+        const hit = boxes.filter((q) => q.r > ex && q.x < nx);
+        let ly = to.y;
+        const H = net.h - 6;
+        for (let o = 0; o <= H; o += 6) {
+          const ok = [to.y + o, to.y - o].find((y) => y >= 6 && y <= H
+            && !hit.some((q) => y > q.t - 3 && y < q.b + 3)
+            && !lanes.some((l) => l.src !== src && Math.abs(l.y - y) < 7 && l.x1 < nx && l.x2 > ex));
+          if (ok != null) { ly = ok; break; }
+        }
+        lanes.push({ src, y: ly, x1: ex, x2: nx });
+        d = `M${a.x} ${a.y}H${ex}` + (ly !== a.y ? `V${ly}` : "") + `H${nx}` + (to.y !== ly ? `V${to.y}` : "") + `H${to.x}`;
+        firstX = ex;
+        if (ly === a.y) firstX = null;
+        if (entryCount[`${to.x}|${src}`] > 1 && to.y !== ly) dot(nx, to.y, src);
+      }
+      if (fan[src] > 1 && firstX != null) dot(firstX, a.y, src);
       return { ...w, d, k };
     });
-    return { wires: ws, dots: dotsL };
+    return { wires: ws, dots: [...dotSet.values()] };
   }, [net]);
 
   const off = wires.filter((w) => !vals[w.src]);
@@ -106,7 +156,7 @@ export function Circuit({ net, state, onToggle, label = "লজিক সার�
       {off.map((w) => <path key={`o${w.k}`} d={w.d} className="sw wire-off" />)}
       {on.map((w) => <path key={`n${w.k}`} d={w.d} className="sw wire-on" />)}
       {on.map((w) => <path key={`f${w.k}`} d={w.d} className="flow" />)}
-      {dots.map((d) => <circle key={`d${d.k}`} cx={d.x} cy={d.y} r="3.6" fill={vals[d.src] ? ON : "rgb(var(--ink) / .45)"} />)}
+      {dots.map((d, i) => <circle key={`d${i}`} cx={d.x} cy={d.y} r="3.6" fill={vals[d.src] ? ON : "rgb(var(--ink) / .45)"} />)}
       {net.gates.map((g) => (
         <g key={g.id} transform={`translate(${g.x} ${g.y})`}>
           <GateShape type={g.type} h={g.h} ins={g.in.map((id) => vals[id])} out={vals[g.id]} />

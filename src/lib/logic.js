@@ -53,7 +53,7 @@ export function truthRows(net) {
    spec: { inputs:[{id,label}], consts?:[{id,value}], gates:[{id,type,in:[id],label?,x?,y?}], outputs:[{id,from,label}] }
    ফল: প্রতিটি নোডের x,y সহ নেটলিস্ট, w ও h। গেট গভীরতা অনুযায়ী কলামে বসে। */
 export function autoLayout(spec, o = {}) {
-  const { inGap = 56, colGap = 132, x0 = 150, inX = 100, gateGap = 18, top = 28 } = o;
+  const { inGap = 56, colGap = 168, x0 = 180, inX = 100, gateGap = 18, top = 28 } = o;
   const gates = spec.gates.map((g) => ({ ...g, h: gateH(g.in.length) }));
   const gm = new Map(gates.map((g) => [g.id, g]));
   const depth = {};
@@ -114,7 +114,7 @@ function tokenize(src) {
 
 const nary = (t, args) => ({ t, args: args.flatMap((a) => (a.t === t ? a.args : [a])) });
 
-export function parseExpr(src) {
+export function parseExpr(src, maxVars = 5) {
   try {
     const tk = tokenize(String(src));
     if (!tk.length) return { ok: false, empty: true, error: "একটি রাশি লিখুন।" };
@@ -149,7 +149,7 @@ export function parseExpr(src) {
     const ast = orE();
     if (i < tk.length) throw new Error(tk[i].k === ")" ? "বাড়তি ) বন্ধনী আছে।" : "দুটি চলকের মাঝে অপারেটর (+ বা ·) লাগবে।");
     const vars = [...new Set(collectVars(ast))].sort();
-    if (vars.length > 5) return { ok: false, error: "সর্বোচ্চ 5টি চলক (A–E) ব্যবহার করুন।" };
+    if (vars.length > maxVars) return { ok: false, error: `সর্বোচ্চ ${maxVars}টি চলক (${"ABCDE".slice(0, maxVars).split("").join(", ")}) ব্যবহার করুন; আপনার রাশিতে ${vars.length}টি আছে।` };
     return { ok: true, ast, vars };
   } catch (e) {
     return { ok: false, error: e.message };

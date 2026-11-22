@@ -4,7 +4,7 @@
  * Ported to plain JSX for this Vite + Tailwind v3 project:
  *  - framer-motion (already installed) instead of motion/react
  *  - no clsx / tailwind-merge (small cn() helper below)
- *  - এই অ্যাপের আইকন (lucide path, MIT): home, arrows-left-right, calculator, target, book-open
+ *  - এই অ্যাপের আইকন (lucide path, MIT): home, arrows-left-right, calculator, contrast, book-open, target, sigma, logic-gate, code, layout-grid
  *  - up to 6 tabs; inactive icons shrink a little on very narrow phones so the bar always fits
  *
  * Variants: "pill" (default) | "labels" | "action". A tap bounces the tab, plays its icon and sends a ripple.
@@ -122,6 +122,42 @@ function LogicIcon({ active, className, strokeWidth }) {
   );
 }
 
+
+/* পরিপূরক: অর্ধেক ভরা বৃত্ত, ট্যাপে উল্টে যায় (বিট উল্টানো = 1's কমপ্লিমেন্ট) */
+function ComplementIcon({ active, className, strokeWidth }) {
+  const c = useIcon(active);
+  return (
+    <Shell className={className} strokeWidth={strokeWidth}>
+      <circle cx="12" cy="12" r="10" />
+      <motion.path animate={c} d="M12 18a6 6 0 0 0 0-12v12z" transition={{ duration: 0.6, ease: "easeInOut" }} variants={{ normal: { rotate: 0 }, animate: { rotate: [0, 180] } }} style={{ transformBox: "fill-box", transformOrigin: "center" }} />
+    </Shell>
+  );
+}
+
+/* বুলিয়ান এলজেবরা: সিগমা (Σ) চিহ্ন, সক্রিয় হলে নতুন করে আঁকা হয় */
+function AlgebraIcon({ active, className, strokeWidth }) {
+  const c = useIcon(active);
+  return (
+    <Shell className={className} strokeWidth={strokeWidth}>
+      <motion.path animate={c} d="M18 7V5a1 1 0 0 0-1-1H6.5a.5.5 0 0 0-.4.8l4.5 6a2 2 0 0 1 0 2.4l-4.5 6a.5.5 0 0 0 .4.8H17a1 1 0 0 0 1-1v-2" transition={{ duration: 0.7, opacity: { duration: 0.2 } }}
+        variants={{ normal: { pathLength: 1, opacity: 1 }, animate: { opacity: [0, 1], pathLength: [0, 1] } }} />
+    </Shell>
+  );
+}
+
+/* আরও: চার ঘরের গ্রিড, ট্যাপে ঘরগুলো একে একে স্পন্দিত হয় */
+function MoreIcon({ active, className, strokeWidth }) {
+  const c = useIcon(active);
+  const sq = [[3, 3], [14, 3], [14, 14], [3, 14]];
+  return (
+    <Shell className={className} strokeWidth={strokeWidth}>
+      {sq.map(([x, y], i) => (
+        <motion.rect key={i} width="7" height="7" x={x} y={y} rx="1" animate={c} transition={{ duration: 0.45, delay: i * 0.07 }} variants={{ normal: { scale: 1 }, animate: { scale: [1, 0.7, 1] } }} style={{ transformBox: "fill-box", transformOrigin: "center" }} />
+      ))}
+    </Shell>
+  );
+}
+
 function PlusIcon({ className, strokeWidth }) {
   return (
     <Shell className={className} strokeWidth={strokeWidth}>
@@ -130,7 +166,7 @@ function PlusIcon({ className, strokeWidth }) {
   );
 }
 
-export const ICONS = { home: HomeIcon, convert: ConvertIcon, calc: CalcIcon, practice: PracticeIcon, learn: BookIcon, logic: LogicIcon, dev: DevIcon };
+export const ICONS = { home: HomeIcon, convert: ConvertIcon, calc: CalcIcon, complement: ComplementIcon, practice: PracticeIcon, learn: BookIcon, algebra: AlgebraIcon, gates: LogicIcon, logic: LogicIcon, dev: DevIcon, more: MoreIcon };
 
 const GLIDE = [0.22, 1, 0.36, 1];
 const SPRING = { type: "spring", stiffness: 500, damping: 34 };
@@ -141,7 +177,7 @@ const POP = { type: "spring", stiffness: 600, damping: 26 };
  * variant: "pill" | "labels" | "action"
  */
 export const TabBar = React.forwardRef(function TabBar(
-  { tabs = [], variant = "pill", value, defaultValue, onChange, actionLabel = "নতুন", onAction, className },
+  { tabs = [], variant = "pill", value, defaultValue, onChange, onReselect, actionLabel = "নতুন", onAction, className },
   ref,
 ) {
   const still = !!useReducedMotion();
@@ -166,7 +202,7 @@ export const TabBar = React.forwardRef(function TabBar(
     setPlaying(id);
     window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => setPlaying(null), 900);
-    if (id === current) return;
+    if (id === current) { onReselect?.(id); return; }
     if (value === undefined) setOwn(id);
     onChange?.(id);
   };

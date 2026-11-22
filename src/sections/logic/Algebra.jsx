@@ -7,13 +7,13 @@ import { astToSpec, autoLayout, equivalent, parseExpr, simplify, tableOf, toStr 
 import { Eq, Facts, P, Panel } from "./shared";
 
 /* ---------- রাশি ল্যাব: যেকোনো বুলিয়ান রাশি → সার্কিট + সত্যক সারণী + সরলীকরণ ---------- */
-const EXAMPLES = ["A·B + A'·C", "A + A'·B", "A·B + A·B'", "(A + B)'", "A'·B + A·B'", "A·B + A'·C + B·C", "(A + B)·(A + C)"];
-const KEYS = ["+", "·", "'", "(", ")", "⊕", "A", "B", "C"];
+const EXAMPLES = ["A·B + A'·C", "A + A'·B", "A·B + A·B'", "(A + B)'", "A'·B + A·B'", "A·B + A'·C + B·C", "(A + B)·(C + D)", "A·B·C + A'·D"];
+const KEYS = ["+", "·", "'", "(", ")", "⊕", "A", "B", "C", "D"];
 
 export function ExprLab({ initial = "A·B + A'·C" }) {
   const [src, setSrc] = useState(initial);
   const [view, setView] = useState("orig");
-  const r = useMemo(() => parseExpr(src), [src]);
+  const r = useMemo(() => parseExpr(src, 4), [src]);
   const d = useMemo(() => {
     if (!r.ok) return null;
     const vars = r.vars;
@@ -32,7 +32,7 @@ export function ExprLab({ initial = "A·B + A'·C" }) {
 
   return (
     <div>
-      <label htmlFor="expr" className="mb-2 block text-sm font-semibold text-ink/60">বুলিয়ান রাশি (সর্বোচ্চ 5টি চলক: A–E)</label>
+      <label htmlFor="expr" className="mb-2 block text-sm font-semibold text-ink/60">বুলিয়ান রাশি (সর্বোচ্চ 4টি চলক: A, B, C, D)</label>
       <input id="expr" value={src} onChange={(e) => { setSrc(e.target.value); setView("orig"); }} spellCheck={false} autoCapitalize="off" autoCorrect="off" aria-invalid={!r.ok}
         className="num w-full rounded-2xl bg-surface px-4 py-3 text-xl font-semibold ring-1 ring-ink/10 transition focus:ring-2 focus:ring-violet-500/60" />
       <div className="mt-2 flex flex-wrap gap-1.5">

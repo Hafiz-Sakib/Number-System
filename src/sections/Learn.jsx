@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { BASES, BASE_NAME, convert } from "../lib/engine";
+import { navigate } from "../lib/router";
 import { Blocks, Detail, Rich } from "../components/Steps";
 import { SectionTitle, Reveal } from "../components/ui";
 import { CLR } from "../components/controls";
@@ -11,43 +12,113 @@ const INFO = {
   16: { digits: "0–9, A–F", eg: "B", use: "4 বিট = 1 হেক্স অঙ্ক" },
 };
 
+/* ---------- রূপান্তরের নিয়ম: প্রতিটি পদ্ধতি থেকে বাকি তিনটিতে, সব উদাহরণে দশমিক বিন্দু ---------- */
+const G3 = "দশমিক বিন্দু থেকে বামে ও ডানে 3 বিট করে গ্রুপ করি। কম পড়লে বামের গ্রুপের সামনে এবং ডানের গ্রুপের পিছনে 0 বসাই।";
+const G4 = "দশমিক বিন্দু থেকে বামে ও ডানে 4 বিট করে গ্রুপ করি। কম পড়লে বামের গ্রুপের সামনে এবং ডানের গ্রুপের পিছনে 0 বসাই।";
+const place = (b) => [
+  `দশমিকের বামের অঙ্কগুলোর স্থানীয় মান ডান থেকে ${b}^[0], ${b}^[1], ${b}^[2] …; ডানের অঙ্কগুলোর ${b}^[−1], ${b}^[−2] …`,
+  "প্রতিটি অঙ্ককে তার স্থানীয় মান দিয়ে গুণ করি" + (b === 16 ? " (A–F এর মান 10–15)।" : "।"),
+  "সব গুণফল যোগ করলে ডেসিমাল মান পাই।",
+];
+const divmul = (b, name) => [
+  `পূর্ণ অংশ: ${b} দিয়ে বারবার ভাগ করি (ভাগফল 0 হওয়া পর্যন্ত)। ভাগশেষগুলো নিচ থেকে উপরে সাজাই${b === 16 ? " (10–15 হলে A–F)" : ""}।`,
+  `ভগ্নাংশ অংশ: ${b} দিয়ে বারবার গুণ করি। প্রতি গুণফলের পূর্ণ অংশ উপর থেকে নিচে সাজাই; আবার ভগ্নাংশ অংশ নিয়ে গুণ করি (0 হলে বা যতটুকু দরকার ততটুকু হলে থামি)।`,
+  `পূর্ণ অংশের ফলের পর দশমিক বিন্দু বসিয়ে ভগ্নাংশের ফল লিখি: এটিই ${name}।`,
+];
+
+const GROUPS = [
+  {
+    base: 2,
+    items: [
+      { to: 8, ex: "1011010.101", steps: [G3, "প্রতিটি 3 বিটের গ্রুপকে একটি অক্টাল অঙ্কে লিখি (000 = 0, 001 = 1 … 111 = 7)।", "অঙ্কগুলো পাশাপাশি বসিয়ে দশমিক বিন্দু আগের জায়গায় রাখি।"] },
+      { to: 10, ex: "1010.01", steps: place(2) },
+      { to: 16, ex: "11010110.1011", steps: [G4, "প্রতিটি 4 বিটের গ্রুপকে একটি হেক্স অঙ্কে লিখি (0000 = 0 … 1001 = 9, 1010 = A … 1111 = F)।", "অঙ্কগুলো পাশাপাশি বসিয়ে দশমিক বিন্দু আগের জায়গায় রাখি।"] },
+    ],
+  },
+  {
+    base: 8,
+    items: [
+      { to: 2, ex: "52.64", steps: ["প্রতিটি অক্টাল অঙ্ককে 3 বিটে লিখি (0 = 000, 1 = 001 … 7 = 111)।", "দশমিক বিন্দু আগের জায়গায় রাখি।", "শুরুর বামের ও শেষের ডানের বাড়তি 0 বাদ দিই।"] },
+      { to: 10, ex: "17.4", steps: place(8) },
+      { to: 16, ex: "75.2", steps: ["সরাসরি নয়, বাইনারি হয়ে যাই। ধাপ 1: প্রতিটি অক্টাল অঙ্ককে 3 বিটে লিখি।", "ধাপ 2: সেই বাইনারিকে দশমিক বিন্দু থেকে 4 বিট করে গ্রুপ করি (দরকারে 0 বসাই)।", "ধাপ 3: প্রতিটি গ্রুপকে হেক্স অঙ্কে লিখি।"] },
+    ],
+  },
+  {
+    base: 10,
+    items: [
+      { to: 2, ex: "25.625", steps: divmul(2, "বাইনারি") },
+      { to: 8, ex: "45.75", steps: divmul(8, "অক্টাল") },
+      { to: 16, ex: "255.75", steps: divmul(16, "হেক্স") },
+    ],
+  },
+  {
+    base: 16,
+    items: [
+      { to: 2, ex: "3A.8", steps: ["প্রতিটি হেক্স অঙ্ককে 4 বিটে লিখি (0 = 0000 … 9 = 1001, A = 1010 … F = 1111)।", "দশমিক বিন্দু আগের জায়গায় রাখি।", "শুরুর বামের ও শেষের ডানের বাড়তি 0 বাদ দিই।"] },
+      { to: 10, ex: "2F.8", steps: place(16) },
+      { to: 8, ex: "A5.C", steps: ["সরাসরি নয়, বাইনারি হয়ে যাই। ধাপ 1: প্রতিটি হেক্স অঙ্ককে 4 বিটে লিখি।", "ধাপ 2: সেই বাইনারিকে দশমিক বিন্দু থেকে 3 বিট করে গ্রুপ করি (দরকারে 0 বসাই)।", "ধাপ 3: প্রতিটি গ্রুপকে অক্টাল অঙ্কে লিখি।"] },
+    ],
+  },
+];
+
+const GROUP_NAME = { 2: "বাইনারি থেকে সব", 8: "অক্টাল থেকে সব", 10: "ডেসিমাল থেকে সব", 16: "হেক্সাডেসিমাল থেকে সব" };
+
 const ref = (() => {
   const rows = [];
   for (let i = 0; i < 32; i++) rows.push([`${i}`, i.toString(2).padStart(5, "0"), i.toString(8), i.toString(16).toUpperCase()]);
   return rows;
 })();
 
+const glance = {
+  t: "table",
+  head: ["থেকে ↓ / এতে →", "বাইনারি", "অক্টাল", "ডেসিমাল", "হেক্স"],
+  rows: [
+    ["বাইনারি", "—", "3 বিট গ্রুপ", "স্থানীয় মান", "4 বিট গ্রুপ"],
+    ["অক্টাল", "অঙ্ক → 3 বিট", "—", "স্থানীয় মান", "বাইনারি হয়ে"],
+    ["ডেসিমাল", "÷2 ও ×2", "÷8 ও ×8", "—", "÷16 ও ×16"],
+    ["হেক্স", "অঙ্ক → 4 বিট", "বাইনারি হয়ে", "স্থানীয় মান", "—"],
+  ],
+  note: "প্রতিটি নিয়মের বিস্তারিত ও দশমিকসহ উদাহরণ নিচে ক্রমানুসারে আছে।",
+};
+
+function Rule({ base, to, ex, steps }) {
+  const r = useMemo(() => convert(ex, base, to), [ex, base, to]);
+  return (
+    <article className="min-w-0 rounded-3xl bg-surface p-4 ring-1 ring-ink/[.08] sm:p-5">
+      <h4 className="flex flex-wrap items-center gap-x-2 text-lg font-extrabold">
+        <span className={CLR[base].text}>{BASE_NAME[base]}</span>
+        <span aria-hidden className="text-ink/40">→</span>
+        <span className={CLR[to].text}>{BASE_NAME[to]}</span>
+      </h4>
+      <ol className="mt-3 space-y-2 text-[15px] leading-relaxed text-ink/80">
+        {steps.map((t, i) => (
+          <li key={i} className="flex gap-2.5 rounded-xl bg-ink/[.04] px-3 py-2">
+            <span className="num mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-ink/[.1] text-xs font-bold">{i + 1}</span>
+            <span className="min-w-0"><Rich text={t} /></span>
+          </li>
+        ))}
+      </ol>
+      <p className={`mt-3 rounded-2xl px-3.5 py-2.5 text-[15px] font-semibold ring-1 ${CLR[to].bg} ${CLR[to].ring}`}>
+        <Rich text={`উদাহরণ: {{${ex}|${base}}} = {{${r.text}|${to}}}`} />
+      </p>
+      <Detail title="ধাপে ধাপে সমাধান দেখুন" blocks={r.blocks} />
+    </article>
+  );
+}
+
+const jump = (b) => document.getElementById(`from-${b}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+
 export default function Learn() {
-  const ex = useMemo(() => ({
-    dec2: convert("25.625", 10, 2),
-    toDec: convert("1010.01", 2, 10),
-    bin8: convert("1011010.101", 2, 8),
-    hex2: convert("3A.8", 16, 2),
-    oct16: convert("755", 8, 16),
-  }), []);
-
-  const rules = [
-    { title: "ডেসিমাল → বাইনারি / অক্টাল / হেক্স", intro: "পূর্ণ অংশকে ভিত্তি (2, 8 বা 16) দিয়ে বারবার ভাগ করি, ভাগশেষ নিচ থেকে উপরে সাজাই। ভগ্নাংশ অংশকে ভিত্তি দিয়ে বারবার গুণ করি, গুণফলের পূর্ণ অংশ উপর থেকে নিচে সাজাই।", ex: ex.dec2, label: "উদাহরণ: 25.625 কে বাইনারিতে" },
-    { title: "বাইনারি / অক্টাল / হেক্স → ডেসিমাল", intro: "প্রতিটি অঙ্ককে তার স্থানীয় মান (ভিত্তির ঘাত) দিয়ে গুণ করে সব যোগ করি। দশমিকের বামে ঘাত 0, 1, 2 … ডানে −1, −2 …", ex: ex.toDec, label: "উদাহরণ: 1010.01 কে ডেসিমালে" },
-    { title: "বাইনারি → অক্টাল / হেক্স", intro: "দশমিক বিন্দু থেকে শুরু করে অক্টালের জন্য 3 বিট, হেক্সের জন্য 4 বিট করে গ্রুপ করি; প্রতিটি গ্রুপ একটি অঙ্ক।", ex: ex.bin8, label: "উদাহরণ: 1011010.101 কে অক্টালে" },
-    { title: "অক্টাল / হেক্স → বাইনারি", intro: "প্রতিটি অক্টাল অঙ্ককে 3 বিটে এবং প্রতিটি হেক্স অঙ্ককে 4 বিটে লিখি।", ex: ex.hex2, label: "উদাহরণ: 3A.8 কে বাইনারিতে" },
-    { title: "অক্টাল ↔ হেক্স", intro: "সরাসরি নয়, বাইনারি হয়ে যাই: প্রথমে বাইনারিতে, তারপর গ্রুপ করে অন্য পদ্ধতিতে।", ex: ex.oct16, label: "উদাহরণ: 755 অক্টালকে হেক্সে" },
-  ];
-
   const opTables = [
     { t: "h", text: "বাইনারি যোগের নিয়ম" },
     { t: "table", head: ["যোগ", "যোগফল", "ক্যারি"], rows: [["0 + 0", "0", "0"], ["0 + 1", "1", "0"], ["1 + 0", "1", "0"], ["1 + 1", "0", "1"], ["1 + 1 + 1 (ক্যারিসহ)", "1", "1"]], note: "1 + 1 = 2 = {{10|2}}, তাই লিখি 0 আর ক্যারি 1।" },
     { t: "h", text: "বাইনারি বিয়োগের নিয়ম" },
     { t: "table", head: ["বিয়োগ", "ফল", "ধার"], rows: [["0 − 0", "0", "0"], ["1 − 0", "1", "0"], ["1 − 1", "0", "0"], ["0 − 1", "1", "1 (পাশ থেকে ধার)"]], note: "0 − 1 এ পাশের কলাম থেকে ধার নিলে 0 হয় {{10|2}} = 2, তাই 2 − 1 = 1।" },
-    { t: "h", text: "1-এর পরিপূরক দিয়ে বিয়োগ" },
-    { t: "list", items: ["বিয়োগ্য (B) এর প্রতিটি বিট উল্টে দিই (0 → 1, 1 → 0): এটিই 1-এর পরিপূরক।", "A এর সাথে সেটি যোগ করি।", "বামে ক্যারি এলে ক্যারিটি ফেলে দিয়ে সবচেয়ে ডানের বিটে যোগ করি (end-around carry)। ফল ধনাত্মক।", "ক্যারি না এলে ফল ঋণাত্মক: যোগফলের আবার 1-এর পরিপূরক নিয়ে (−) বসাই।"] },
-    { t: "h", text: "2-এর পরিপূরক দিয়ে বিয়োগ" },
-    { t: "list", items: ["বিয়োগ্য (B) এর প্রতিটি বিট উল্টে দিই: 1-এর পরিপূরক।", "তার সাথে 1 যোগ করি: 2-এর পরিপূরক।", "A এর সাথে সেটি যোগ করি।", "বামে ক্যারি এলে ফেলে দিই, ফল ধনাত্মক। ক্যারি না এলে ফল ঋণাত্মক: যোগফলের আবার 2-এর পরিপূরক নিয়ে (−) বসাই।"] },
   ];
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 pb-10 pt-6 sm:px-6 sm:pt-10 lg:px-8">
-      <SectionTitle title="নিয়মকানুন" sub="পরীক্ষার আগে ঝালিয়ে নেওয়ার জন্য ছোট করে সব নিয়ম।" />
+      <SectionTitle title="নিয়মকানুন" sub="পরীক্ষার আগে ঝালিয়ে নেওয়ার জন্য সব রূপান্তরের নিয়ম দশমিকসহ উদাহরণে, এক জায়গায়।" />
 
       <Reveal y={16}>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -62,34 +133,59 @@ export default function Learn() {
         </div>
       </Reveal>
 
+      <Reveal y={16}>
+        <div className="card mt-5 p-5 sm:p-7">
+          <h2 className="text-2xl font-extrabold">এক নজরে সব রূপান্তর</h2>
+          <p className="mt-1 text-ink/55">কোনটি থেকে কোনটিতে যেতে কোন পদ্ধতি লাগে। নিচের বোতামে চাপ দিয়ে সরাসরি সেই অংশে যান।</p>
+          <Blocks nested blocks={[glance]} />
+          <div className="mt-4 flex flex-wrap gap-2">
+            {BASES.map((b) => (
+              <button key={b} type="button" onClick={() => jump(b)} className={`flex items-center gap-2 rounded-full px-4 py-2 font-semibold ring-1 transition active:scale-95 ${CLR[b].bg} ${CLR[b].ring} ${CLR[b].text}`}>
+                <span aria-hidden className={`size-2 rounded-full ${CLR[b].dot}`} />{GROUP_NAME[b]}
+              </button>
+            ))}
+          </div>
+        </div>
+      </Reveal>
+
+      <div className="mt-5 space-y-5">
+        {GROUPS.map((g) => (
+          <Reveal key={g.base} y={16}>
+            <section id={`from-${g.base}`} aria-label={GROUP_NAME[g.base]} className={`scroll-mt-24 rounded-[2rem] p-3 ring-1 sm:p-5 ${CLR[g.base].bg} ${CLR[g.base].ring}`}>
+              <h2 className={`flex items-center gap-2.5 px-2 pb-3 pt-1 text-2xl font-extrabold ${CLR[g.base].text}`}>
+                <span aria-hidden className={`size-3 rounded-full ${CLR[g.base].dot}`} />{GROUP_NAME[g.base]}
+                <span className="text-base font-semibold opacity-70">(দশমিকসহ)</span>
+              </h2>
+              <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-3 lg:grid-cols-3 lg:gap-4">
+                {g.items.map((it) => <Rule key={it.to} base={g.base} {...it} />)}
+              </div>
+            </section>
+          </Reveal>
+        ))}
+      </div>
+
       <div className="mt-5 grid grid-cols-[minmax(0,1fr)] items-start gap-5 lg:grid-cols-2">
         <div className="min-w-0 space-y-5">
           <Reveal y={16}>
             <div className="card p-5 sm:p-7">
               <h2 className="text-2xl font-extrabold">স্থানীয় মান</h2>
               <p className="mt-2 leading-[1.85] text-ink/80"><Rich text="প্রতিটি অঙ্কের মান নির্ভর করে সে কোথায় বসেছে তার ওপর। ভিত্তি **b** হলে ডান থেকে প্রথম অঙ্কের স্থানীয় মান b^[0], তারপর b^[1], b^[2] …। দশমিক বিন্দুর ডানে b^[−1], b^[−2] …" /></p>
-              <p className="mt-3 leading-[1.85] text-ink/80"><Rich text="{{1011|2}} = 1×2^[3] + 0×2^[2] + 1×2^[1] + 1×2^[0] = 8 + 0 + 2 + 1 = {{11|10}}" /></p>
+              <p className="mt-3 leading-[1.85] text-ink/80"><Rich text="{{1011.01|2}} = 1×2^[3] + 0×2^[2] + 1×2^[1] + 1×2^[0] + 0×2^[−1] + 1×2^[−2] = 8 + 0 + 2 + 1 + 0 + 0.25 = {{11.25|10}}" /></p>
             </div>
           </Reveal>
           <Reveal y={16}>
             <div className="card p-5 sm:p-7">
-              <h2 className="text-2xl font-extrabold">রূপান্তরের নিয়ম</h2>
-              <p className="mt-1 text-ink/55">প্রতিটিতে চাপ দিলে একটি করে সমাধান করা উদাহরণ দেখা যাবে।</p>
-              {rules.map((r) => (
-                <div key={r.title} className="mt-4">
-                  <h3 className="text-lg font-bold">{r.title}</h3>
-                  <p className="mt-1.5 leading-[1.85] text-ink/75"><Rich text={r.intro} /></p>
-                  <Detail title={r.label} blocks={r.ex.blocks} />
-                </div>
-              ))}
+              <h2 className="text-2xl font-extrabold">যোগ-বিয়োগের ছক</h2>
+              <Blocks blocks={opTables} nested />
             </div>
           </Reveal>
         </div>
         <div className="min-w-0 space-y-5">
           <Reveal y={16}>
             <div className="card p-5 sm:p-7">
-              <h2 className="text-2xl font-extrabold">যোগ-বিয়োগের ছক</h2>
-              <Blocks blocks={opTables} nested />
+              <h2 className="text-2xl font-extrabold">1's ও 2's পরিপূরক</h2>
+              <p className="mt-2 leading-[1.85] text-ink/80"><Rich text="**1's:** প্রতিটি বিট উল্টাই। **2's:** 1's এর সাথে 1 যোগ। দশমিকসহ উদাহরণ, ঋণাত্মক সংখ্যা ও পরিপূরক দিয়ে বিয়োগ আলাদা পেজে আছে।" /></p>
+              <button type="button" onClick={() => navigate("/complement")} className="mt-4 rounded-full bg-ink px-5 py-2.5 font-semibold text-paper transition hover:bg-ink/85 active:scale-95">পরিপূরক পেজে যান →</button>
             </div>
           </Reveal>
           <Reveal y={16}>

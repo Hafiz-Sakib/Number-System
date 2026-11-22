@@ -41,7 +41,9 @@ export default defineConfig({
           { name: "রূপান্তর", short_name: "রূপান্তর", url: "/convert", icons: [{ src: "/pwa-192.png", sizes: "192x192" }] },
           { name: "যোগ-বিয়োগ-গুণ-ভাগ", short_name: "হিসাব", url: "/calc", icons: [{ src: "/pwa-192.png", sizes: "192x192" }] },
           { name: "অনুশীলন", short_name: "অনুশীলন", url: "/practice", icons: [{ src: "/pwa-192.png", sizes: "192x192" }] },
-          { name: "ডিজিটাল লজিক", short_name: "লজিক", url: "/logic", icons: [{ src: "/pwa-192.png", sizes: "192x192" }] },
+          { name: "1's ও 2's পরিপূরক", short_name: "পরিপূরক", url: "/complement", icons: [{ src: "/pwa-192.png", sizes: "192x192" }] },
+          { name: "বুলিয়ান এলজেবরা", short_name: "বুলিয়ান", url: "/algebra", icons: [{ src: "/pwa-192.png", sizes: "192x192" }] },
+          { name: "লজিক গেট", short_name: "গেট", url: "/gates", icons: [{ src: "/pwa-192.png", sizes: "192x192" }] },
         ],
       },
       workbox: {

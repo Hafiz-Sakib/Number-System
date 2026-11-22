@@ -60,7 +60,7 @@ export function TruthTables() {
         <div className="mb-4"><PillChoice id="tt-gate" value={t} onChange={setT} options={Object.keys(INFO).map((g) => ({ id: g, label: g }))} /></div>
         <GateBody key={t} type={t} />
       </Panel>
-      <Panel title="নিজের রাশির সত্যক সারণী" sub="যেকোনো রাশি লিখে তার সারণী বানিয়ে নিন (সর্বোচ্চ 5 চলক = 32 সারি)।"><ExprLab initial="A·B' + C" /></Panel>
+      <Panel title="নিজের রাশির সত্যক সারণী" sub="যেকোনো রাশি লিখে তার সারণী বানিয়ে নিন (সর্বোচ্চ 4 চলক = 16 সারি)।"><ExprLab initial="A·B' + C" /></Panel>
     </div>
   );
 }
