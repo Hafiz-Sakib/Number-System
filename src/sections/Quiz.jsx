@@ -187,7 +187,7 @@ export default function Quiz() {
 
               <div className="mt-5 grid gap-2.5" role="group" aria-label="বিকল্প">
                 {cur.opts.map((o, k) => {
-                  const style = answered ? (o.ok ? "bg-mint ring-emerald-500/50 text-emerald-900 dark:text-emerald-100" : cur.pick === k ? "bg-peach ring-orange-500/50" : "bg-surface ring-ink/10 opacity-60") : "bg-surface ring-ink/10 hover:bg-ink/[.05] active:scale-[.99]";
+                  const style = answered ? (o.ok ? "bg-mint ring-emerald-500/50 text-emerald-900 dark:text-emerald-100" : cur.pick === k ? "bg-rose-100 ring-rose-400/60 text-rose-900 dark:bg-rose-500/15 dark:text-rose-100 dark:ring-rose-400/40" : "bg-surface ring-ink/10 opacity-60") : "bg-surface ring-ink/10 hover:bg-ink/[.05] active:scale-[.99]";
                   return (
                     <button key={k} type="button" onClick={() => choose(k)} disabled={answered} aria-label={`${LETTERS[k]}: ${o.t.replace(/\{\{([^}|]*)(\|\d+)?\}\}/g, "$1")}`}
                       className={`flex items-center gap-3 rounded-2xl px-4 py-3.5 text-left text-lg font-semibold ring-1 transition ${style}`}>
@@ -202,7 +202,7 @@ export default function Quiz() {
 
               {answered && (
                 <motion.div initial={reduce ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} className="mt-4" aria-live="polite">
-                  <div className={`rounded-2xl px-4 py-3 font-bold ring-1 ${good ? "bg-mint text-emerald-900 ring-emerald-500/25 dark:text-emerald-200" : "bg-peach text-orange-900 ring-orange-500/25 dark:text-orange-200"}`}>
+                  <div className={`rounded-2xl px-4 py-3 font-bold ring-1 ${good ? "bg-mint text-emerald-900 ring-emerald-500/25 dark:text-emerald-200" : "bg-rose-100 text-rose-800 ring-rose-400/40 dark:bg-rose-500/15 dark:text-rose-200"}`}>
                     {good ? "সঠিক! চমৎকার হয়েছে।" : <>উত্তর মেলেনি। সঠিক উত্তর: <Rich text={q.o[0]} /></>}
                   </div>
                   <p className="mt-3 leading-[1.85] text-ink/80"><b>ব্যাখ্যা: </b><Rich text={q.e} /></p>
@@ -247,7 +247,7 @@ export default function Quiz() {
             <p className="mt-4 text-lg font-semibold">{msg}</p>
             <div className="num mt-4 flex flex-wrap justify-center gap-2 text-sm font-semibold">
               <span className="rounded-full bg-mint px-3.5 py-1.5 text-emerald-900 dark:text-emerald-200">সঠিক {okN}</span>
-              <span className="rounded-full bg-peach px-3.5 py-1.5 text-orange-900 dark:text-orange-200">ভুল {total - okN}</span>
+              <span className="rounded-full bg-rose-100 px-3.5 py-1.5 text-rose-800 dark:bg-rose-500/15 dark:text-rose-200">ভুল {total - okN}</span>
               <span className="rounded-full bg-sky px-3.5 py-1.5">সময় {mmss(secs)}</span>
               <span className="rounded-full bg-lilac px-3.5 py-1.5">গড় {Math.round(secs / total)} সেকেন্ড/প্রশ্ন</span>
             </div>

@@ -103,9 +103,9 @@ export default function WritePractice() {
                 </motion.div>
               )}
               {status?.bad && !status.invalid && (
-                <motion.div key="bad" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-4 rounded-2xl bg-peach px-4 py-3.5 ring-1 ring-orange-500/25">
-                  <p className="font-bold text-orange-900 dark:text-orange-200">উত্তর মেলেনি।</p>
-                  <p className="mt-1 text-orange-900 dark:text-orange-100">সঠিক উত্তর: <b className="num">({disp(q.expect)})<sub>{base}</sub></b></p>
+                <motion.div key="bad" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-4 rounded-2xl bg-rose-100 px-4 py-3.5 ring-1 ring-rose-400/40 dark:bg-rose-500/15">
+                  <p className="font-bold text-rose-800 dark:text-rose-200">উত্তর মেলেনি।</p>
+                  <p className="mt-1 text-rose-900 dark:text-rose-100">সঠিক উত্তর: <b className="num">({disp(q.expect)})<sub>{base}</sub></b></p>
                 </motion.div>
               )}
             </AnimatePresence>

@@ -61,6 +61,27 @@ const GROUPS = [
   },
 ];
 
+
+/* ---------- সংক্ষিপ্ত তত্ত্ব: সংখ্যা পদ্ধতি, চিহ্নযুক্ত সংখ্যা, কোড ---------- */
+const THEORY = [
+  { t: "সংখ্যা পদ্ধতি", bg: "bg-lilac", ring: "ring-violet-500/20", items: [
+    "সংখ্যা লেখা, পড়া ও হিসাব করার নিয়মকে সংখ্যা পদ্ধতি বলে। কয়টি অঙ্ক বা প্রতীক ব্যবহার হয়, সেটিই এর **ভিত্তি (base)**।",
+    "**স্থানিক:** অঙ্কের মান বসার স্থানের ওপর নির্ভর করে (বাইনারি, অক্টাল, ডেসিমাল, হেক্স)। **অস্থানিক:** স্থান বদলালেও অঙ্কের মান একই থাকে (রোমান I, V, X)।",
+    "আগে আঙুল, পাথর, দড়ির গিট দিয়ে গোনা হতো; পরে চিহ্ন এলো। শূন্যসহ দশমিক পদ্ধতি ভারতীয় উপমহাদেশে গড়ে ওঠে এবং আরবদের হাত ধরে ছড়ায়, তাই একে ইন্দো-আরবীয় পদ্ধতি বলে।",
+  ] },
+  { t: "চিহ্নযুক্ত সংখ্যা", bg: "bg-mint", ring: "ring-emerald-500/20", items: [
+    "কম্পিউটারে (−) চিহ্ন নেই, তাই সবচেয়ে বামের বিট (MSB) সাইন বিট: **0 = ধনাত্মক, 1 = ঋণাত্মক**।",
+    "**সাইন-ম্যাগনিটিউড:** সাইন বিট ও মান আলাদা। 8 বিটে +5 = {{00000101|2}}, −5 = {{10000101|2}}। অসুবিধা: +0 ও −0 দুটি শূন্য, আর যোগ-বিয়োগে ঝামেলা।",
+    "এ কারণেই 1's ও 2's পরিপূরক ব্যবহার হয়। বিস্তারিত পরিপূরক পেজে।",
+  ], go: true },
+  { t: "কোড", bg: "bg-sky", ring: "ring-sky-500/25", items: [
+    "অক্ষর, অঙ্ক ও চিহ্নকে বিট প্যাটার্নে লেখার নিয়মকে কোড বলে।",
+    "**BCD:** প্রতিটি ডেসিমাল অঙ্কের জন্য আলাদা 4 বিট। 29 = {{0010 1001|2}}।",
+    "**ASCII:** 7 বিট, 128টি অক্ষর (A = 65, a = 97, 0 = 48); বর্ধিত ASCII 8 বিট, 256টি। **EBCDIC:** 8 বিটের কোড (আইবিএম)।",
+    "**ইউনিকোড:** বাংলাসহ বিশ্বের প্রায় সব ভাষার অক্ষরের জন্য একটি সর্বজনীন কোড।",
+  ] },
+];
+
 const GROUP_NAME = { 2: "বাইনারি থেকে সব", 8: "অক্টাল থেকে সব", 10: "ডেসিমাল থেকে সব", 16: "হেক্সাডেসিমাল থেকে সব" };
 
 const ref = (() => {
@@ -129,6 +150,20 @@ export default function Learn() {
               <p className="mt-1 text-[15px] text-ink/75"><Rich text={`উদাহরণ: {{${INFO[b].eg}|${b}}}`} /></p>
               <p className="mt-1 text-sm text-ink/60"><Rich text={INFO[b].use} /></p>
             </div>
+          ))}
+        </div>
+      </Reveal>
+
+      <Reveal y={16}>
+        <div className="mt-5 grid grid-cols-[minmax(0,1fr)] items-start gap-3 lg:grid-cols-3">
+          {THEORY.map((c) => (
+            <section key={c.t} className={`min-w-0 rounded-3xl p-5 ring-1 ${c.bg} ${c.ring}`}>
+              <h2 className="text-xl font-extrabold">{c.t}</h2>
+              <ul className="mt-2 space-y-2 text-[15px] leading-[1.8] text-ink/80">
+                {c.items.map((t, i) => <li key={i} className="flex gap-2"><span aria-hidden className="mt-[0.72em] size-1.5 shrink-0 rounded-full bg-ink/40" /><span className="min-w-0"><Rich text={t} /></span></li>)}
+              </ul>
+              {c.go && <button type="button" onClick={() => navigate("/complement")} className="mt-3 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-paper transition hover:bg-ink/85 active:scale-95">পরিপূরক পেজে যান →</button>}
+            </section>
           ))}
         </div>
       </Reveal>

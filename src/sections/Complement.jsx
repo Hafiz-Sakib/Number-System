@@ -28,6 +28,55 @@ const Tile = ({ label, value, bg }) => {
   );
 };
 
+
+/* ---------- কেন লাগে: ছোট ছোট ধাপে ---------- */
+const row = (label, bits, kind) => ({ label, kind, cells: [...bits] });
+/* দুটি সমান দৈর্ঘ্যের বাইনারি যোগ; কলামে ক্যারি দেখানোর জন্য প্রতিটি ঘরে ঢোকা ক্যারিও ফেরত দেয় */
+function addCols(a, b) {
+  const n = a.length, cin = Array(n).fill(""), out = Array(n);
+  let c = 0;
+  for (let k = n - 1; k >= 0; k--) { cin[k] = c ? "1" : ""; const t = +a[k] + +b[k] + c; out[k] = String(t % 2); c = t > 1 ? 1 : 0; }
+  return { res: (c ? "1" : "") + out.join(""), carry: { label: "ক্যারি", kind: "carry", cells: cin } };
+}
+const sumBlock = (la, a, lb, b) => { const r = addCols(a, b); return { t: "cols", rows: [r.carry, row(la, a), row(lb, b), { kind: "sep" }, row("", r.res, "res")] }; };
+const WHY = [
+  { t: "সমস্যাটা কী?", p: "কম্পিউটারে আছে শুধু 0 আর 1। খাতায় যেমন সংখ্যার আগে (−) লিখি, সার্কিটে তেমন চিহ্ন বসানোর জায়গা নেই। তাহলে ঋণাত্মক সংখ্যা লিখব কীভাবে? আর বিয়োগের জন্য আলাদা সার্কিট না বানিয়ে যোগের সার্কিটেই কি বিয়োগ চালানো যায়?" },
+  { t: "ঋণাত্মক সংখ্যা আসলে কী?", p: "যে সংখ্যা যোগ করলে ফল **শূন্য** হয়, সেটিই ওই সংখ্যার ঋণাত্মক রূপ। যেমন 5 + (−5) = 0। বাইনারিতেও আমরা এমন একটি সংখ্যা খুঁজব।" },
+  { t: "1-এর পরিপূরক দিয়ে শুরু", p: "8 বিটের সংখ্যা {{10110011|2}} ধরি। প্রতিটি বিট উল্টালে পাই {{01001100|2}}। দুটি যোগ করলে সবগুলো বিট 1 হয়, মানে 8 বিটের সবচেয়ে বড় সংখ্যা।",
+    blocks: [{ t: "cols", rows: [row("মূল", "10110011"), row("1's", "01001100"), { kind: "sep" }, row("যোগ", "11111111", "res")] }] },
+  { t: "আর 1 যোগ করলেই শূন্য", p: "{{11111111|2}} এর সাথে 1 যোগ করলে 9 বিটের {{100000000|2}} হয়। আমরা 8 বিটেই থাকতে চাই, তাই বাড়তি 9ম বিটটি ফেলে দিই। থাকে {{00000000|2}} = শূন্য।",
+    blocks: [sumBlock("", "11111111", "+", "00000001"), { t: "warn", text: "সবচেয়ে বামে যে বাড়তি 1 (9ম বিট) এসেছে সেটি ফেলে দিই; থাকে {{00000000|2}}।" }] },
+  { t: "তাহলে নিয়মটা দাঁড়াল", p: "বিট উল্টে (1's) তার সাথে 1 যোগ করলে ঋণাত্মক রূপ পাই। এটাই **2-এর পরিপূরক**। দুইবার করলে মূল সংখ্যায় ফিরে আসে: {{10110011|2}} → {{01001101|2}} → {{10110011|2}}।" },
+  { t: "কোনটি ধনাত্মক, কোনটি ঋণাত্মক?", p: "4 বিটে {{1001|2}} আর {{0111|2}} একে অপরের 2's, কিন্তু কোনটি +7 আর কোনটি −7? এর জন্য নিয়ম: সবচেয়ে বামের বিট (MSB) **0** হলে সংখ্যা ধনাত্মক, **1** হলে ঋণাত্মক। তাই {{0111|2}} = +7 এবং {{1001|2}} = −7।" },
+  { t: "আসল লাভ: বিয়োগ হয়ে গেল যোগ", p: "A − B = A + (B-এর 2's)। তাই বিয়োগের জন্য আলাদা সার্কিট লাগে না। 50 − 25 করে দেখি: 25 এর 2's হলো {{11100111|2}}, এটি 50 এর সাথে যোগ করি।",
+    blocks: [sumBlock("+50", "00110010", "−25", "11100111"), { t: "p", text: "যোগফল {{100011001|2}}; বাড়তি 9ম বিট ফেলে দিই। ফল {{00011001|2}}, MSB 0 (ধনাত্মক) এবং মান 25 ✓" }] },
+  { t: "ফল ঋণাত্মক এলে?", p: "এবার 25 − 50। 50 এর 2's হলো {{11001110|2}}। যোগ করলে {{11100111|2}}, MSB **1** মানে ঋণাত্মক। আবার 2's নিলে {{00011001|2}} = 25, তাই উত্তর **−25** ✓",
+    blocks: [sumBlock("+25", "00011001", "−50", "11001110")] },
+];
+
+function Why() {
+  return (
+    <Reveal y={16}>
+      <div className="card p-5 sm:p-7">
+        <h2 className="text-2xl font-extrabold">কেন লাগে এই পরিপূরক?</h2>
+        <p className="mt-1 text-ink/55">সাতটি ছোট ধাপে বুঝে নিই, একটার পর একটা।</p>
+        <ol className="mt-4 grid items-start gap-3 lg:grid-cols-2">
+          {WHY.map((w, i) => (
+            <li key={w.t} className="min-w-0 rounded-3xl bg-ink/[.04] p-4 ring-1 ring-ink/[.06] sm:p-5">
+              <div className="flex items-center gap-3">
+                <span className="num grid size-8 shrink-0 place-items-center rounded-full bg-ink text-sm font-bold text-paper">{i + 1}</span>
+                <h3 className="text-lg font-extrabold leading-snug">{w.t}</h3>
+              </div>
+              <p className="mt-2 leading-[1.85] text-ink/80"><Rich text={w.p} /></p>
+              {w.blocks && <Blocks nested blocks={w.blocks} />}
+            </li>
+          ))}
+        </ol>
+      </div>
+    </Reveal>
+  );
+}
+
 function Live() {
   const [v, setV] = useState("1011.01");
   const p = useMemo(() => parseBits(v), [v]);
@@ -198,8 +247,9 @@ function Subtract() {
 export default function Complement() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 pb-10 pt-6 sm:px-6 sm:pt-10 lg:px-8">
-      <SectionTitle title="1's ও 2's পরিপূরক" sub="1-এর ও 2-এর পরিপূরক (Complement) বের করার নিয়ম, দশমিকসহ উদাহরণ, ঋণাত্মক সংখ্যা ও পরিপূরক দিয়ে বিয়োগ।" />
-      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-5 lg:grid-cols-2">
+      <SectionTitle title="1's ও 2's পরিপূরক" sub="এটি কেন লাগে, কীভাবে বের করে, দশমিকসহ উদাহরণ, ঋণাত্মক সংখ্যা ও পরিপূরক দিয়ে বিয়োগ।" />
+      <Why />
+      <div className="mt-5 grid grid-cols-[minmax(0,1fr)] items-start gap-5 lg:grid-cols-2">
         <Reveal y={16}><Live /></Reveal>
         <Reveal y={16}><Rules /></Reveal>
       </div>

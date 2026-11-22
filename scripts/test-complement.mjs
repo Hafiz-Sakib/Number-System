@@ -31,5 +31,15 @@ for (let d = -127; d <= 127; d++) { const f = signedForms(d, 8); chk(f.ok && f.t
 const tb = signedTable(4);
 chk(tb.length === 16 && tb[15][3] === "−1" && tb[8][3] === "−8" && tb[8][1] === "−0" && tb[15][2] === "−0", "table");
 
+/* "কেন লাগে" অংশের উদাহরণগুলো */
+{
+  const c = (b) => complements(b, "");
+  chk(c("10110011").ones.int === "01001100" && c("10110011").twos.int === "01001101" && c("01001101").twos.int === "10110011", "why 8-bit");
+  chk(parseInt("10110011", 2) + parseInt("01001100", 2) === 255, "why sum 255");
+  chk(c("1001").twos.int === "0111" && c("0111").twos.int === "1001", "why 4-bit");
+  chk(c("00011001").twos.int === "11100111" && ((50 + parseInt("11100111", 2)) & 255) === 25 && ((50 + parseInt("11100111", 2)) >> 8) === 1, "why 50-25");
+  chk(c("00110010").twos.int === "11001110" && (25 + parseInt("11001110", 2)) === parseInt("11100111", 2), "why 25-50");
+  chk(c("11100111").twos.int === "00011001", "why 25-50 back");
+}
 console.log(`complement: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

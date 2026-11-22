@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { SectionTitle } from "../../components/ui";
+import { Rich } from "../../components/Steps";
 
 /* বুলিয়ান এলজেবরা ও লজিক গেট পেজের একই কাঠামো: বামে টপিক তালিকা (ফোনে আড়াআড়ি চিপ), ডানে বিষয়বস্তু। */
 export default function TopicPage({ title: pageTitle, sub: pageSub, topics: TOPICS }) {
@@ -8,7 +9,7 @@ export default function TopicPage({ title: pageTitle, sub: pageSub, topics: TOPI
   const [id, setId] = useState(fromHash);
   const nav = useRef(null);
   const idx = TOPICS.findIndex((t) => t[0] === id);
-  const [, , title, en, View] = TOPICS[idx];
+  const [, , title, en, View, note] = TOPICS[idx];
 
   useEffect(() => { const on = () => setId(fromHash()); addEventListener("hashchange", on); return () => removeEventListener("hashchange", on); }, []);
   const pick = (k) => { setId(k); history.replaceState(null, "", `#${k}`); window.scrollTo({ top: 0, behavior: "auto" }); };
@@ -46,6 +47,14 @@ export default function TopicPage({ title: pageTitle, sub: pageSub, topics: TOPI
               <h2 className="text-2xl font-extrabold sm:text-3xl">{title}</h2>
               <span className="text-ink/50">{en}</span>
             </header>
+            {note && (
+              <aside aria-label="সংক্ষেপে" className="mb-4 rounded-3xl bg-lemon px-4 py-3.5 ring-1 ring-amber-500/20 sm:px-5">
+                <p className="text-sm font-bold text-ink/60">সংক্ষেপে</p>
+                <ul className="mt-1.5 space-y-1.5 text-[15px] leading-[1.8] text-ink/85">
+                  {note.map((t, i) => <li key={i} className="flex gap-2"><span aria-hidden className="mt-[0.7em] size-1.5 shrink-0 rounded-full bg-ink/40" /><span className="min-w-0"><Rich text={t} /></span></li>)}
+                </ul>
+              </aside>
+            )}
             <View />
           </motion.div>
           <div className="mt-6 flex items-center justify-between gap-3">
