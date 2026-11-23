@@ -101,7 +101,7 @@ function CountRace() {
   const rows = [[2, pad(n, 5)], [8, n.toString(8)], [10, String(n)], [16, n.toString(16).toUpperCase()]];
   const NAME = { 2: "বাইনারি", 8: "অক্টাল", 10: "ডেসিমাল", 16: "হেক্স" };
   return (
-    <Block tag="গণনার দৌড়" title="একই সংখ্যা, চার রূপ" desc="0 থেকে 31 পর্যন্ত গুনতে থাকলে চার পদ্ধতিতে সংখ্যাটি কীভাবে বদলায় দেখুন। ভিত্তি পূর্ণ হলেই নতুন ঘর (ক্যারি) যোগ হয়।">
+    <Block tag="গণনার দৌড়" title="একই সংখ্যা, চার রূপ" desc="0 থেকে 31 পর্যন্ত গুনতে থাকলে চার পদ্ধতিতে সংখ্যাটি কীভাবে বদলায় দেখো। ভিত্তি পূর্ণ হলেই নতুন ঘর (ক্যারি) যোগ হয়।">
       <div className="space-y-2">
         {rows.map(([b, t]) => (
           <div key={b} className={`flex items-center justify-between gap-3 rounded-2xl px-4 py-2.5 ring-1 ${CLR[b].bg} ${CLR[b].ring}`}>
@@ -120,7 +120,7 @@ function CountRace() {
         {Array.from({ length: 32 }, (_, i) => <motion.span key={i} initial={false} animate={{ opacity: i <= n ? 1 : 0.18, scaleY: i === n ? 1.7 : 1 }} className={`h-2 flex-1 rounded-full ${i % 8 === 7 ? "bg-violet-500" : "bg-emerald-500"}`} />)}
       </div>
       <div className="mt-4 flex gap-2">
-        <button type="button" aria-pressed={run} onClick={() => setRun((r) => !r)} className={`rounded-full px-5 py-2 font-semibold transition active:scale-95 ${run ? "bg-emerald-500 text-white" : "bg-ink text-paper"}`}>{run ? "থামান" : "চালান"}</button>
+        <button type="button" aria-pressed={run} onClick={() => setRun((r) => !r)} className={`rounded-full px-5 py-2 font-semibold transition active:scale-95 ${run ? "bg-emerald-500 text-white" : "bg-ink text-paper"}`}>{run ? "থামাও" : "চালাও"}</button>
         <button type="button" onClick={() => setN((x) => (x + 1) % 32)} className="rounded-full bg-ink/[.07] px-5 py-2 font-semibold transition hover:bg-ink/[.12] active:scale-95">+1</button>
         <button type="button" onClick={() => setN(0)} className="rounded-full bg-ink/[.07] px-5 py-2 font-semibold transition hover:bg-ink/[.12] active:scale-95">0 থেকে</button>
       </div>
@@ -182,12 +182,12 @@ function DivideLab() {
     <Block tag="ভাগের পদ্ধতি" title="২ দিয়ে ভাগ করে বাইনারি" desc="ডেসিমাল থেকে বাইনারিতে যেতে বারবার 2 দিয়ে ভাগ করি। ভাগশেষগুলো নিচ থেকে ওপরে সাজালেই উত্তর।">
       <div className="flex flex-wrap items-center gap-3">
         <input type="range" min="1" max="255" value={Math.max(1, Math.min(255, val.i))} aria-label="ডেসিমাল সংখ্যা" onChange={(e) => pick({ i: +e.target.value, f: "" })} className="h-2 min-w-0 flex-1 accent-emerald-500" />
-        <input type="text" inputMode="decimal" autoComplete="off" value={txt} aria-label="ডেসিমাল সংখ্যা লিখুন (ভগ্নাংশও চলবে)" placeholder="0"
+        <input type="text" inputMode="decimal" autoComplete="off" value={txt} aria-label="ডেসিমাল সংখ্যা লেখো (ভগ্নাংশও চলবে)" placeholder="0"
           onChange={(e) => typed(e.target.value)} onFocus={(e) => e.target.select()} onBlur={() => setTxt(key)}
           className="num h-11 w-32 rounded-xl bg-sky px-2 text-center text-xl font-extrabold outline-none ring-1 ring-ink/10 transition focus:ring-2 focus:ring-violet-500" />
         <button type="button" onClick={restart} className="rounded-full bg-ink px-4 py-1.5 text-sm font-semibold text-paper transition hover:bg-ink/85 active:scale-95">আবার চালাও</button>
       </div>
-      <p className="mt-2 text-xs text-ink/45">slider টানুন, অথবা পাশের ঘরে সংখ্যা লিখুন। ভগ্নাংশও চলবে, যেমন 25.625।</p>
+      <p className="mt-2 text-xs text-ink/45">slider টানো, অথবা পাশের ঘরে সংখ্যা লেখো। ভগ্নাংশও চলবে, যেমন 25.625।</p>
       <div className="mt-4 min-h-[8.5rem] rounded-2xl bg-ink/[.04] p-3 ring-1 ring-ink/[.06]">
         {fL > 0 && <p className="mb-1.5 text-xs font-bold text-ink/50">পূর্ণ অংশ ({val.i}): বারবার 2 দিয়ে ভাগ</p>}
         <ul className="num space-y-1.5 text-[15px]">
@@ -220,14 +220,14 @@ function DivideLab() {
           </>
         )}
       </div>
-      <p className="mt-4 text-sm font-bold text-ink/55">পূর্ণ অংশের ভাগশেষ নিচ থেকে ওপরে সাজালে উত্তর পেয়ে যাবেন ↑</p>
+      <p className="mt-4 text-sm font-bold text-ink/55">পূর্ণ অংশের ভাগশেষ নিচ থেকে ওপরে সাজালে উত্তর পেয়ে যাবে ↑</p>
       <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
         {Array.from({ length: iL }, (_, j) => { const si = iL - 1 - j; return aChip(`${key}-${j}`, si < iShown, steps[si].r); })}
         {fL === 0 && <AnimatePresence>{done && <motion.span initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} className="num ml-2 rounded-xl bg-lilac px-3 py-1.5 text-lg font-extrabold">({key})₁₀ = ({bin})₂</motion.span>}</AnimatePresence>}
       </div>
       {fL > 0 && (
         <>
-          <p className="mt-4 text-sm font-bold text-ink/55">ভগ্নাংশের বিট ওপর থেকে নিচে সাজালে উত্তর পেয়ে যাবেন ↓</p>
+          <p className="mt-4 text-sm font-bold text-ink/55">ভগ্নাংশের বিট ওপর থেকে নিচে সাজালে উত্তর পেয়ে যাবে ↓</p>
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
             {fr.rows.map((r, k) => aChip(`${key}-fb${k}`, k < fShown, r.bit))}
           </div>
@@ -259,7 +259,7 @@ function MagicCards() {
   const total = picked.reduce((s, c) => s + c, 0);
   const bin = pad(total, 5);
   return (
-    <Block tag="মন-পড়া কার্ড" title="মনে মনে একটা সংখ্যা ভাবুন" desc="1 থেকে 31-এর মধ্যে যেকোনো একটি সংখ্যা ভাবুন। যে কার্ডগুলোতে সেটি আছে, শুধু সেগুলোতে চাপ দিন: নিচে সংখ্যাটি বলে দেওয়া হবে। জাদু নয়, বাইনারি!">
+    <Block tag="মন-পড়া কার্ড" title="মনে মনে একটা সংখ্যা ভাবো" desc="1 থেকে 31-এর মধ্যে যেকোনো একটি সংখ্যা ভাবো। যে কার্ডগুলোতে সেটি আছে, শুধু সেগুলোতে চাপ দাও: নিচে সংখ্যাটি বলে দেওয়া হবে। জাদু নয়, বাইনারি!">
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 sm:gap-3">
         {CARDS.map((c) => {
           const on = picked.includes(c);
@@ -283,7 +283,7 @@ function MagicCards() {
             <p className="num text-[15px] font-semibold text-ink/70">{[...picked].sort((a, b) => a - b).join(" + ")} = <span className="text-2xl font-extrabold text-ink"><DigitRoll text={String(total)} /></span></p>
             <p className="num mt-1 text-sm font-semibold text-ink/55">বাইনারি: {bin.split("").map((ch, i) => <span key={i} className={ch === "1" ? "font-extrabold text-emerald-600 dark:text-emerald-300" : ""}>{ch}</span>)}: কার্ড বাছা মানে বিট 1, না বাছা মানে বিট 0</p>
           </>
-        ) : <p className="font-semibold text-ink/55">এখনো কোনো কার্ড বাছা হয়নি। সংখ্যাটি যে কার্ডে আছে তাতে চাপ দিন।</p>}
+        ) : <p className="font-semibold text-ink/55">এখনো কোনো কার্ড বাছা হয়নি। সংখ্যাটি যে কার্ডে আছে তাতে চাপ দাও।</p>}
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
         <button type="button" onClick={() => setPicked([])} className="rounded-full bg-ink px-4 py-1.5 text-sm font-semibold text-paper transition hover:bg-ink/85 active:scale-95">নতুন করে শুরু</button>
@@ -302,7 +302,7 @@ function MiniGate() {
   const [t, setT] = useState("AND");
   const net = useMemo(() => gateNet(t, t === "NOT" ? 1 : 2), [t]);
   return (
-    <Block tag="লজিক গেট" title="মিনি লজিক গেট ল্যাব" desc="গেট বেছে নিন, সুইচ টিপুন। আউটপুট 1 হলে LED সবুজ আলোয় জ্বলে ওঠে।">
+    <Block tag="লজিক গেট" title="মিনি লজিক গেট ল্যাব" desc="গেট বেছে নাও, সুইচ টেপো। আউটপুট 1 হলে LED সবুজ আলোয় জ্বলে ওঠে।">
       <PillChoice id="home-gate" value={t} onChange={setT} options={Object.keys(GSAY).map((g) => ({ id: g, label: g }))} />
       <p className="mb-3 mt-3 text-ink/70">{GSAY[t]}</p>
       <Lab key={t} net={net} />
@@ -322,7 +322,7 @@ function ColorMixer() {
   const code = "#" + rgb.map(hex2).join("");
   const light = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000 > 150;
   return (
-    <Block tag="হেক্স রঙ" title="হেক্সাডেসিমালে রঙের কোড" desc="ওয়েবের প্রতিটি রঙ তিনটি বাইট: লাল, সবুজ, নীল (0–255)। প্রতি বাইট হেক্সে দুই অঙ্ক। স্লাইডার টেনে দেখুন রঙ ও হেক্স কোড একসাথে বদলায়।">
+    <Block tag="হেক্স রঙ" title="হেক্সাডেসিমালে রঙের কোড" desc="ওয়েবের প্রতিটি রঙ তিনটি বাইট: লাল, সবুজ, নীল (0–255)। প্রতি বাইট হেক্সে দুই অঙ্ক। স্লাইডার টেনে দেখো রঙ ও হেক্স কোড একসাথে বদলায়।">
       <div className="grid items-stretch gap-4 sm:grid-cols-[minmax(0,13rem)_minmax(0,1fr)]">
         <motion.div initial={false} animate={{ backgroundColor: code }} transition={{ duration: 0.25 }} className="grid min-h-[8rem] place-items-center rounded-2xl ring-1 ring-ink/10 sm:min-h-0" role="img" aria-label={`রঙ ${code}`}>
           <span className={`num text-3xl font-extrabold tracking-wide ${light ? "text-black/80" : "text-white"}`}>{code}</span>
@@ -362,8 +362,8 @@ function TextEncoder2() {
   const chars = [...txt].slice(0, 8);
   const more = [...txt].length - chars.length;
   return (
-    <Block tag="ASCII ও Unicode" title="আপনার নাম কম্পিউটারে কীভাবে জমা থাকে?" desc="কম্পিউটার অক্ষর চেনে না, চেনে শুধু সংখ্যা। প্রতিটি অক্ষরের একটি কোড আছে (ইংরেজির জন্য ASCII, বাংলাসহ সব ভাষার জন্য Unicode) আর সেই কোডটিই বাইনারিতে জমা হয়। যেকোনো কিছু লিখে দেখুন।">
-      <input type="text" value={txt} maxLength={24} onChange={(e) => setTxt(e.target.value)} placeholder="এখানে লিখুন…" aria-label="অক্ষর লিখুন"
+    <Block tag="ASCII ও Unicode" title="তোমার নাম কম্পিউটারে কীভাবে জমা থাকে?" desc="কম্পিউটার অক্ষর চেনে না, চেনে শুধু সংখ্যা। প্রতিটি অক্ষরের একটি কোড আছে (ইংরেজির জন্য ASCII, বাংলাসহ সব ভাষার জন্য Unicode) আর সেই কোডটিই বাইনারিতে জমা হয়। যেকোনো কিছু লিখে দেখো।">
+      <input type="text" value={txt} maxLength={24} onChange={(e) => setTxt(e.target.value)} placeholder="এখানে লেখো…" aria-label="অক্ষর লেখো"
         className="w-full rounded-2xl bg-ink/[.05] px-4 py-3 text-xl font-bold outline-none ring-1 ring-ink/10 transition focus:ring-2 focus:ring-violet-500" />
       <div className="mt-2 flex flex-wrap gap-2">
         {TXT_PRESETS.map((t) => <button key={t} type="button" onClick={() => setTxt(t)} className="rounded-full bg-ink/[.07] px-3.5 py-1.5 text-sm font-semibold transition hover:bg-ink/[.12] active:scale-95">{t}</button>)}
@@ -501,7 +501,7 @@ function BcdClock() {
   const terms = BIT4.filter((w) => d & w);
   const colonOn = new Date(ms).getSeconds() % 2 === 0;
   return (
-    <Block tag="BCD কোড" title="ডিজিটাল ঘড়ির ভেতরের বাইনারি" desc="ঘড়ির পর্দায় আমরা অঙ্ক দেখি, কিন্তু ভেতরে প্রতিটি দশমিক অঙ্ক আলাদা 4 বিটে জমা থাকে: একে বলে BCD (Binary Coded Decimal)। যেকোনো অঙ্কের কলামে চাপ দিলে ব্যাখ্যা পাবেন।">
+    <Block tag="BCD কোড" title="ডিজিটাল ঘড়ির ভেতরের বাইনারি" desc="ঘড়ির পর্দায় আমরা অঙ্ক দেখি, কিন্তু ভেতরে প্রতিটি দশমিক অঙ্ক আলাদা 4 বিটে জমা থাকে: একে বলে BCD (Binary Coded Decimal)। যেকোনো অঙ্কের কলামে চাপ দিলে ব্যাখ্যা পাবে।">
       <div className="rounded-2xl bg-zinc-950 px-3 py-4 ring-1 ring-white/10 sm:px-6 sm:py-5" role="img" aria-label={`সময় ${t.slice(0, 2)}:${t.slice(2, 4)}:${t.slice(4)} ${pm ? "PM" : "AM"}`}>
         <div className="mx-auto flex max-w-lg items-center justify-center gap-0.5 sm:gap-1.5">
           {digits.map((x, i) => (
@@ -542,7 +542,7 @@ function BcdClock() {
         <p className="mt-1.5 text-ink/75">পুরো {GROUPS[g][0]} <span className="num font-bold">{String(pair).padStart(2, "0")}</span>: BCD-তে <span className="num font-extrabold text-rose-600 dark:text-rose-300">{pad(digits[g * 2], 4)} {pad(digits[g * 2 + 1], 4)}</span> (8 বিট, প্রতি অঙ্ক আলাদা), কিন্তু সাধারণ বাইনারিতে <span className="num font-extrabold">{pair.toString(2)}</span>।</p>
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
-        <button type="button" aria-pressed={run} onClick={() => setRun((r) => !r)} className={`rounded-full px-5 py-2 font-semibold transition active:scale-95 ${run ? "bg-emerald-500 text-white" : "bg-ink text-paper"}`}>{run ? "থামান" : "চালান"}</button>
+        <button type="button" aria-pressed={run} onClick={() => setRun((r) => !r)} className={`rounded-full px-5 py-2 font-semibold transition active:scale-95 ${run ? "bg-emerald-500 text-white" : "bg-ink text-paper"}`}>{run ? "থামাও" : "চালাও"}</button>
         <button type="button" onClick={() => { setRun(false); setMs((m) => m + 1000); }} className="rounded-full bg-ink/[.07] px-5 py-2 font-semibold transition hover:bg-ink/[.12] active:scale-95">+1 সেকেন্ড</button>
         <button type="button" onClick={() => setMs(Date.now())} className="rounded-full bg-ink/[.07] px-5 py-2 font-semibold transition hover:bg-ink/[.12] active:scale-95">এখনকার সময়</button>
       </div>
@@ -560,14 +560,14 @@ function SevenSegLab() {
   const out = "abcdefg".split("").map((c) => (lit.includes(c) ? 1 : 0));
   const setBits = (f) => { setAuto(false); setV(f); };
   return (
-    <Block tag="ডিজিটাল ডিসপ্লে" title="4 বিট কীভাবে একটি অঙ্ক হয়ে জ্বলে?" desc="ঘড়ি বা ক্যালকুলেটরের প্রতিটি অঙ্ক আঁকা হয় 7টি আলাদা দাগ (a থেকে g) দিয়ে। BCD-র 4 বিট একটি ডিকোডার সার্কিটে ঢোকে, আর সেটি ঠিক করে কোন কোন দাগ জ্বলবে। বিট টিপে নিজে দেখুন।">
+    <Block tag="ডিজিটাল ডিসপ্লে" title="4 বিট কীভাবে একটি অঙ্ক হয়ে জ্বলে?" desc="ঘড়ি বা ক্যালকুলেটরের প্রতিটি অঙ্ক আঁকা হয় 7টি আলাদা দাগ (a থেকে g) দিয়ে। BCD-র 4 বিট একটি ডিকোডার সার্কিটে ঢোকে, আর সেটি ঠিক করে কোন কোন দাগ জ্বলবে। বিট টিপে নিজে দেখো।">
       <div className="grid items-center gap-4 sm:grid-cols-[minmax(0,12rem)_minmax(0,1fr)]">
         <div className="rounded-2xl bg-zinc-950 p-4 ring-1 ring-white/10">
           <SevenSeg digit={valid ? v : null} on="#34d399" labels className="mx-auto h-44 w-auto sm:h-52" />
         </div>
         <div className="min-w-0 space-y-3">
           <div>
-            <p className="mb-1.5 text-xs font-bold text-ink/50">ইনপুট: BCD-র 4 বিট (টিপে বদলান)</p>
+            <p className="mb-1.5 text-xs font-bold text-ink/50">ইনপুট: BCD-র 4 বিট (টিপে বদলাও)</p>
             <div className="grid grid-cols-4 gap-2">
               {BIT4.map((w) => {
                 const on = (v & w) !== 0;
@@ -599,7 +599,7 @@ function SevenSegLab() {
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-1.5">
         {Array.from({ length: 10 }, (_, n) => <button key={n} type="button" onClick={() => setBits(n)} aria-label={`অঙ্ক ${n}`} className={`num h-10 w-10 rounded-xl text-lg font-extrabold transition active:scale-90 ${v === n ? "bg-emerald-500 text-white" : "bg-ink/[.07] hover:bg-ink/[.12]"}`}>{n}</button>)}
-        <button type="button" aria-pressed={auto} onClick={() => setAuto((a) => !a)} className={`ml-1 rounded-full px-4 py-2 text-sm font-semibold transition active:scale-95 ${auto ? "bg-emerald-500 text-white" : "bg-ink text-paper"}`}>{auto ? "থামান" : "0 থেকে 9 গুনুন"}</button>
+        <button type="button" aria-pressed={auto} onClick={() => setAuto((a) => !a)} className={`ml-1 rounded-full px-4 py-2 text-sm font-semibold transition active:scale-95 ${auto ? "bg-emerald-500 text-white" : "bg-ink text-paper"}`}>{auto ? "থামাও" : "0 থেকে 9 গোনো"}</button>
       </div>
       <p className="mt-3 text-sm text-ink/55">এই কাজটি করে BCD-টু-7-সেগমেন্ট ডিকোডার (যেমন 7447 IC), যা প্রায় সব ডিজিটাল ঘড়ি, মিটার ও ক্যালকুলেটরের ভেতরে থাকে।</p>
     </Block>
@@ -611,8 +611,8 @@ export default function HomePlay() {
     <section className="mx-auto w-full max-w-7xl px-4 pb-10 pt-4 sm:px-6 lg:px-8" aria-labelledby="play-h">
       <Reveal y={16}>
         <div className="mb-6 max-w-2xl">
-          <p className="mb-2 inline-flex rounded-full bg-lemon px-3 py-1 text-sm font-bold ring-1 ring-amber-500/20">হাতে-কলমে শিখুন</p>
-          <h2 id="play-h" className="text-3xl font-extrabold sm:text-4xl">খেলতে খেলতে বুঝে ফেলুন</h2>
+          <p className="mb-2 inline-flex rounded-full bg-lemon px-3 py-1 text-sm font-bold ring-1 ring-amber-500/20">হাতে-কলমে শেখো</p>
+          <h2 id="play-h" className="text-3xl font-extrabold sm:text-4xl">খেলতে খেলতে বুঝে ফেলো</h2>
         </div>
       </Reveal>
       <div className="mx-auto flex max-w-4xl flex-col gap-5 sm:gap-6">

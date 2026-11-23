@@ -72,7 +72,7 @@ export default function TopBar() {
         <div ref={box} className="relative flex shrink-0 items-center gap-2">
           {showInstall && (
             <>
-              <button type="button" onClick={install} aria-label="অ্যাপ ইনস্টল করুন" title="অ্যাপ ইনস্টল করুন"
+              <button type="button" onClick={install} aria-label="অ্যাপ ইনস্টল করো" title="অ্যাপ ইনস্টল করো"
                 className="flex h-8 items-center gap-1.5 rounded-full bg-ink px-2.5 text-sm font-semibold text-paper shadow-[0_8px_30px_-8px_rgba(20,21,26,.35)] transition hover:bg-ink/85 active:scale-95 sm:px-3.5">
                 <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M12 4v11M7 11l5 5 5-5M5 20h14" /></svg>
                 <span className="hidden sm:inline">ইনস্টল</span>
@@ -80,7 +80,7 @@ export default function TopBar() {
               <AnimatePresence>
                 {hint && (
                   <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} role="status" className="absolute right-0 top-11 z-10 w-72 max-w-[calc(100vw-1.5rem)] rounded-2xl bg-surface p-4 text-sm leading-relaxed text-ink/70 shadow-[0_12px_40px_-12px_rgba(20,21,26,.3)] ring-1 ring-ink/[.08]">
-                    <p className="font-bold text-ink">অ্যাপ ইনস্টল করুন</p>
+                    <p className="font-bold text-ink">অ্যাপ ইনস্টল করো</p>
                     <p className="mt-1">Chrome/Edge: ঠিকানার ঘরের ডানে ইনস্টল আইকন বা মেনু (⋮) থেকে <b>Install app</b>। ফোনে: <b>Add to Home screen</b>। আইফোনে: Share → Add to Home Screen।</p>
                   </motion.div>
                 )}

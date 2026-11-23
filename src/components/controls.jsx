@@ -73,7 +73,7 @@ export function NumberField({ label, base, value, onChange, error, id, placehold
         <div className="mt-2 flex flex-wrap gap-1 sm:gap-1.5" aria-label="অঙ্ক বোতাম">
           {[...DIGITS.slice(0, base)].map((d) => <button key={d} type="button" onClick={() => add(fmt(d))} className={`num ${chip}`}>{fmt(d)}</button>)}
           <button type="button" onClick={() => add(".")} className={chip} aria-label="দশমিক বিন্দু">.</button>
-          <button type="button" onClick={toggleSign} className={chip} aria-label="চিহ্ন বদল (Positive/Negative)">±</button>
+          <button type="button" onClick={toggleSign} className={chip} aria-label="চিহ্ন বদল (ধনাত্মক/ঋণাত্মক)">±</button>
           <button type="button" onClick={() => onChange(value.slice(0, -1))} className={chip} aria-label="শেষ অঙ্ক মুছুন">⌫</button>
           {value && <button type="button" onClick={() => onChange("")} className={`${chip} text-[14px]`}>মুছুন</button>}
         </div>
@@ -82,7 +82,7 @@ export function NumberField({ label, base, value, onChange, error, id, placehold
   );
 }
 
-/* গড়ানো পিল: যেকোনো ছোট তালিকা থেকে একটি বাছাই (পদ্ধতি, অনুশীলনের ধরন ইত্যাদি) */
+/* গড়ানো পিল: যেকোনো ছোট তালিকা থেকে একটি বাছাই (পদ্ধতি ইত্যাদি) */
 export function PillChoice({ options, value, onChange, id }) {
   const uid = useId();
   const still = !!useReducedMotion();

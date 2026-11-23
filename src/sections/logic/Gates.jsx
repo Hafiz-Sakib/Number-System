@@ -56,11 +56,11 @@ export function TruthTables() {
         <P>**সত্যক সারণী (Truth Table)** হলো কোনো লজিক সার্কিট বা বুলিয়ান ফাংশনের সব সম্ভাব্য ইনপুট সংমিশ্রণ এবং প্রতিটির জন্য আউটপুটের তালিকা। সারণী থেকেই বোঝা যায় সার্কিটটি ঠিক কী কাজ করে।</P>
       </Panel>
       <Panel title="সারির সংখ্যা কীভাবে হিসাব হয়?"><RowsDemo /></Panel>
-      <Panel title="সব গেটের সত্যক সারণী" sub="একটি গেট বেছে নিন, সুইচ টিপে ইনপুট বদলান, সারণীর সংশ্লিষ্ট সারি হাইলাইট হবে।">
+      <Panel title="সব গেটের সত্যক সারণী" sub="একটি গেট বেছে নাও, সুইচ টিপে ইনপুট বদলাও, সারণীর সংশ্লিষ্ট সারি হাইলাইট হবে।">
         <div className="mb-4"><PillChoice id="tt-gate" value={t} onChange={setT} options={Object.keys(INFO).map((g) => ({ id: g, label: g }))} /></div>
         <GateBody key={t} type={t} />
       </Panel>
-      <Panel title="নিজের রাশির সত্যক সারণী" sub="যেকোনো রাশি (ফাংশন) লিখে তার সারণী বানিয়ে নিন (সর্বোচ্চ 4 চলক = 16 সারি)। সরল রূপের সার্কিটে রাশিটা কীভাবে ছোট হলো, তার হিসাবও নিচে দেখুন।"><ExprLab initial="A·B' + C" steps /></Panel>
+      <Panel title="বুলিয়ান রাশির সত্যক সারণী" sub="যেকোনো রাশি (ফাংশন) লিখে তার সারণী বানিয়ে নাও (সর্বোচ্চ 4 চলক = 16 সারি)। সরল রূপের সার্কিটে রাশিটা কীভাবে ছোট হলো, তার হিসাবও নিচে দেখো।"><ExprLab initial="A·B' + C" steps /></Panel>
     </div>
   );
 }
@@ -82,7 +82,7 @@ function GateBody({ type }) {
 export function BasicGates() {
   return (
     <div className="space-y-4">
-      <Panel><P>ডিজিটাল সার্কিটের সবচেয়ে ছোট একক হলো **লজিক গেট**। **AND, OR ও NOT** তিনটি মৌলিক গেট; অন্য সব গেট ও সার্কিট এদের দিয়েই বানানো যায়। প্রতিটির নিচে সুইচ টিপুন: ইনপুট 1 হলে তার সবুজ হয়ে সিগন্যাল চলতে দেখা যাবে।</P></Panel>
+      <Panel><P>ডিজিটাল সার্কিটের সবচেয়ে ছোট একক হলো **লজিক গেট**। **AND, OR ও NOT** তিনটি মৌলিক গেট; অন্য সব গেট ও সার্কিট এদের দিয়েই বানানো যায়। প্রতিটির নিচে সুইচ টেপো: ইনপুট 1 হলে তার সবুজ হয়ে সিগন্যাল চলতে দেখা যাবে।</P></Panel>
       <GateLab type="AND" />
       <GateLab type="OR" />
       <GateLab type="NOT" />
@@ -112,9 +112,9 @@ export function Universal() {
   return (
     <div className="space-y-4">
       <Panel>
-        <P>আগের ধাপগুলোতে মৌলিক গেট (AND, OR, NOT), NAND-NOR ও বিশেষ গেট (XOR, XNOR) দেখেছেন। এবার জানবেন, কেন **NAND** ও **NOR** কে **সর্বজনীন গেট (Universal Gate)** বলা হয়: শুধু একটি ধরনের গেট দিয়েই AND, OR ও NOT তিনটিই বানানো যায়। বাস্তবে এগুলো সস্তা ও ছোট, তাই আইসি-তে সবচেয়ে বেশি ব্যবহৃত হয়।</P>
+        <P>আগের ধাপগুলোতে মৌলিক গেট (AND, OR, NOT), NAND-NOR ও বিশেষ গেট (XOR, XNOR) দেখেছেন। এবার জানবে, কেন **NAND** ও **NOR** কে **সর্বজনীন গেট (Universal Gate)** বলা হয়: শুধু একটি ধরনের গেট দিয়েই AND, OR ও NOT তিনটিই বানানো যায়। বাস্তবে এগুলো সস্তা ও ছোট, তাই আইসি-তে সবচেয়ে বেশি ব্যবহৃত হয়।</P>
       </Panel>
-      <Panel title="শুধু একটি গেট দিয়ে সব বানাই" sub="কোন গেট দিয়ে, কী বানাবেন বেছে নিন।">
+      <Panel title="একটি গেট দিয়েই অন্য গেট তৈরি" sub="কোন গেট দিয়ে, কী বানাবে বেছে নাও।">
         <div className="flex flex-wrap gap-2">
           <PillChoice id="uni-base" value={base} onChange={setBase} options={[{ id: "NAND", label: "NAND দিয়ে" }, { id: "NOR", label: "NOR দিয়ে" }]} />
           <PillChoice id="uni-to" value={to} onChange={setTo} options={["NOT", "AND", "OR"].map((x) => ({ id: x, label: `${x} বানাই` }))} />
@@ -139,7 +139,7 @@ export function NandNor() {
         <P>**NAND** মানে **NOT-AND** এবং **NOR** মানে **NOT-OR**: অর্থাৎ AND বা OR গেটের আউটপুটকে উল্টে দিলে এই গেটগুলো পাওয়া যায়। তাই এদের আউটপুট AND ও OR এর ঠিক উল্টো। গেটের আউটপুটে যে ছোট বৃত্ত (○) দেখেন, সেটিই এই উল্টে দেওয়ার চিহ্ন।</P>
       </Panel>
       <GateLab type="NAND" />
-      <Panel title="AND + NOT = NAND" sub="একটি AND গেটের পর NOT বসালে ঠিক NAND এর মতোই আচরণ পাওয়া যায়। সুইচ টিপে দেখুন, সারণী উপরের NAND এর সাথে হুবহু মেলে।">
+      <Panel title="AND + NOT = NAND" sub="একটি AND গেটের পর NOT বসালে ঠিক NAND এর মতোই আচরণ পাওয়া যায়। সুইচ টিপে দেখো, সারণী উপরের NAND এর সাথে হুবহু মেলে।">
         <Lab net={nandNet} />
       </Panel>
       <GateLab type="NOR" />

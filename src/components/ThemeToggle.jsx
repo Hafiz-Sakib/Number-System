@@ -39,7 +39,7 @@ export default function ThemeToggle({ className = "" }) {
       role="switch"
       aria-checked={dark}
       aria-label="ডার্ক মোড"
-      title={dark ? "দিনের মোডে যান" : "রাতের মোডে যান"}
+      title={dark ? "দিনের মোডে যাও" : "রাতের মোডে যাও"}
       onClick={(e) => toggleTheme(e.currentTarget)}
       whileTap={still ? undefined : { scale: 0.94 }}
       className={`relative h-8 w-[3.75rem] shrink-0 cursor-pointer overflow-hidden rounded-full border border-ink/15 outline-none transition-colors duration-1000 focus-visible:ring-2 focus-visible:ring-violet-500/60 ${dark ? "bg-[#1B1D3A]" : "bg-[#DCEBFF]"} shadow-[0_8px_30px_-8px_rgba(20,21,26,.25)] ${className}`}

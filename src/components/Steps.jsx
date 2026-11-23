@@ -102,7 +102,7 @@ export function Detail({ title, blocks, open: initial = false }) {
       <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-[15px] font-semibold transition-colors hover:bg-ink/[.04]">
         <motion.svg animate={{ rotate: open ? 90 : 0 }} transition={{ duration: 0.2 }} viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-ink/50" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="m9 6 6 6-6 6" /></motion.svg>
         <span className="min-w-0 flex-1"><Rich text={title} /></span>
-        <span className="shrink-0 text-xs font-medium text-ink/45">{open ? "লুকান" : "দেখুন"}</span>
+        <span className="shrink-0 text-xs font-medium text-ink/45">{open ? "লুকাও" : "দেখো"}</span>
       </button>
       <AnimatePresence initial={false}>
         {open && (

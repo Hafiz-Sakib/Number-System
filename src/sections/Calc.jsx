@@ -34,7 +34,7 @@ export default function Calc({ s, set, onConvert }) {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 pb-10 pt-4 sm:px-6 sm:pt-10 lg:px-8">
-      <SectionTitle title="যোগ · বিয়োগ · গুণ · ভাগ" sub="একই সংখ্যা পদ্ধতির সংখ্যা দিন (যোগে দুইয়ের বেশিও চলে)। উত্তরের সাথে কলাম ধরে পুরো হিসাব দেখুন।" />
+      <SectionTitle title="যোগ · বিয়োগ · গুণ · ভাগ" sub="একই সংখ্যা পদ্ধতির একাধিক সংখ্যা লিখে যোগ, বিয়োগ, গুণ বা ভাগ করো। হিসাবের ধাপগুলোও পাশে দেখতে পাবে।" />
 
       <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-6 lg:grid-cols-[26rem_minmax(0,1fr)] xl:grid-cols-[29rem_minmax(0,1fr)]">
         <div className="lg:sticky lg:top-[4.75rem] lg:-mx-1 lg:max-h-[calc(100svh-6rem)] lg:overflow-y-auto lg:px-1 lg:pb-2">
@@ -43,7 +43,7 @@ export default function Calc({ s, set, onConvert }) {
               <BaseTabs id="calc-base" label="সংখ্যা পদ্ধতি" value={s.base} onChange={(base) => set({ ...s, base })} />
               <NumberField label={`${ordinal(0)} সংখ্যা`} base={s.base} value={s.a} onChange={(a) => set({ ...s, a })} error={errs[0]} id="calc-a" chips={focus === "a"} onFocus={() => setFocus("a")} />
               <div>
-                <p className="mb-2 text-sm font-semibold text-ink/60">কী করতে চান</p>
+                <p className="mb-2 text-sm font-semibold text-ink/60">কোন হিসাবটি করবে?</p>
                 <div role="radiogroup" aria-label="গাণিতিক প্রক্রিয়া" className="grid grid-cols-4 gap-2">
                   {Object.entries(OPS).map(([k, o]) => {
                     const on = s.op === k;
@@ -62,15 +62,15 @@ export default function Calc({ s, set, onConvert }) {
                 <>
                   {more.map((v, i) => (
                     <NumberField key={i} label={`${ordinal(i + 2)} সংখ্যা`} base={s.base} value={v} onChange={(x) => setMore(i, x)} error={errs[i + 2]} id={`calc-m${i}`} chips={focus === `m${i}`} onFocus={() => setFocus(`m${i}`)}
-                      action={<button type="button" onClick={() => removeMore(i)} aria-label={`${ordinal(i + 2)} সংখ্যা বাদ দিন`} className="inline-flex items-center gap-1 rounded-full bg-ink/[.06] px-2.5 py-1 text-xs font-semibold text-ink/60 transition hover:bg-ink/[.11] hover:text-ink active:scale-95">
+                      action={<button type="button" onClick={() => removeMore(i)} aria-label={`${ordinal(i + 2)} সংখ্যা বাদ দাও`} className="inline-flex items-center gap-1 rounded-full bg-ink/[.06] px-2.5 py-1 text-xs font-semibold text-ink/60 transition hover:bg-ink/[.11] hover:text-ink active:scale-95">
                         <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M18 6 6 18M6 6l12 12" /></svg>বাদ
                       </button>} />
                   ))}
                   {slots < MAX_OPERANDS ? (
                     <button type="button" onClick={addMore} className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-ink/15 py-3 text-[15px] font-semibold text-ink/65 transition hover:border-violet-500/50 hover:bg-violet-500/[.06] hover:text-ink active:scale-[.98]">
-                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M12 5v14M5 12h14" /></svg>আরও সংখ্যা যোগ করুন
+                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M12 5v14M5 12h14" /></svg>আরেকটি সংখ্যা যোগ করো
                     </button>
-                  ) : <p className="text-center text-sm text-ink/50">সর্বোচ্চ {fmt(MAX_OPERANDS)}টি সংখ্যা যোগ করা যায়।</p>}
+                  ) : <p className="text-center text-sm text-ink/50">সর্বোচ্চ {fmt(MAX_OPERANDS)}টি সংখ্যা একসাথে যোগ করা যাবে।</p>}
                 </>
               )}
               {(s.op === "/" || method === "decimal") && <PrecisionSelect />}
@@ -83,17 +83,17 @@ export default function Calc({ s, set, onConvert }) {
             <>
               <ResultCard id="main-result" title={`${OPS[s.op].result}${multi ? ` · ${fmt(total)}টি সংখ্যা` : ""} (${BASE_NAME[s.base]})`} base={s.base} value={res.text} exact={res.value.exact}>
                 <CopyButton text={res.text} />
-                <button type="button" onClick={nextRound} className="rounded-full bg-ink px-4 py-1.5 text-sm font-semibold text-paper transition hover:bg-ink/85 active:scale-95">পরের হিসাবে প্রথম সংখ্যা করুন</button>
+                <button type="button" onClick={nextRound} className="rounded-full bg-ink px-4 py-1.5 text-sm font-semibold text-paper transition hover:bg-ink/85 active:scale-95">পরের হিসাবের প্রথম সংখ্যা হিসেবে নাও</button>
               </ResultCard>
 
               <div className="card p-4 sm:p-6">
-                <h2 className="text-lg font-bold">উত্তর চার পদ্ধতিতে</h2>
-                <p className="text-sm text-ink/55">যেকোনোটিতে চাপ দিয়ে রূপান্তরের ধাপ দেখুন।</p>
+                <h2 className="text-lg font-bold">চার পদ্ধতিতে ফলাফল</h2>
+                <p className="text-sm text-ink/55">যে পদ্ধতির হিসাব দেখতে চাও, সেটি বেছে নাও।</p>
                 <div className="mt-3 grid grid-cols-2 gap-2 2xl:grid-cols-4">
                   {res.all.map((a) => (
                     <button key={a.base} type="button" onClick={() => onConvert(s.base, a.base, res.text)} disabled={a.base === s.base}
                       className={`min-w-0 rounded-2xl px-3 py-2 text-left ring-1 transition enabled:active:scale-[.98] sm:px-4 sm:py-3 ${CLR[a.base].bg} ${CLR[a.base].ring} ${a.base === s.base ? "cursor-default" : ""}`}>
-                      <span className={`block text-sm font-bold ${CLR[a.base].text}`}>{BASE_NAME[a.base]}{a.base === s.base ? " (এই হিসাব)" : " · ধাপ দেখুন"}</span>
+                      <span className={`block text-sm font-bold ${CLR[a.base].text}`}>{BASE_NAME[a.base]}{a.base === s.base ? " (এই হিসাব)" : " · হিসাব দেখো"}</span>
                       <span className={`num mt-0.5 block break-all text-base font-bold sm:text-lg ${CLR[a.base].text}`}>{!a.exact && "≈ "}{disp(showVal(a))}</span>
                     </button>
                   ))}
@@ -101,10 +101,10 @@ export default function Calc({ s, set, onConvert }) {
               </div>
 
               <div className="card p-4 sm:p-7">
-                <h2 className="text-2xl font-extrabold">ধাপে ধাপে সমাধান</h2>
+                <h2 className="text-2xl font-extrabold">হিসাবের ধাপ</h2>
                 {methods.length > 1 && (
                   <div className="mt-3">
-                    <p className="mb-2 text-sm font-semibold text-ink/60">কোন পদ্ধতিতে দেখবেন</p>
+                    <p className="mb-2 text-sm font-semibold text-ink/60">হিসাবের পদ্ধতি</p>
                     <PillChoice id="method" options={methods.map((m) => ({ id: m.id, label: m.label }))} value={method} onChange={(m) => set({ ...s, method: m })} />
                   </div>
                 )}
@@ -114,8 +114,8 @@ export default function Calc({ s, set, onConvert }) {
           ) : (
             <div className="card grid min-h-[9rem] place-items-center p-6 text-center sm:min-h-[16rem] sm:p-8">
               <div>
-                <p className="text-2xl font-extrabold">উত্তর এখানে দেখা যাবে</p>
-                <p className="mx-auto mt-2 max-w-sm text-ink/55">{anyErr ? "ইনপুটের ভুলটি ঠিক করুন।" : s.op === "+" ? "বাঁ দিকে সংখ্যাগুলো লিখুন।" : "বাঁ দিকে দুটি সংখ্যা লিখুন।"}</p>
+                <p className="text-2xl font-extrabold">এখানে ফলাফল দেখানো হবে</p>
+                <p className="mx-auto mt-2 max-w-sm text-ink/55">{anyErr ? "ইনপুটের ভুলটি ঠিক করো।" : s.op === "+" ? "বাম পাশের ঘরগুলোতে সংখ্যা লেখো।" : "বাম পাশের ঘরে দুটি সংখ্যা লেখো।"}</p>
               </div>
             </div>
           )}

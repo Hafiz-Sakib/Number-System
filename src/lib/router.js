@@ -5,7 +5,7 @@ export const ROUTES = [
   { path: "/", id: "home", label: "হোম", icon: "home" },
   { path: "/convert", id: "convert", label: "রূপান্তর", icon: "convert" },
   { path: "/calc", id: "calc", label: "হিসাব", icon: "calc" },
-  { path: "/complement", id: "complement", label: "পরিপূরক", icon: "complement", sub: "1's ও 2's কমপ্লিমেন্ট" },
+  { path: "/complement", id: "complement", label: "পরিপূরক", icon: "complement", sub: "1's ও 2's পরিপূরক" },
   { path: "/algebra", id: "algebra", label: "বুলিয়ান এলজেবরা", icon: "algebra", sub: "রাশি · উপপাদ্য · সত্যক সারণী" },
   { path: "/gates", id: "gates", label: "লজিক গেট", icon: "gates", sub: "গেট · অ্যাডার · কাউন্টার" },
   { path: "/dev", id: "dev", label: "ডেভেলপার", icon: "dev" },

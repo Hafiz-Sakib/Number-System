@@ -117,7 +117,7 @@ const nary = (t, args) => ({ t, args: args.flatMap((a) => (a.t === t ? a.args : 
 export function parseExpr(src, maxVars = 5) {
   try {
     const tk = tokenize(String(src));
-    if (!tk.length) return { ok: false, empty: true, error: "একটি রাশি লিখুন।" };
+    if (!tk.length) return { ok: false, empty: true, error: "একটি রাশি লেখো।" };
     let i = 0;
     const peek = () => tk[i];
     const starts = (x) => x && (x.k === "var" || x.k === "const" || x.k === "(" || x.k === "pre");
@@ -149,7 +149,7 @@ export function parseExpr(src, maxVars = 5) {
     const ast = orE();
     if (i < tk.length) throw new Error(tk[i].k === ")" ? "বাড়তি ) বন্ধনী আছে।" : "দুটি চলকের মাঝে অপারেটর (+ বা ·) লাগবে।");
     const vars = [...new Set(collectVars(ast))].sort();
-    if (vars.length > maxVars) return { ok: false, error: `সর্বোচ্চ ${maxVars}টি চলক (${"ABCDE".slice(0, maxVars).split("").join(", ")}) ব্যবহার করুন; আপনার রাশিতে ${vars.length}টি আছে।` };
+    if (vars.length > maxVars) return { ok: false, error: `সর্বোচ্চ ${maxVars}টি চলক (${"ABCDE".slice(0, maxVars).split("").join(", ")}) ব্যবহার করো; তোমার রাশিতে ${vars.length}টি আছে।` };
     return { ok: true, ast, vars };
   } catch (e) {
     return { ok: false, error: e.message };

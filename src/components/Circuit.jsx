@@ -228,7 +228,7 @@ export function Lab({ net, table, radio = false, init, className = "", hideTable
       <div className="board overflow-x-auto no-sb rounded-2xl p-1.5 ring-1 ring-ink/10 sm:p-2 lg:p-3">
         <Circuit net={net} state={st} onToggle={toggle} />
       </div>
-      <p className="mt-2 text-center text-xs text-ink/45">সুইচে চাপ দিয়ে ইনপুট বদলান; সবুজ তারে সিগন্যাল 1 চলছে।</p>
+      <p className="mt-2 text-center text-xs text-ink/45">সুইচে চাপ দিয়ে ইনপুট বদলাও; সবুজ তারে সিগন্যাল 1 চলছে।</p>
       {typeof below === "function" ? below(st) : below}
       {!hideTable && (
         <div className="mt-3">

@@ -36,7 +36,7 @@ export default function Logic() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 pb-6 pt-6 sm:px-6 sm:pt-10 lg:px-8">
-      <SectionTitle title="ডিজিটাল লজিক" sub="বুলিয়ান এলজেবরা ও ডিজিটাল ডিভাইস: গেট, সত্যক সারণী, অ্যাডার, কাউন্টার। সুইচ টিপে নিজে চালিয়ে দেখুন।" />
+      <SectionTitle title="ডিজিটাল লজিক" sub="বুলিয়ান এলজেবরা, লজিক গেট ও ডিজিটাল সার্কিটের বিভিন্ন বিষয় উদাহরণসহ দেখো। সুইচ বদলে সার্কিটের আউটপুট পরীক্ষা করো।" />
       <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-5 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8">
         <nav aria-label="টপিক তালিকা" className="min-w-0 lg:sticky lg:top-24">
           <ol ref={nav} className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none] lg:mx-0 lg:flex-col lg:gap-1 lg:overflow-visible lg:px-0 lg:pb-0 [&::-webkit-scrollbar]:hidden">

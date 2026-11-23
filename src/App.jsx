@@ -40,7 +40,7 @@ function MoreSheet({ open, onClose, path }) {
     <AnimatePresence>
       {open && (
         <motion.div key="more" className="fixed inset-0 z-[60] lg:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
-          <button type="button" aria-label="বন্ধ করুন" onClick={onClose} className="absolute inset-0 bg-black/35 backdrop-blur-[2px]" />
+          <button type="button" aria-label="বন্ধ করো" onClick={onClose} className="absolute inset-0 bg-black/35 backdrop-blur-[2px]" />
           <motion.div role="dialog" aria-label="আরও পেজ" initial={reduce ? false : { y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={reduce ? { opacity: 0 } : { y: 40, opacity: 0 }} transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
             className="absolute inset-x-2 bottom-[max(5.25rem,calc(env(safe-area-inset-bottom)+4.75rem))] mx-auto max-w-[380px] rounded-3xl bg-surface p-3 shadow-[0_20px_60px_-20px_rgba(0,0,0,.45)] ring-1 ring-ink/[.08]">
             <p className="px-2 pb-2 pt-1 text-sm font-bold text-ink/55">আরও পেজ</p>

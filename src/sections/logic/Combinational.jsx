@@ -27,7 +27,7 @@ export function Encoder() {
         <div className="mt-3"><Facts items={[["A₂ = D₄+D₅+D₆+D₇", "যে ইনপুটের বাইনারি কোডে সবচেয়ে বামের বিট 1।", "bg-lilac"], ["A₁ = D₂+D₃+D₆+D₇", "মাঝের বিট 1 হয় যেসব ইনপুটে।", "bg-sky"], ["A₀ = D₁+D₃+D₅+D₇", "ডানের বিট 1 হয় যেসব ইনপুটে।", "bg-mint"]]} /></div>
         <P className="mt-3">প্রতিটি আউটপুট একটি **OR গেট**। D₀ কোনো গেটে যায় না, কারণ কোড 000 আসে কোনো বিট 1 না হলেই।</P>
       </Panel>
-      <Panel title="অক্টাল-টু-বাইনারি এনকোডার" sub="একটি ইনপুট চালু করুন (একবারে একটিই সক্রিয় থাকে)।">
+      <Panel title="অক্টাল-টু-বাইনারি এনকোডার" sub="একটি ইনপুট চালু করো (একবারে একটিই সক্রিয় থাকে)।">
         <Lab net={net} table={table} radio init={{ D5: 1 }} below={(st) => {
           const act = Object.keys(st).filter((k) => st[k]);
           const k = act.length ? +act[0].slice(1) : 0;
@@ -82,7 +82,7 @@ export function Decoder() {
       </Panel>
       {v === "24"
         ? <Panel title="2-টু-4 ডিকোডার" sub="দুটি ইনপুট A, B → চারটি আউটপুট। প্রতিটি আউটপুট একটি AND গেট।"><Lab net={net} init={{ A: 1 }} /></Panel>
-        : <Panel title="3-টু-8 ডিকোডার" sub="তিন বিটের কোড বদলে দেখুন কোন আউটপুট জ্বলে।"><Dec38 /></Panel>}
+        : <Panel title="3-টু-8 ডিকোডার" sub="তিন বিটের কোড বদলে দেখো কোন আউটপুট জ্বলে।"><Dec38 /></Panel>}
     </div>
   );
 }
@@ -169,7 +169,7 @@ export function Adder() {
           <Lab net={full} init={{ A: 1, B: 1, Cin: 1 }} below={(st) => { const t = st.A + st.B + st.Cin; return <p className="mt-3 rounded-2xl bg-mint px-4 py-3 text-center font-semibold ring-1 ring-ink/[.06]"><span className="num">{st.A} + {st.B} + {st.Cin} = {t}</span> → Cout <Eq>{t >> 1}</Eq> Sum <Eq>{t & 1}</Eq> (বাইনারি <Eq>{bin(t, 2)}</Eq>)</p>; }} />
         </Panel>
       )}
-      {v === "ripple" && <Panel title="৪-বিট রিপল-ক্যারি অ্যাডার" sub="চারটি ফুল অ্যাডার পরপর জোড়া। A ও B এর বিট বদলে ক্যারি ছড়াতে দেখুন।"><Ripple /></Panel>}
+      {v === "ripple" && <Panel title="৪-বিট রিপল-ক্যারি অ্যাডার" sub="চারটি ফুল অ্যাডার পরপর জোড়া। A ও B এর বিট বদলে ক্যারি ছড়াতে দেখো।"><Ripple /></Panel>}
     </div>
   );
 }

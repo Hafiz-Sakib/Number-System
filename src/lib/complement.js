@@ -5,13 +5,13 @@ export const MAX_INT = 16, MAX_FRAC = 8;
 
 export function parseBits(raw) {
   const s = normalize(raw).replace(/\s+/g, "");
-  if (!s) return { ok: false, empty: true, msg: "একটি বাইনারি সংখ্যা লিখুন।" };
-  if (/^[-−]/.test(s)) return { ok: false, msg: "পরিপূরক বের করতে Positive বাইনারি সংখ্যা দিন (Negative সংখ্যা নিচের অংশে আছে)।" };
+  if (!s) return { ok: false, empty: true, msg: "একটি বাইনারি সংখ্যা লেখো।" };
+  if (/^[-−]/.test(s)) return { ok: false, msg: "পরিপূরক বের করতে ধনাত্মক বাইনারি সংখ্যা দাও (ঋণাত্মক সংখ্যা নিচের অংশে আছে)।" };
   if (!/^[01]*\.?[01]*$/.test(s) || s === ".") return { ok: false, msg: "বাইনারিতে শুধু 0 আর 1 এবং একটি দশমিক বিন্দু (.) চলে।" };
   const [i = "", f = ""] = s.split(".");
-  if (!i && !f) return { ok: false, msg: "একটি বাইনারি সংখ্যা লিখুন।" };
-  if (i.length > MAX_INT) return { ok: false, msg: `পূর্ণ অংশে সর্বোচ্চ ${MAX_INT}টি বিট দিন।` };
-  if (f.length > MAX_FRAC) return { ok: false, msg: `দশমিকের পরে সর্বোচ্চ ${MAX_FRAC}টি বিট দিন।` };
+  if (!i && !f) return { ok: false, msg: "একটি বাইনারি সংখ্যা লেখো।" };
+  if (i.length > MAX_INT) return { ok: false, msg: `পূর্ণ অংশে সর্বোচ্চ ${MAX_INT}টি বিট দাও।` };
+  if (f.length > MAX_FRAC) return { ok: false, msg: `দশমিকের পরে সর্বোচ্চ ${MAX_FRAC}টি বিট দাও।` };
   return { ok: true, int: i || "0", frac: f };
 }
 
@@ -88,7 +88,7 @@ export function complementBlocks(int, frac) {
 /** n-বিট Negative পূর্ণসংখ্যা: সাইন-ম্যাগনিটিউড, 1's, 2's */
 export function signedForms(d, n) {
   const lim1 = 2 ** (n - 1) - 1, min2 = -(2 ** (n - 1));
-  if (!Number.isInteger(d)) return { ok: false, msg: "এখানে পূর্ণসংখ্যা দিন (যেমন −5, 13)।" };
+  if (!Number.isInteger(d)) return { ok: false, msg: "এখানে পূর্ণসংখ্যা দাও (যেমন −5, 13)।" };
   if (d < min2 || d > lim1) return { ok: false, msg: `${n} বিটে −${2 ** (n - 1)} থেকে +${lim1} পর্যন্ত লেখা যায়।` };
   const mag = Math.abs(d).toString(2).padStart(n - 1, "0");
   const sm = (d < 0 ? "1" : "0") + mag;
@@ -102,7 +102,7 @@ export function signedBlocks(f) {
   const { d, n, mag } = f;
   const b = [];
   if (f.pos) {
-    b.push({ t: "p", text: `${d} Positive, তাই ${n} বিটে লিখি সামনে সাইন বিট **0** বসিয়ে: {{${f.sm}|2}}। Positive সংখ্যার তিন রূপই একই।` });
+    b.push({ t: "p", text: `${d} ধনাত্মক, তাই ${n} বিটে লিখি সামনে সাইন বিট **0** বসিয়ে: {{${f.sm}|2}}। ধনাত্মক সংখ্যার তিন রূপই একই।` });
     return b;
   }
   const pm = (Math.abs(d)).toString(2).padStart(n, "0");

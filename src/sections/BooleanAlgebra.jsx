@@ -24,5 +24,5 @@ const TOPICS = [
 ];
 
 export default function BooleanAlgebra() {
-  return <TopicPage title="বুলিয়ান এলজেবরা" sub="রাশি, উপপাদ্য, সত্যক সারণী ও ডি-মরগান। নিজের রাশি লিখে সার্কিট ও সারণী (সর্বোচ্চ 4 চলক) বানিয়ে দেখুন।" topics={TOPICS} />;
+  return <TopicPage title="বুলিয়ান এলজেবরা" sub="রাশি, উপপাদ্য, সত্যক সারণী ও ডি-মরগান। নিজের রাশি লিখে সার্কিট ও সারণী (সর্বোচ্চ 4 চলক) বানিয়ে দেখো।" topics={TOPICS} />;
 }

@@ -44,5 +44,5 @@ const TOPICS = [
 ];
 
 export default function LogicGates() {
-  return <TopicPage title="লজিক গেট" sub="গেট, অ্যাডার, এনকোডার, রেজিস্টার, কাউন্টার। সুইচ টিপে সার্কিট নিজে চালিয়ে দেখুন।" topics={TOPICS} />;
+  return <TopicPage title="লজিক গেট" sub="গেট, অ্যাডার, এনকোডার, রেজিস্টার ও কাউন্টার উদাহরণসহ দেখো। সুইচ বদলে সার্কিটের ইনপুট ও আউটপুট পরীক্ষা করো।" topics={TOPICS} />;
 }

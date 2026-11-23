@@ -122,7 +122,7 @@ function Rule({ base, to, ex, steps }) {
       <p className={`mt-3 rounded-2xl px-3.5 py-2.5 text-[15px] font-semibold ring-1 ${CLR[to].bg} ${CLR[to].ring}`}>
         <Rich text={`উদাহরণ: {{${ex}|${base}}} = {{${r.text}|${to}}}`} />
       </p>
-      <Detail title="ধাপে ধাপে সমাধান দেখুন" blocks={r.blocks} />
+      <Detail title="সমাধানের ধাপ" blocks={r.blocks} />
     </article>
   );
 }
@@ -139,7 +139,7 @@ export default function Learn() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 pb-10 pt-6 sm:px-6 sm:pt-10 lg:px-8">
-      <SectionTitle title="নিয়মকানুন" sub="পরীক্ষার আগে ঝালিয়ে নেওয়ার জন্য সব রূপান্তরের নিয়ম দশমিকসহ উদাহরণে, এক জায়গায়।" />
+      <SectionTitle title="সংখ্যা পদ্ধতির নিয়ম" sub="চারটি সংখ্যা পদ্ধতির রূপান্তরের নিয়ম ও উদাহরণ এখানে একসাথে দেওয়া হয়েছে।" />
 
       <Reveal y={16}>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -162,7 +162,7 @@ export default function Learn() {
               <ul className="mt-2 space-y-2 text-[15px] leading-[1.8] text-ink/80">
                 {c.items.map((t, i) => <li key={i} className="flex gap-2"><span aria-hidden className="mt-[0.72em] size-1.5 shrink-0 rounded-full bg-ink/40" /><span className="min-w-0"><Rich text={t} /></span></li>)}
               </ul>
-              {c.go && <button type="button" onClick={() => navigate("/complement")} className="mt-3 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-paper transition hover:bg-ink/85 active:scale-95">পরিপূরক পেজে যান →</button>}
+              {c.go && <button type="button" onClick={() => navigate("/complement")} className="mt-3 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-paper transition hover:bg-ink/85 active:scale-95">পরিপূরক পেজে যাও →</button>}
             </section>
           ))}
         </div>
@@ -170,8 +170,8 @@ export default function Learn() {
 
       <Reveal y={16}>
         <div className="card mt-5 p-5 sm:p-7">
-          <h2 className="text-2xl font-extrabold">এক নজরে সব রূপান্তর</h2>
-          <p className="mt-1 text-ink/55">কোনটি থেকে কোনটিতে যেতে কোন পদ্ধতি লাগে। নিচের বোতামে চাপ দিয়ে সরাসরি সেই অংশে যান।</p>
+          <h2 className="text-2xl font-extrabold">রূপান্তরের নিয়ম একসাথে</h2>
+          <p className="mt-1 text-ink/55">কোন সংখ্যা পদ্ধতি থেকে অন্যটিতে যেতে কীভাবে হিসাব করতে হয়, তা এখানে দেখানো হয়েছে।</p>
           <Blocks nested blocks={[glance]} />
           <div className="mt-4 flex flex-wrap gap-2">
             {BASES.map((b) => (
@@ -203,7 +203,7 @@ export default function Learn() {
         <div className="min-w-0 space-y-5">
           <Reveal y={16}>
             <div className="card p-5 sm:p-7">
-              <h2 className="text-2xl font-extrabold">স্থানীয় মান</h2>
+              <h2 className="text-2xl font-extrabold">অঙ্কের স্থানীয় মান</h2>
               <p className="mt-2 leading-[1.85] text-ink/80"><Rich text="প্রতিটি অঙ্কের মান নির্ভর করে সে কোথায় বসেছে তার ওপর। ভিত্তি **b** হলে ডান থেকে প্রথম অঙ্কের স্থানীয় মান b^[0], তারপর b^[1], b^[2] …। দশমিক বিন্দুর ডানে b^[−1], b^[−2] …" /></p>
               <p className="mt-3 leading-[1.85] text-ink/80"><Rich text="{{1011.01|2}} = 1×2^[3] + 0×2^[2] + 1×2^[1] + 1×2^[0] + 0×2^[−1] + 1×2^[−2] = 8 + 0 + 2 + 1 + 0 + 0.25 = {{11.25|10}}" /></p>
             </div>
@@ -220,13 +220,13 @@ export default function Learn() {
             <div className="card p-5 sm:p-7">
               <h2 className="text-2xl font-extrabold">1's ও 2's পরিপূরক</h2>
               <p className="mt-2 leading-[1.85] text-ink/80"><Rich text="**1's:** প্রতিটি বিট উল্টাই। **2's:** 1's এর সাথে 1 যোগ। দশমিকসহ উদাহরণ, ঋণাত্মক সংখ্যা ও পরিপূরক দিয়ে বিয়োগ আলাদা পেজে আছে।" /></p>
-              <button type="button" onClick={() => navigate("/complement")} className="mt-4 rounded-full bg-ink px-5 py-2.5 font-semibold text-paper transition hover:bg-ink/85 active:scale-95">পরিপূরক পেজে যান →</button>
+              <button type="button" onClick={() => navigate("/complement")} className="mt-4 rounded-full bg-ink px-5 py-2.5 font-semibold text-paper transition hover:bg-ink/85 active:scale-95">পরিপূরক পেজে যাও →</button>
             </div>
           </Reveal>
           <Reveal y={16}>
             <div className="card p-5 sm:p-7">
               <h2 className="text-2xl font-extrabold">0 থেকে 31 এর সারণি</h2>
-              <p className="mt-1 text-ink/55">চার পদ্ধতিতে পাশাপাশি।</p>
+              <p className="mt-1 text-ink/55">চারটি পদ্ধতির মান পাশাপাশি দেখানো হয়েছে।</p>
               <Blocks nested blocks={[{ t: "table", head: ["ডেসিমাল", "বাইনারি", "অক্টাল", "হেক্স"], rows: ref }]} />
             </div>
           </Reveal>

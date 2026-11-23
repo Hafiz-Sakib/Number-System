@@ -25,7 +25,7 @@ function StorageLab() {
   const pct = (gib / n) * 100;
   const name = (x) => (x === 1000 ? "1 TB" : `${x} GB`);
   return (
-    <Block tag="স্টোরেজ" title="64 GB পেনড্রাইভে কেন 59 GB দেখায়?" desc="কোম্পানি হিসাব করে 1000 ধরে (ডেসিমাল), কিন্তু কম্পিউটার হিসাব করে 1024 = 2¹⁰ ধরে (বাইনারি)। এই পার্থক্য থেকেই KB, MB, GB-র গল্প। সাইজ বেছে দেখুন কতটা “হারিয়ে” যায়।">
+    <Block tag="স্টোরেজ" title="64 GB পেনড্রাইভে কেন 59 GB দেখায়?" desc="কোম্পানি হিসাব করে 1000 ধরে (ডেসিমাল), কিন্তু কম্পিউটার হিসাব করে 1024 = 2¹⁰ ধরে (বাইনারি)। এই পার্থক্য থেকেই KB, MB, GB-র গল্প। সাইজ বেছে দেখো কতটা “হারিয়ে” যায়।">
       <div className="flex flex-wrap gap-2">
         {SIZES.map((x) => <button key={x} type="button" aria-pressed={n === x} onClick={() => setN(x)} className={`num rounded-full px-4 py-1.5 text-sm font-semibold transition active:scale-95 ${n === x ? "bg-emerald-500 text-white" : "bg-ink/[.07] hover:bg-ink/[.12]"}`}>{name(x)}</button>)}
       </div>

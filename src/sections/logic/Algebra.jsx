@@ -33,7 +33,7 @@ export function SimplifySteps({ data, orig }) {
   return (
     <div className="rounded-2xl bg-ink/[.035] p-3.5 ring-1 ring-ink/[.06] sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h4 className="text-lg font-extrabold">ধাপে ধাপে সরলীকরণ</h4>
+        <h4 className="text-lg font-extrabold">সরলীকরণের ধাপ</h4>
         {!already && L > 1 && <PillChoice id="simp-mode" value={mode} onChange={(m) => { setMode(m); setK(0); }} options={[{ id: "all", label: "সব ধাপ" }, { id: "one", label: "একটি একটি করে" }]} />}
       </div>
       <ol className="mt-4 space-y-3">
@@ -57,7 +57,7 @@ export function SimplifySteps({ data, orig }) {
       {already && <p className="mt-3 rounded-xl bg-mint px-3.5 py-2.5 text-[15px] font-semibold ring-1 ring-ink/[.06]">রাশিটি আগে থেকেই সরল: কোনো নিয়ম প্রয়োগ করে একে আর ছোট করা যায় না।</p>}
       {mode === "one" && !already && (
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <button type="button" disabled={done} onClick={() => setK((x) => x + 1)} className="rounded-full bg-ink px-5 py-2 font-semibold text-paper transition enabled:hover:bg-ink/85 enabled:active:scale-95 disabled:opacity-35">{done ? "সব ধাপ শেষ" : shown === 0 ? "প্রথম ধাপ দেখুন" : "পরের ধাপ →"}</button>
+          <button type="button" disabled={done} onClick={() => setK((x) => x + 1)} className="rounded-full bg-ink px-5 py-2 font-semibold text-paper transition enabled:hover:bg-ink/85 enabled:active:scale-95 disabled:opacity-35">{done ? "সব ধাপ শেষ" : shown === 0 ? "প্রথম ধাপ দেখো" : "পরের ধাপ →"}</button>
           {shown > 0 && <button type="button" onClick={() => setK(0)} className="rounded-full bg-ink/[.07] px-4 py-2 font-semibold transition hover:bg-ink/[.12] active:scale-95">আবার</button>}
           <span className="num text-sm text-ink/50">{shown}/{L}</span>
         </div>
@@ -178,7 +178,7 @@ export function ExprLab({ initial = "A·B + A'·C", steps = false }) {
 
   return (
     <div>
-      <label htmlFor="expr" className="mb-2 block text-sm font-semibold text-ink/60">আপনার বুলিয়ান রাশি (সর্বোচ্চ 4টি চলক)</label>
+      <label htmlFor="expr" className="mb-2 block text-sm font-semibold text-ink/60">তোমার বুলিয়ান রাশি (সর্বোচ্চ 4টি চলক)</label>
       <input id="expr" value={src} onChange={(e) => { setSrc(e.target.value); setView("orig"); }} spellCheck={false} autoCapitalize="off" autoCorrect="off" aria-invalid={!r.ok}
         className="num w-full rounded-2xl bg-surface px-4 py-3 text-xl font-semibold ring-1 ring-ink/10 transition focus:ring-2 focus:ring-violet-500/60" />
       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -188,12 +188,12 @@ export function ExprLab({ initial = "A·B + A'·C", steps = false }) {
         <button type="button" onClick={() => setSrc("")} className="h-9 rounded-xl bg-ink/[.06] px-3 text-sm font-semibold transition hover:bg-ink/[.12] active:scale-90">মুছুন</button>
       </div>
       <details className="mt-2 text-sm text-ink/50"><summary className="w-fit cursor-pointer select-none font-semibold">লেখার নিয়ম</summary>
-        <p className="mt-1.5 leading-[2]">যোগ <Eq>+</Eq> · গুণ <Eq>·</Eq> বা পাশাপাশি লিখুন (<Eq>AB</Eq>) · পরিপূরক <Eq>'</Eq> বা <Eq>!</Eq> · XOR <Eq>^</Eq> বা <Eq>⊕</Eq></p>
+        <p className="mt-1.5 leading-[2]">যোগ <Eq>+</Eq> · গুণ <Eq>·</Eq> বা পাশাপাশি লেখো (<Eq>AB</Eq>) · পরিপূরক <Eq>'</Eq> বা <Eq>!</Eq> · XOR <Eq>^</Eq> বা <Eq>⊕</Eq></p>
       </details>
       <div className="mt-4"><ExampleGrid items={EXAMPLES} onPick={pick} limit={4} cols="grid-cols-2 lg:grid-cols-4" /></div>
 
       {!r.ok ? (
-        <p role="alert" className="mt-5 rounded-2xl bg-rose-500/10 px-4 py-3 font-semibold text-rose-700 dark:text-rose-300">{r.empty ? "উপরে একটি বুলিয়ান রাশি লিখুন।" : r.error}</p>
+        <p role="alert" className="mt-5 rounded-2xl bg-rose-500/10 px-4 py-3 font-semibold text-rose-700 dark:text-rose-300">{r.empty ? "উপরে একটি বুলিয়ান রাশি লেখো।" : r.error}</p>
       ) : (
         <div className="mt-5 space-y-4">
           <div className="flex flex-wrap gap-2 text-[15px]">
@@ -206,7 +206,7 @@ export function ExprLab({ initial = "A·B + A'·C", steps = false }) {
           {steps && (
             <div>
               <button type="button" role="switch" aria-checked={showSteps} onClick={() => setShowSteps((x) => !x)} className="inline-flex items-center gap-3 rounded-full bg-ink/[.06] py-1.5 pl-4 pr-2 font-semibold transition hover:bg-ink/[.1] active:scale-[.98]">
-                সরলীকরণের হিসাব দেখান
+                সরলীকরণের ধাপ দেখাও
                 <span className={`relative h-6 w-11 rounded-full transition-colors ${showSteps ? "bg-emerald-500" : "bg-ink/25"}`}><span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${showSteps ? "left-[22px]" : "left-0.5"}`} /></span>
               </button>
               <AnimatePresence initial={false}>
@@ -222,7 +222,7 @@ export function ExprLab({ initial = "A·B + A'·C", steps = false }) {
             </div>
           )}
 
-          {d.better ? <PillChoice id="expr-view" value={view} onChange={setView} options={[{ id: "orig", label: "আপনার রাশির সার্কিট" }, { id: "simple", label: "সরল রূপের সার্কিট" }]} />
+          {d.better ? <PillChoice id="expr-view" value={view} onChange={setView} options={[{ id: "orig", label: "তোমার রাশির সার্কিট" }, { id: "simple", label: "সরল রূপের সার্কিট" }]} />
             : <p className="text-sm text-ink/55">রাশিটি আগে থেকেই যথেষ্ট সরল, এর চেয়ে কম গেটে করা যায় না।</p>}
           <div className="board overflow-x-auto no-sb rounded-2xl p-1.5 ring-1 ring-ink/10 sm:p-2 lg:p-3">
             <AnimatePresence mode="wait" initial={false}>
@@ -252,9 +252,9 @@ export function Algebra() {
           ["1 + 1 = 1", "বুলিয়ান যোগে 1 + 1 = 1 (সাধারণ গণিতের 2 নয়), কারণ মান মাত্র দুটি।", "bg-mint"],
         ]} /></div>
       </Panel>
-      <Panel title="রাশি ল্যাব" sub="নিজের রাশি লিখুন বা উদাহরণ বেছে নিন: সরলীকরণের প্রতিটি ধাপ, সার্কিট ও সত্যক সারণী দেখুন।">
+      <Panel title="বুলিয়ান রাশি পরীক্ষা" sub="একটি বুলিয়ান রাশি লেখো বা উদাহরণ বেছে নাও। এর সরলীকরণ, সার্কিট ও সত্যক সারণী দেখা যাবে।">
         <ExprLab steps />
-        <P className="mt-5">**সরলীকরণ কেন দরকার?** রাশি যত সরল, সার্কিটে গেট তত কম: খরচ, জায়গা ও বিদ্যুৎ কম। ল্যাব প্রথমে বুলিয়ান নিয়ম (অভেদ, শোষণ, ডি-মরগান ইত্যাদি) একটি একটি করে প্রয়োগ করে ধাপ দেখায়; দরকার হলে Quine–McCluskey দিয়ে আরও ছোট রূপ বের করে, আর সবশেষে সত্যক সারণী মিলিয়ে নিশ্চিত করে।</P>
+        <P className="mt-5">**রাশি সরল করলে কী সুবিধা?** রাশি যত সরল, সার্কিটে গেট তত কম: খরচ, জায়গা ও বিদ্যুৎ কম। এই অংশ প্রথমে বুলিয়ান নিয়ম (অভেদ, শোষণ, ডি-মরগান ইত্যাদি) একটি একটি করে প্রয়োগ করে ধাপ দেখায়; দরকার হলে Quine–McCluskey দিয়ে আরও ছোট রূপ বের করে, আর সবশেষে সত্যক সারণী মিলিয়ে নিশ্চিত করে।</P>
       </Panel>
     </div>
   );
@@ -288,7 +288,7 @@ function Law({ l, r }) {
     <div className="rounded-2xl bg-ink/[.04] px-3 py-2.5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="num text-[17px] font-bold">{l} <span className="text-ink/40">=</span> {r}</p>
-        <button type="button" aria-expanded={open} onClick={() => setOpen((o) => !o)} className="rounded-full bg-surface px-3.5 py-1.5 text-sm font-semibold ring-1 ring-ink/10 transition hover:bg-ink/[.06] active:scale-95">{open ? "লুকান" : "সত্যক সারণীতে যাচাই"}</button>
+        <button type="button" aria-expanded={open} onClick={() => setOpen((o) => !o)} className="rounded-full bg-surface px-3.5 py-1.5 text-sm font-semibold ring-1 ring-ink/10 transition hover:bg-ink/[.06] active:scale-95">{open ? "লুকাও" : "সত্যক সারণীতে যাচাই"}</button>
       </div>
       <AnimatePresence initial={false}>
         {open && (
@@ -327,42 +327,6 @@ const LAWS = {
   one: { l: "(A·B)'", r: "A' + B'", name: "(A·B)' = A' + B'", say: "গুণফলের পরিপূরক = পরিপূরকগুলোর **যোগফল**। সার্কিটে: NAND = ইনপুট উল্টে OR।" },
   two: { l: "(A + B)'", r: "A'·B'", name: "(A + B)' = A'·B'", say: "যোগফলের পরিপূরক = পরিপূরকগুলোর **গুণফল**। সার্কিটে: NOR = ইনপুট উল্টে AND।" },
 };
-const QUIZ = [
-  ["(A + B)' এর সমান কোনটি?", ["A' + B'", "A'·B'", "A·B", "A + B'"], 1, "ডি-মরগান: যোগফলের পরিপূরক = পরিপূরকগুলোর গুণফল, অর্থাৎ A'·B'।"],
-  ["(A·B)' এর সমান কোনটি?", ["A'·B'", "A + B", "A' + B'", "A·B'"], 2, "গুণফলের পরিপূরক = পরিপূরকগুলোর যোগফল, অর্থাৎ A' + B'।"],
-  ["(A' + B')' এর সরল রূপ কোনটি?", ["A + B", "A·B", "A'·B'", "A' + B"], 1, "(A' + B')' = (A')'·(B')' = A·B।"],
-  ["NAND গেটের দুই ইনপুটই 1 হলে আউটপুট কত?", ["0", "1", "অনির্ধারিত", "দুটিই সম্ভব"], 0, "NAND = (A·B)'। 1·1 = 1, তার পরিপূরক 0।"],
-  ["A + A'·B কে সরল করলে কী পাওয়া যায়?", ["A·B", "A + B", "B", "A"], 1, "অপ্রয়োজনীয়তা নিয়ম: A + A'·B = A + B।"],
-  ["ডি-মরগানের উপপাদ্য কীসের মধ্যে সম্পর্ক দেখায়?", ["AND ও OR এর (পরিপূরকের মাধ্যমে)", "শুধু NOT এর", "যোগ ও বিয়োগের", "XOR ও XNOR এর"], 0, "উপপাদ্যটি AND ও OR কে পরিপূরকের মাধ্যমে পরস্পরে বদলে দেয়।"],
-];
-
-function Quiz() {
-  const [ans, setAns] = useState({});
-  const done = Object.keys(ans).length;
-  const score = QUIZ.filter((q, i) => ans[i] === q[2]).length;
-  return (
-    <div className="space-y-4">
-      {QUIZ.map(([q, opts, right, why], i) => (
-        <fieldset key={i} className="rounded-2xl bg-ink/[.04] p-3.5 sm:p-4">
-          <legend className="px-1 font-bold"><span className="num text-ink/45">{i + 1}.</span> {q}</legend>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
-            {opts.map((o, k) => {
-              const picked = ans[i] === k, shown = ans[i] != null;
-              const tone = !shown ? "bg-surface ring-ink/10 hover:bg-ink/[.05]" : k === right ? "bg-emerald-500/15 ring-emerald-500/50" : picked ? "bg-rose-500/15 ring-rose-500/50" : "bg-surface ring-ink/10 opacity-60";
-              return <button key={k} type="button" disabled={shown} onClick={() => setAns((a) => ({ ...a, [i]: k }))} className={`num rounded-xl px-3.5 py-2.5 text-left font-semibold ring-1 transition active:scale-[.98] ${tone}`}>{o}</button>;
-            })}
-          </div>
-          {ans[i] != null && <p className="mt-2 text-sm leading-[1.8] text-ink/70"><b className={ans[i] === right ? "text-emerald-700 dark:text-emerald-300" : "text-rose-700 dark:text-rose-300"}>{ans[i] === right ? "সঠিক। " : "ভুল। "}</b>{why}</p>}
-        </fieldset>
-      ))}
-      <div className="flex items-center justify-between gap-3">
-        <p className="font-bold">{done === QUIZ.length ? <>আপনার স্কোর: <span className="num">{score}/{QUIZ.length}</span></> : <span className="text-ink/55">উত্তর দেওয়া হয়েছে <span className="num">{done}/{QUIZ.length}</span></span>}</p>
-        {done > 0 && <button type="button" onClick={() => setAns({})} className="rounded-full bg-ink/[.07] px-4 py-2 font-semibold transition hover:bg-ink/[.12] active:scale-95">আবার করুন</button>}
-      </div>
-    </div>
-  );
-}
-
 export function DeMorgan() {
   const [law, setLaw] = useState("one");
   const L = LAWS[law];
@@ -399,7 +363,6 @@ export function DeMorgan() {
           <TruthTable ins={["A", "B"]} outs={["বাম", "ডান"]} rows={rows} active={idx} onPick={(k) => set({ A: k >> 1, B: k & 1 })} compare={{ head: "মিল", cell: (r) => (r.out[0] === r.out[1] ? "✓" : "✗") }} />
         </div>
       </Panel>
-      <Panel title="Question set 3" sub="ডি-মরগান ও সরলীকরণের ছোট অনুশীলন। উত্তরে চাপ দিলেই ব্যাখ্যা দেখা যাবে।"><Quiz /></Panel>
     </div>
   );
 }

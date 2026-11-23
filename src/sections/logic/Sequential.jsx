@@ -123,7 +123,7 @@ export function Register() {
         <div className="mt-3"><Facts items={[["প্যারালাল লোড", "সব বিট **একসাথে** এক ক্লকে ঢোকে (D₃ D₂ D₁ D₀ → Q₃ Q₂ Q₁ Q₀)।", "bg-lilac"], ["শিফট রেজিস্টার", "প্রতি ক্লকে বিটগুলো এক ঘর **ডানে সরে** যায়, বামে সিরিয়াল ইনপুট ঢোকে।", "bg-sky"]]} /></div>
         <div className="mt-4"><PillChoice id="reg" value={mode} onChange={(m) => { setMode(m); clear(); }} options={[{ id: "par", label: "প্যারালাল লোড" }, { id: "shift", label: "শিফট (সিরিয়াল ইন)" }]} /></div>
       </Panel>
-      <Panel title={mode === "par" ? "৪-বিট প্যারালাল রেজিস্টার" : "৪-বিট শিফট রেজিস্টার"} sub={mode === "par" ? "D এর বিটগুলো ঠিক করুন, তারপর ক্লক পালস দিন।" : "সিরিয়াল ইনপুট (SI) ঠিক করে ক্লক পালস দিতে থাকুন: বিটগুলো ডানে সরবে।"}>
+      <Panel title={mode === "par" ? "৪-বিট প্যারালাল রেজিস্টার" : "৪-বিট শিফট রেজিস্টার"} sub={mode === "par" ? "D এর বিটগুলো ঠিক করো, তারপর ক্লক পালস দাও।" : "সিরিয়াল ইনপুট (SI) ঠিক করে ক্লক পালস দিতে থাকো: বিটগুলো ডানে সরবে।"}>
         <div className="mx-auto max-w-xl">
           {mode === "shift" && <div className="mb-3 flex items-center gap-3"><span className="num font-bold">SI</span><BitBtn v={si} onClick={() => setSi(1 - si)} label="সিরিয়াল ইনপুট" /><span className="text-sm text-ink/55">→ Q₃ তে ঢুকবে</span></div>}
           <div className="grid grid-cols-4 gap-2 sm:gap-3">
@@ -137,7 +137,7 @@ export function Register() {
           <Bits3D bits={q} height={118} className="mt-3" />
           <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
             <ClockPanel onClick={pulse} count={clk} hi={edge} />
-            <button type="button" onClick={clear} className="rounded-full bg-ink/[.07] px-5 py-2.5 font-semibold transition hover:bg-ink/[.12] active:scale-95">সাফ (Clear)</button>
+            <button type="button" onClick={clear} className="rounded-full bg-ink/[.07] px-5 py-2.5 font-semibold transition hover:bg-ink/[.12] active:scale-95">মুছুন</button>
           </div>
           <p className="mt-4 rounded-2xl bg-mint px-4 py-3 text-center font-semibold ring-1 ring-ink/[.06]">রেজিস্টারে জমা: <Eq>{q.join("")}</Eq> = ডেসিমাল <span className="num">{toNum(q)}</span></p>
         </div>
@@ -195,7 +195,7 @@ export function Counter() {
         <div className="mt-3"><Facts items={[["Q₀", "প্রতি ক্লকে টগল করে (ক্লকের অর্ধেক ফ্রিকোয়েন্সি)।", "bg-lilac"], ["Q₁", "Q₀ যখন 1 থেকে 0 হয় তখন টগল করে (ক্লকের ¼ ফ্রিকোয়েন্সি)।", "bg-sky"], ["রিপল কাউন্টার", "প্রতিটি ফ্লিপ-ফ্লপ আগেরটির আউটপুট দিয়ে চলে (অ্যাসিনক্রোনাস)।", "bg-mint"], ["MOD-10", "গণনা 9 এ পৌঁছে 0 তে ফেরে (ডেকেড কাউন্টার)।", "bg-peach"]]} /></div>
         <div className="mt-4"><PillChoice id="cnt" value={mode} onChange={(m) => { setMode(m); reset(); }} options={[{ id: "up", label: "আপ (0→15)" }, { id: "down", label: "ডাউন (15→0)" }, { id: "mod10", label: "MOD-10 (0→9)" }]} /></div>
       </Panel>
-      <Panel title="৪-বিট বাইনারি কাউন্টার" sub="ক্লক পালস দিন বা অটো চালু করুন; টাইমিং ডায়াগ্রামে শেষ 12টি অবস্থা দেখুন।">
+      <Panel title="৪-বিট বাইনারি কাউন্টার" sub="ক্লক পালস দাও বা অটো চালু করো; টাইমিং ডায়াগ্রামে শেষ 12টি অবস্থা দেখো।">
         <div className="mx-auto max-w-xl">
           <div className="grid grid-cols-4 gap-2 sm:gap-3">
             {[0, 1, 2, 3].map((i) => (
@@ -208,7 +208,7 @@ export function Counter() {
           <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
             <ClockPanel onClick={step} count={clk} hi={edge} />
             <div className="flex gap-2">
-              <button type="button" aria-pressed={run} onClick={() => setRun((r) => !r)} className={`rounded-full px-5 py-2.5 font-semibold transition active:scale-95 ${run ? "bg-emerald-500 text-white" : "bg-ink/[.07] hover:bg-ink/[.12]"}`}>{run ? "থামান" : "অটো চালান"}</button>
+              <button type="button" aria-pressed={run} onClick={() => setRun((r) => !r)} className={`rounded-full px-5 py-2.5 font-semibold transition active:scale-95 ${run ? "bg-emerald-500 text-white" : "bg-ink/[.07] hover:bg-ink/[.12]"}`}>{run ? "থামাও" : "অটো চালাও"}</button>
               <button type="button" onClick={reset} className="rounded-full bg-ink/[.07] px-5 py-2.5 font-semibold transition hover:bg-ink/[.12] active:scale-95">রিসেট</button>
             </div>
           </div>
