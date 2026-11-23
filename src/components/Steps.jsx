@@ -25,6 +25,7 @@ export function Rich({ text, className = "" }) {
         }
         if (p.startsWith("[[")) {
           const [v, n] = p.slice(2, -2).split("|");
+          if (n === "dot") return <span key={i} aria-label="দশমিক বিন্দু" className="num mx-1.5 inline-block align-baseline text-[1.9rem] font-black leading-none text-ink">.</span>;
           return <span key={i} className={`num mx-[1.5px] inline-block rounded-md px-1.5 py-0.5 text-[.95em] font-semibold text-ink ring-1 ${GROUP_BG[(+n || 0) % GROUP_BG.length]}`}>{fmt(v)}</span>;
         }
         if (p.startsWith("**")) return <b key={i} className="font-bold text-ink">{fmt(p.slice(2, -2))}</b>;
