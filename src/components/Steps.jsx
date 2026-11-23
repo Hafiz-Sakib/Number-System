@@ -4,7 +4,10 @@ import { useFmt } from "../lib/settings";
 
 /* ইঞ্জিনের "ব্লক" গুলো স্ক্রিনে আঁকে: শিরোনাম, অনুচ্ছেদ, টেবিল, কলাম-হিসাব, ভাঁজ-করা বিস্তারিত ইত্যাদি */
 
-const TOKEN = /(\{\{[^}]*\}\}|\*\*[^*]+\*\*|\^\[[^\]]*\]|_\[[^\]]*\])/g;
+const TOKEN = /(\{\{[^}]*\}\}|\[\[[^\]]*\]\]|\*\*[^*]+\*\*|\^\[[^\]]*\]|_\[[^\]]*\])/g;
+
+/* বিট-গ্রুপের আলাদা আলাদা পটভূমি রঙ: পাশাপাশি দুটি গ্রুপ কখনো একই রঙের হয় না (৪টি রঙ ঘুরে ঘুরে আসে) */
+const GROUP_BG = ["bg-lilac ring-violet-500/30", "bg-mint ring-emerald-500/30", "bg-peach ring-orange-500/30", "bg-sky ring-sky-500/30"];
 
 /** {{1010|2}} → (1010)₂ , {{25}} → সংখ্যা-ব্যাজ, **মোটা**, 2^[3] → 2³ */
 export function Rich({ text, className = "" }) {
@@ -19,6 +22,10 @@ export function Rich({ text, className = "" }) {
               {b ? <>({fmt(v)})<sub className="text-[.72em] font-bold">{fmt(b)}</sub></> : fmt(v)}
             </span>
           );
+        }
+        if (p.startsWith("[[")) {
+          const [v, n] = p.slice(2, -2).split("|");
+          return <span key={i} className={`num mx-[1.5px] inline-block rounded-md px-1.5 py-0.5 text-[.95em] font-semibold text-ink ring-1 ${GROUP_BG[(+n || 0) % GROUP_BG.length]}`}>{fmt(v)}</span>;
         }
         if (p.startsWith("**")) return <b key={i} className="font-bold text-ink">{fmt(p.slice(2, -2))}</b>;
         if (p.startsWith("^[")) return <sup key={i} className="text-[.75em]">{fmt(p.slice(2, -1))}</sup>;

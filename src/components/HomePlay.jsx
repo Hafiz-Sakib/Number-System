@@ -28,12 +28,30 @@ export function Block({ tag, title, desc, children, className = "", tone = "bg-s
 }
 
 /* ---------- ১) বাইট সুইচ ---------- */
+/* ASCII কোড 0–31 ও 127 হলো কন্ট্রোল ক্যারেক্টার (স্ক্রিনে দেখা যায় না); 128–255 ASCII-র বাইরে */
+const CTRL = [
+  ["NUL", "নাল (কিছু নেই), স্ট্রিং শেষ বোঝায়"], ["SOH", "হেডার শুরু"], ["STX", "টেক্সট শুরু"], ["ETX", "টেক্সট শেষ"],
+  ["EOT", "ট্রান্সমিশন শেষ (Ctrl+D)"], ["ENQ", "অনুসন্ধান"], ["ACK", "গৃহীত হয়েছে"], ["BEL", "বিপ শব্দ"],
+  ["BS", "ব্যাকস্পেস"], ["TAB", "ট্যাব"], ["LF", "নতুন লাইন (Enter)"], ["VT", "উল্লম্ব ট্যাব"],
+  ["FF", "নতুন পাতা"], ["CR", "ক্যারেজ রিটার্ন"], ["SO", "শিফট আউট"], ["SI", "শিফট ইন"],
+  ["DLE", "ডেটা লিংক এস্কেপ"], ["DC1", "ডিভাইস কন্ট্রোল ১"], ["DC2", "ডিভাইস কন্ট্রোল ২"], ["DC3", "ডিভাইস কন্ট্রোল ৩"],
+  ["DC4", "ডিভাইস কন্ট্রোল ৪"], ["NAK", "অগৃহীত"], ["SYN", "সিনক্রোনাইজ"], ["ETB", "ব্লক শেষ"],
+  ["CAN", "বাতিল"], ["EM", "মাধ্যম শেষ"], ["SUB", "প্রতিস্থাপন"], ["ESC", "এস্কেপ"],
+  ["FS", "ফাইল বিভাজক"], ["GS", "গ্রুপ বিভাজক"], ["RS", "রেকর্ড বিভাজক"], ["US", "ইউনিট বিভাজক"],
+];
+function asciiInfo(v) {
+  if (v > 127) return { ch: "ASCII-র বাইরে", kind: "ext", note: "ASCII শুধু 0 থেকে 127 পর্যন্ত। 128–255 হলো এক্সটেন্ডেড অংশ, এর অক্ষর এনকোডিং ভেদে বদলায়।" };
+  if (v === 127) return { ch: "DEL", kind: "ctrl", note: "ডিলিট: কন্ট্রোল ক্যারেক্টার, স্ক্রিনে দেখা যায় না।" };
+  if (v === 32) return { ch: "␣", kind: "char", note: "" };
+  if (v < 32) return { ch: CTRL[v][0], kind: "ctrl", note: `${CTRL[v][1]}। এটি কন্ট্রোল ক্যারেক্টার, স্ক্রিনে দেখা যায় না।` };
+  return { ch: String.fromCharCode(v), kind: "char", note: "" };
+}
 const PRESETS = [[0, "0"], [65, "'A'"], [127, "127"], [255, "255"]];
 function ByteLab() {
   const [v, setV] = useState(72);
   const bits = [7, 6, 5, 4, 3, 2, 1, 0];
   const on = bits.filter((i) => (v >> i) & 1);
-  const ch = v >= 33 && v <= 126 ? String.fromCharCode(v) : v === 32 ? "␣" : "·";
+  const { ch, kind, note } = asciiInfo(v);
   const out = [[2, pad(v, 8)], [8, v.toString(8)], [10, String(v)], [16, v.toString(16).toUpperCase()]];
   return (
     <Block tag="বাইট সুইচ" title="৮টি সুইচে একটি বাইট" desc="প্রতিটি সুইচ একটি বিট। চালু (1) করলে তার ঘরের মান (স্থানীয় মান) যোগ হয়: সুইচ টিপে দেখুন চারটি পদ্ধতিতে সংখ্যাটি কী দাঁড়ায়।">
@@ -55,8 +73,9 @@ function ByteLab() {
       </div>
       <p className="num mt-4 rounded-2xl bg-ink/[.05] px-4 py-2.5 text-center text-[15px] font-semibold text-ink/75">
         {on.length ? on.map((i) => 1 << i).join(" + ") : "0"} = <span className="font-extrabold text-ink">{v}</span>
-        <span className="ml-3 rounded-lg bg-lemon px-2 py-0.5 text-ink">ASCII: {ch}</span>
+        <span className={`ml-3 inline-block rounded-lg px-2 py-0.5 text-ink ${kind === "char" ? "bg-lemon" : "bg-ink/[.1]"}`}>ASCII: {ch}</span>
       </p>
+      {note && <p className="mt-2 text-center text-sm leading-[1.7] text-ink/60">{note}</p>}
       <div className="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-4">
         {out.map(([b, t]) => (
           <div key={b} className={`min-w-0 rounded-2xl px-4 py-3 ring-1 ${CLR[b].bg} ${CLR[b].ring}`}>

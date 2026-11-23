@@ -204,7 +204,8 @@ function binToPow(p, k) {
   const grp = (s) => s.match(new RegExp(`.{${k}}`, "g")) || [];
   const gi = grp(pi), gf = grp(pf);
   blocks.push({ t: "p", text: `বাইনারি থেকে ${BASE_NAME[to]}: দশমিক বিন্দু থেকে শুরু করে **${k} বিট করে** গ্রুপ করি (${to} = 2^[${k}])। পূর্ণ অংশে ডান থেকে বামে, ভগ্নাংশে বাম থেকে ডানে। কম পড়লে শূন্য বসাই।` });
-  blocks.push({ t: "p", text: `${N(p.int + (p.frac ? "." + p.frac : ""), 2)} → ${gi.join(" ")}${gf.length ? " . " + gf.join(" ") : ""}` });
+  const gc = (g, n) => `[[${g}|${n}]]`; // গ্রুপ নম্বর ধরে রঙ: পূর্ণ ও ভগ্নাংশ মিলিয়ে একটানা, তাই পাশাপাশি রঙ মেলে না
+  blocks.push({ t: "p", text: `${N(p.int + (p.frac ? "." + p.frac : ""), 2)} → ${gi.map((g, n) => gc(g, n)).join(" ")}${gf.length ? " . " + gf.map((g, n) => gc(g, gi.length + n)).join(" ") : ""}` });
   const row = (g) => { const v = parseInt(g, 2); return [g, `${v}`, { x: dl(v), hl: true }]; };
   const head = ["বিট গ্রুপ", "ডেসিমাল মান", `${BASE_SHORT[to]} অঙ্ক`];
   const intS = gi.map((g) => dl(parseInt(g, 2))).join("");
@@ -228,7 +229,10 @@ function powToBin(p, from) {
   const rawI = [...p.int].map((c) => dv(c).toString(2).padStart(k, "0")).join("");
   const rawF = [...p.frac].map((c) => dv(c).toString(2).padStart(k, "0")).join("");
   const ti = trimInt(rawI), tf = trimFrac(rawF);
-  blocks.push({ t: "p", text: `সব বিট পাশাপাশি বসিয়ে পাই: ${M(rawI + (rawF ? "." + rawF : ""))}` });
+  const cut = (s) => s.match(new RegExp(`.{${k}}`, "g")) || [];
+  const gI = cut(rawI), gF = cut(rawF);
+  const colored = gI.map((g, n) => `[[${g}|${n}]]`).join("") + (gF.length ? " . " + gF.map((g, n) => `[[${g}|${gI.length + n}]]`).join("") : "");
+  blocks.push({ t: "p", text: `সব বিট পাশাপাশি বসিয়ে পাই: ${colored}` });
   if (ti !== rawI || tf !== rawF) blocks.push({ t: "p", text: "শুরুর অপ্রয়োজনীয় 0 (পূর্ণ অংশে) এবং শেষের অপ্রয়োজনীয় 0 (ভগ্নাংশে) বাদ দিই।" });
   return { blocks, int: ti, frac: tf, exact: true };
 }
