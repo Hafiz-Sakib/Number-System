@@ -54,7 +54,7 @@ function ByteLab() {
   const { ch, kind, note } = asciiInfo(v);
   const out = [[2, pad(v, 8)], [8, v.toString(8)], [10, String(v)], [16, v.toString(16).toUpperCase()]];
   return (
-    <Block tag="বাইট সুইচ" title="৮টি সুইচে একটি বাইট" desc="প্রতিটি সুইচ একটি বিট। চালু (1) করলে তার ঘরের মান (স্থানীয় মান) যোগ হয়: সুইচ টিপে দেখুন চারটি পদ্ধতিতে সংখ্যাটি কী দাঁড়ায়।">
+    <Block tag="বাইট সুইচ" title="বিট পরিবর্তন করে বাইনারি সংখ্যা তৈরি করো" desc="প্রতিটি ঘরে ক্লিক করে ০ অথবা ১ বসাও। দেখো, প্রতিটি বিটের স্থানীয় মান কীভাবে মোট সংখ্যার মান পরিবর্তন করে।">
       <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2.5">
         {bits.map((i) => {
           const b = (v >> i) & 1;
