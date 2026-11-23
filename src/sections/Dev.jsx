@@ -64,7 +64,7 @@ export default function Dev() {
   const portfolio = SOCIAL[0];
   return (
     <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-      className="mx-auto w-full max-w-5xl px-4 pb-6 pt-8 sm:px-6 sm:pt-12 lg:px-8">
+      className="mx-auto w-full max-w-5xl overflow-x-clip px-4 pb-6 pt-8 sm:px-6 sm:pt-12 lg:px-8">
       <header className="mb-10 sm:mb-14">
         <p className={pill}>Developer</p>
         <h1 className="font-display text-3xl font-semibold leading-[1.1] min-[400px]:text-4xl sm:text-5xl lg:text-6xl">

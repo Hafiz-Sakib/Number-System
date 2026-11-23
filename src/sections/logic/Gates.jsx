@@ -34,7 +34,7 @@ export function GateLab({ type, title }) {
   );
 }
 
-/* ---------- 3.7.3 সত্যক সারণী ---------- */
+/* ---------- 3.7.2 সত্যক সারণী ---------- */
 function RowsDemo() {
   const [n, setN] = useState(3);
   const cols = "ABCD".slice(0, n).split("");
