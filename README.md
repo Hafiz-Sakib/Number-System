@@ -42,6 +42,7 @@
 | **Boolean Algebra** | `/algebra` | Laws and theorems, truth tables (up to 4 variables), De Morgan's laws, simplification and the full Quine–McCluskey working |
 | **Logic Gates** | `/gates` | AND/OR/NOT, NAND/NOR, XOR/XNOR, encoder, decoder, half/full/4-bit adders, registers and counters as SVG circuits |
 | **Developer** | `/dev` | About the developer, skills and projects |
+| **404** | any unknown address | Animated not-found page: `404` decodes from 0s and 1s (motion-brew Binary text), falling bits, and nine clickable bit switches |
 
 **Also:** light/dark theme, bottom tab bar on phones, installable PWA that works offline, and input support for Bangla digits (১০১০) and lowercase hex (`ff`).
 

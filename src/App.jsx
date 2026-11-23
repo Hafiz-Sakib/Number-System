@@ -7,7 +7,7 @@ import Home from "./sections/Home";
 import Convert from "./sections/Convert";
 import Calc from "./sections/Calc";
 import Complement from "./sections/Complement";
-import { ROUTES, navigate, useRoute } from "./lib/router";
+import { NOT_FOUND, ROUTES, navigate, useRoute } from "./lib/router";
 import { ICONS } from "./components/TabBar";
 import { AnimatePresence } from "framer-motion";
 import { APP_NAME } from "./lib/site";
@@ -21,6 +21,7 @@ const Algebra = lazy(loadAlgebra);
 const Gates = lazy(loadGates);
 /* Developer page (three.js globe, motion-brew) is loaded only when opened */
 const Dev = lazy(() => import("./sections/Dev"));
+const NotFound = lazy(() => import("./sections/NotFound"));
 if (typeof window !== "undefined") (window.requestIdleCallback || ((f) => setTimeout(f, 2500)))(() => { loadAlgebra(); loadGates(); });
 
 /* ফোন-ট্যাবলেটের নিচের বারে ৪টি প্রধান পেজ + "আরও"; বাকি পেজ আরও-র শিটে। বড় পর্দায় সব মেনু হেডারে। */
@@ -78,14 +79,20 @@ export default function App() {
 
   /* শিরোনাম সবসময় একই: ওয়েব ও PWA দুই জায়গাতেই "সংখ্যা পদ্ধতি", পেজ বদলালেও বদলায় না */
   useEffect(() => { if (document.title !== APP_NAME) document.title = APP_NAME; }, [path]);
-  useEffect(() => { if (first.current) { first.current = false; if (location.pathname !== path) history.replaceState(null, "", path); } }, [path]);
+  useEffect(() => { if (first.current) { first.current = false; if (path !== NOT_FOUND && location.pathname !== path) history.replaceState(null, "", path); } }, [path]);
+  /* ৪০৪ ঠিকানা সার্চ ইঞ্জিনে জমা হওয়া ঠিক নয় */
+  useEffect(() => {
+    if (path !== NOT_FOUND) return undefined;
+    const m = document.createElement("meta"); m.name = "robots"; m.content = "noindex"; document.head.appendChild(m);
+    return () => m.remove();
+  }, [path]);
 
   const openConvert = (from, to, value) => { setCv({ from, to, value }); navigate("/convert"); };
   const useInCalc = (base, text) => { setCa((c) => ({ ...c, base, a: text })); navigate("/calc"); };
 
   const inPrimary = PRIMARY.includes(path);
   /* খোলা পেজ প্রধান ৪টির বাইরে হলে পঞ্চম ট্যাবটি সেই পেজের নাম-আইকন দেখায় */
-  const mobileTabs = [...PRIMARY.map((p) => ({ id: p, label: byPath[p].label, icon: byPath[p].icon })), inPrimary ? { id: "more", label: "আরও", icon: "more" } : { id: "more", label: byPath[path].label, icon: byPath[path].icon }];
+  const mobileTabs = [...PRIMARY.map((p) => ({ id: p, label: byPath[p].label, icon: byPath[p].icon })), inPrimary ? { id: "more", label: "আরও", icon: "more" } : { id: "more", label: byPath[path]?.label ?? "আরও", icon: byPath[path]?.icon ?? "more" }];
 
   const view =
     path === "/convert" ? <Convert s={cv} set={setCv} onUse={useInCalc} />
@@ -94,6 +101,7 @@ export default function App() {
     : path === "/algebra" ? <Suspense fallback={<Loading />}><Algebra /></Suspense>
     : path === "/gates" ? <Suspense fallback={<Loading />}><Gates /></Suspense>
     : path === "/dev" ? <Suspense fallback={<Loading />}><Dev /></Suspense>
+    : path === NOT_FOUND ? <Suspense fallback={<Loading />}><NotFound /></Suspense>
     : <Home onOpen={openConvert} />;
 
   return (
@@ -102,7 +110,7 @@ export default function App() {
       <MoreSheet open={more} onClose={() => setMore(false)} path={path} />
       {/* ফোন ও ট্যাবলেট: নিচে motion-brew TabBar; বড় পর্দায় মেনু হেডারে */}
       <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
-        <TabBar tabs={mobileTabs} variant="pill" value={inPrimary ? path : "more"} onChange={(id) => (id === "more" ? setMore(true) : navigate(id))} onReselect={(id) => id === "more" && setMore(true)} className="pointer-events-auto" />
+        <TabBar tabs={mobileTabs} value={inPrimary ? path : "more"} onChange={(id) => (id === "more" ? setMore(true) : navigate(id))} onReselect={(id) => id === "more" && setMore(true)} className="pointer-events-auto" />
       </div>
       <main className="min-h-[100svh] pt-[calc(3.5rem+env(safe-area-inset-top))]">
         {/* কোনো "wait" বা ব্লার নেই: নতুন পেজ সাথে সাথে বসে, শুধু হালকা ফেড-ইন। তাই ট্যাব বদলে কখনো সাদা পর্দা থাকে না। */}

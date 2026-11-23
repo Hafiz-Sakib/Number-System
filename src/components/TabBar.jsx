@@ -1,13 +1,8 @@
 /**
  * TabBar, from https://motion-brew.com/components/tab-bar
  *
- * Ported to plain JSX for this Vite + Tailwind v3 project:
- *  - framer-motion (already installed) instead of motion/react
- *  - no clsx / tailwind-merge (small cn() helper below)
- *  - এই অ্যাপের আইকন (lucide path, MIT): home, arrows-left-right, calculator, contrast, book-open, target, sigma, logic-gate, code, layout-grid
- *  - up to 6 tabs; inactive icons shrink a little on very narrow phones so the bar always fits
- *
- * Variants: "pill" (default) | "labels" | "action". A tap bounces the tab, plays its icon and sends a ripple.
+ * Ported to plain JSX for this Vite + Tailwind v3 project (framer-motion, no clsx/tailwind-merge).
+ * Only the "pill" look is kept: the open tab grows a label, a tap bounces the tab, plays its icon and sends a ripple.
  */
 import * as React from "react";
 import { AnimatePresence, LayoutGroup, motion, useAnimation, useInView, useReducedMotion } from "framer-motion";
@@ -135,42 +130,26 @@ function MoreIcon({ active, className, strokeWidth }) {
   );
 }
 
-function PlusIcon({ className, strokeWidth }) {
-  return (
-    <Shell className={className} strokeWidth={strokeWidth}>
-      <path d="M5 12h14" /><path d="M12 5v14" />
-    </Shell>
-  );
-}
-
-export const ICONS = { home: HomeIcon, convert: ConvertIcon, calc: CalcIcon, complement: ComplementIcon, algebra: AlgebraIcon, gates: LogicIcon, logic: LogicIcon, dev: DevIcon, more: MoreIcon };
+export const ICONS = { home: HomeIcon, convert: ConvertIcon, calc: CalcIcon, complement: ComplementIcon, algebra: AlgebraIcon, gates: LogicIcon, dev: DevIcon, more: MoreIcon };
 
 const GLIDE = [0.22, 1, 0.36, 1];
 const SPRING = { type: "spring", stiffness: 500, damping: 34 };
-const POP = { type: "spring", stiffness: 600, damping: 26 };
 
-/**
- * tabs: [{ id, label, icon: "home"|"convert"|"calc"|"logic"|"dev", badge? }]
- * variant: "pill" | "labels" | "action"
- */
-export const TabBar = React.forwardRef(function TabBar(
-  { tabs = [], variant = "pill", value, defaultValue, onChange, onReselect, actionLabel = "নতুন", onAction, className },
-  ref,
-) {
+/** tabs: [{ id, label, icon: key of ICONS }] (up to 7) */
+export const TabBar = React.forwardRef(function TabBar({ tabs = [], value, onChange, onReselect, className }, ref) {
   const still = !!useReducedMotion();
   const uid = React.useId();
   const root = React.useRef(null);
   React.useImperativeHandle(ref, () => root.current);
   const seen = useInView(root, { once: true, amount: 0.4 });
   const shown = seen || still;
-  const list = variant === "action" ? tabs.slice(0, 4) : tabs.slice(0, 7);
+  const list = tabs.slice(0, 7);
   const crowded = list.length > 5;
   const packed = list.length > 6;
-  const [own, setOwn] = React.useState(defaultValue ?? list[0]?.id ?? "");
+  const [own, setOwn] = React.useState(list[0]?.id ?? "");
   const current = value ?? own;
   const [playing, setPlaying] = React.useState(null);
   const [taps, setTaps] = React.useState({});
-  const [spins, setSpins] = React.useState(0);
   const timer = React.useRef(0);
   React.useEffect(() => () => window.clearTimeout(timer.current), []);
 
@@ -197,15 +176,13 @@ export const TabBar = React.forwardRef(function TabBar(
     const on = t.id === current;
     const Icon = ICONS[t.icon] || HomeIcon;
     const ripple = taps[t.id] ?? 0;
-    const pill = variant === "pill";
-    const iconOnly = variant === "action";
     return (
       <motion.button
         key={t.id}
         type="button"
         data-tab=""
-        layout={pill && !still ? "position" : false}
-        aria-label={t.badge ? `${t.label}, ${t.badge} new` : t.label}
+        layout={still ? false : "position"}
+        aria-label={t.label}
         aria-current={on ? "page" : undefined}
         onClick={() => choose(t.id)}
         initial={still ? false : { opacity: 0, y: 12 }}
@@ -213,76 +190,40 @@ export const TabBar = React.forwardRef(function TabBar(
         whileTap={still ? undefined : { scale: 0.88 }}
         transition={{ ...SPRING, opacity: { duration: 0.4, delay: still ? 0 : 0.15 + i * 0.05 }, y: { ...SPRING, delay: still ? 0 : 0.15 + i * 0.05 } }}
         className={cn(
-          "group relative flex cursor-pointer select-none items-center justify-center outline-none [-webkit-tap-highlight-color:transparent] focus-visible:ring-2 focus-visible:ring-ink/30",
-          pill ? "h-12 rounded-full" : iconOnly ? "h-12 flex-1 rounded-2xl" : "h-14 min-w-0 flex-1 flex-col gap-1 rounded-2xl",
-          pill && (on ? "gap-1.5 pl-3 pr-4 min-[380px]:gap-2 min-[380px]:pl-4 min-[380px]:pr-5" : packed ? "w-8 min-[360px]:w-9 min-[400px]:w-10" : crowded ? "w-9 min-[360px]:w-10 min-[400px]:w-12" : "w-12"),
+          "group relative flex h-12 cursor-pointer select-none items-center justify-center rounded-full outline-none [-webkit-tap-highlight-color:transparent] focus-visible:ring-2 focus-visible:ring-ink/30",
+          on ? "gap-1.5 pl-3 pr-4 min-[380px]:gap-2 min-[380px]:pl-4 min-[380px]:pr-5" : packed ? "w-8 min-[360px]:w-9 min-[400px]:w-10" : crowded ? "w-9 min-[360px]:w-10 min-[400px]:w-12" : "w-12",
         )}
       >
-        {pill && on && (
-          <motion.span layoutId={`${uid}-pill`} transition={still ? { duration: 0 } : SPRING} className="absolute inset-0 rounded-full bg-ink/[0.07]" />
-        )}
-        {!on && (
-          <span aria-hidden className={cn(
-            "absolute rounded-full bg-ink/[0.05] opacity-0 transition-opacity duration-200 group-hover:opacity-100",
-            pill ? "inset-0" : iconOnly ? "left-1/2 top-1/2 size-10 -translate-x-1/2 -translate-y-1/2" : "left-1/2 top-1 size-10 -translate-x-1/2",
-          )} />
-        )}
+        {on && <motion.span layoutId={`${uid}-pill`} transition={still ? { duration: 0 } : SPRING} className="absolute inset-0 rounded-full bg-ink/[0.07]" />}
+        {!on && <span aria-hidden className="absolute inset-0 rounded-full bg-ink/[0.05] opacity-0 transition-opacity duration-200 group-hover:opacity-100" />}
 
         <span className="relative grid place-items-center">
-          {variant !== "pill" && on && (
-            <motion.span layoutId={`${uid}-disc`} transition={still ? { duration: 0 } : SPRING} className="absolute size-10 rounded-full bg-ink/[0.07]" />
-          )}
           <AnimatePresence>
             {!still && ripple > 0 && (
               <motion.span key={ripple} aria-hidden initial={{ scale: 0.4, opacity: 0.45 }} animate={{ scale: 2.2, opacity: 0 }} exit={{ opacity: 0 }}
                 transition={{ duration: 0.6, ease: GLIDE }} className="absolute size-8 rounded-full bg-ink/15" />
             )}
           </AnimatePresence>
-          <motion.span
-            className={cn("relative grid transition-colors duration-300", on ? "text-ink" : "text-ink/40 group-hover:text-ink/70")}
-            animate={{ y: variant === "labels" && on && !still ? -1 : 0 }}
-            transition={SPRING}
-          >
+          <motion.span className={cn("relative grid transition-colors duration-300", on ? "text-ink" : "text-ink/40 group-hover:text-ink/70")}>
             <motion.span key={ripple} className="grid" initial={ripple > 0 && !still ? { scale: 0.7, rotate: -14 } : false} animate={{ scale: 1, rotate: 0 }}
               transition={{ type: "spring", stiffness: 520, damping: 11 }}>
               <Icon className="size-[22px]" strokeWidth={on ? 2.25 : 2} active={playing === t.id} />
             </motion.span>
           </motion.span>
-          <AnimatePresence>
-            {!!t.badge && (
-              <motion.span key="badge" initial={still ? { opacity: 0 } : { scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-                exit={still ? { opacity: 0 } : { scale: 0, opacity: 0 }} transition={POP}
-                className="absolute -right-2 -top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-[#d64545] px-1 text-[12px] font-semibold leading-none text-white ring-2 ring-surface">
-                {t.badge}
-              </motion.span>
-            )}
-          </AnimatePresence>
         </span>
 
-        {pill ? (
-          <AnimatePresence initial={false} mode="popLayout">
-            {on && (
-              <motion.span key="label" initial={still ? { opacity: 0 } : { opacity: 0, x: -6, filter: "blur(3px)" }} animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, transition: { duration: 0.1 } }} transition={{ duration: 0.3, ease: GLIDE, delay: still ? 0 : 0.06 }}
-                className="relative whitespace-nowrap text-[13px] font-medium text-ink min-[380px]:text-[14px]">
-                {t.label}
-              </motion.span>
-            )}
-          </AnimatePresence>
-        ) : iconOnly ? null : (
-          <span className={cn("relative max-w-full truncate px-0.5 text-[11px] leading-4 transition-colors duration-300 min-[380px]:text-[12px]", on ? "font-semibold text-ink" : "font-medium text-ink/45")}>
-            {t.label}
-          </span>
-        )}
-
-        {variant === "labels" && on && (
-          <motion.span layoutId={`${uid}-dot`} transition={still ? { duration: 0 } : SPRING} className="absolute -bottom-1 size-1 rounded-full bg-ink" />
-        )}
+        <AnimatePresence initial={false} mode="popLayout">
+          {on && (
+            <motion.span key="label" initial={still ? { opacity: 0 } : { opacity: 0, x: -6, filter: "blur(3px)" }} animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, transition: { duration: 0.1 } }} transition={{ duration: 0.3, ease: GLIDE, delay: still ? 0 : 0.06 }}
+              className="relative whitespace-nowrap text-[13px] font-medium text-ink min-[380px]:text-[14px]">
+              {t.label}
+            </motion.span>
+          )}
+        </AnimatePresence>
       </motion.button>
     );
   };
-
-  const half = Math.ceil(list.length / 2);
 
   return (
     <motion.nav
@@ -292,35 +233,10 @@ export const TabBar = React.forwardRef(function TabBar(
       initial={still ? false : { opacity: 0, y: 24, filter: "blur(6px)" }}
       animate={shown ? { opacity: 1, y: 0, filter: "blur(0px)" } : undefined}
       transition={{ duration: 0.6, ease: GLIDE }}
-      className={cn(
-        "relative w-[380px] max-w-full rounded-full bg-surface p-2 text-ink shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_32px_-16px_rgba(0,0,0,0.18)] ring-1 ring-ink/[.07]",
-        className,
-      )}
+      className={cn("relative w-[380px] max-w-full rounded-full bg-surface p-2 text-ink shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_32px_-16px_rgba(0,0,0,0.18)] ring-1 ring-ink/[.07]", className)}
     >
       <LayoutGroup id={uid}>
-        {variant === "action" ? (
-          <div className="relative flex items-center">
-            {list.slice(0, half).map(tab)}
-            <div className="relative grid w-16 shrink-0 place-items-center">
-              <motion.button
-                type="button"
-                aria-label={actionLabel}
-                onClick={() => { setSpins((s) => s + 1); onAction?.(); }}
-                initial={still ? false : { scale: 0.5, opacity: 0 }}
-                animate={shown ? { scale: 1, opacity: 1, rotate: still ? 0 : spins * 90 } : undefined}
-                whileHover={still ? undefined : { y: -3 }}
-                whileTap={still ? undefined : { scale: 0.88 }}
-                transition={{ type: "spring", stiffness: 420, damping: 18, opacity: { duration: 0.3, delay: still ? 0 : 0.3 } }}
-                className="relative -mt-10 grid size-14 cursor-pointer place-items-center rounded-full bg-ink text-paper shadow-[0_10px_22px_-10px_rgba(36,36,35,0.6)] outline-none ring-4 ring-surface transition-colors hover:bg-ink/85 focus-visible:ring-ink/30"
-              >
-                <PlusIcon className="relative size-6" strokeWidth={2.5} />
-              </motion.button>
-            </div>
-            {list.slice(half).map((t, i) => tab(t, i + half))}
-          </div>
-        ) : (
-          <div className={cn("flex items-center", variant === "pill" ? "justify-between px-1" : "")}>{list.map(tab)}</div>
-        )}
+        <div className="flex items-center justify-between px-1">{list.map(tab)}</div>
       </LayoutGroup>
     </motion.nav>
   );

@@ -82,3 +82,9 @@ input:focus-visible { outline: none; }
 /* স্ক্রলবার লুকানো (স্ক্রল/সোয়াইপ চলে) */
 .no-sb{scrollbar-width:none;-ms-overflow-style:none}
 .no-sb::-webkit-scrollbar{display:none}
+
+/* ---------- ৪০৪ পেজ: ঝরে পড়া 0/1 (sections/NotFound.jsx) ---------- */
+.bit-rain span { position: absolute; top: -8%; opacity: .1; font-weight: 800; animation: bit-fall linear infinite; }
+:root.dark .bit-rain span { opacity: .14; }
+@keyframes bit-fall { from { top: -8%; } to { top: 104%; } }
+@media (prefers-reduced-motion: reduce) { .bit-rain { display: none; } }

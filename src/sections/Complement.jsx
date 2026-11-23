@@ -142,7 +142,7 @@ function Solved() {
     <Reveal y={16}>
       <div className="card p-5 sm:p-7">
         <h2 className="text-2xl font-extrabold">সমাধান করা উদাহরণ</h2>
-        <p className="mt-1 text-ink/55">প্রতিটিতে চাপ দিলে সমাধানের ধাপ দেখা যাবে। অর্ধেকে দশমিক বিন্দু আছে।</p>
+        <p className="mt-1 text-ink/55">প্রতিটিতে ক্লিক করলে সমাধানের ধাপ দেখা যাবে। অর্ধেকে দশমিক বিন্দু আছে।</p>
         <div className="mt-2 grid items-start gap-x-5 md:grid-cols-2 xl:grid-cols-3">
           {items.map((e) => (
             <Detail key={e.x} title={`{{${e.x}|2}} → 1's: {{${dot(e.c.ones.int, e.c.ones.frac)}|2}}, 2's: {{${dot(e.c.twos.int, e.c.twos.frac)}|2}}`} blocks={e.blocks} />

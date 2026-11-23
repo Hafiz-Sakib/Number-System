@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 
-/* ছোট রাউটার: /  /convert  /calc  /complement  /algebra  /gates  /dev - অন্য যেকোনো ঠিকানা হোমে যায় (পুরনো /logic যায় লজিক গেটে)। */
+/* ছোট রাউটার: /  /convert  /calc  /complement  /algebra  /gates  /dev - অন্য যেকোনো ঠিকানায় ৪০৪ পেজ দেখায় (ঠিকানা যেমন ছিল তেমনই থাকে)। পুরনো /logic যায় লজিক গেটে। */
 export const ROUTES = [
   { path: "/", id: "home", label: "হোম", icon: "home" },
   { path: "/convert", id: "convert", label: "রূপান্তর", icon: "convert" },
@@ -10,8 +10,9 @@ export const ROUTES = [
   { path: "/gates", id: "gates", label: "লজিক গেট", icon: "gates", sub: "গেট · অ্যাডার · কাউন্টার" },
   { path: "/dev", id: "dev", label: "ডেভেলপার", icon: "dev" },
 ];
+export const NOT_FOUND = "/404";
 const ALIAS = { "/logic": "/gates" };
-const norm = (p) => { let x = "/" + String(p).replace(/^\/+|\/+$/g, ""); x = ALIAS[x] || x; return ROUTES.some((r) => r.path === x) ? x : "/"; };
+const norm = (p) => { let x = "/" + String(p).replace(/^\/+|\/+$/g, ""); x = ALIAS[x] || x; return ROUTES.some((r) => r.path === x) ? x : NOT_FOUND; };
 const sub = (cb) => { addEventListener("popstate", cb); addEventListener("route", cb); return () => { removeEventListener("popstate", cb); removeEventListener("route", cb); }; };
 
 export function navigate(to) {

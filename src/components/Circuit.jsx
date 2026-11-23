@@ -178,7 +178,7 @@ export function Circuit({ net, state, onToggle, label = "লজিক সার�
   );
 }
 
-/** সত্যক সারণী। active = এখনকার ইনপুটের সারি (হাইলাইট), onPick(i) = সারিতে চাপলে সেই ইনপুট বসে। */
+/** সত্যক সারণী। active = এখনকার ইনপুটের সারি (হাইলাইট), onPick(i) = সারিতে ক্লিক করলে সেই ইনপুট বসে। */
 export function TruthTable({ ins, outs, rows, active = -1, onPick, className = "", compare }) {
   return (
     <div className={`max-w-full overflow-x-auto no-sb rounded-2xl ring-1 ring-ink/10 ${className}`}>
@@ -217,7 +217,7 @@ export function useInputs(ids, { radio = false, init } = {}) {
   return { st, toggle, set };
 }
 
-/** সার্কিট + সত্যক সারণী একসাথে (সারণীর সারিতে চাপলে ইনপুট বদলায়) */
+/** সার্কিট + সত্যক সারণী একসাথে (সারণীর সারিতে ক্লিক করলে ইনপুট বদলায়) */
 export function Lab({ net, table, radio = false, init, className = "", hideTable = false, below }) {
   const ids = useMemo(() => net.inputs.map((i) => i.id), [net]);
   const { st, toggle, set } = useInputs(ids, { radio, init });
@@ -228,7 +228,7 @@ export function Lab({ net, table, radio = false, init, className = "", hideTable
       <div className="board overflow-x-auto no-sb rounded-2xl p-1.5 ring-1 ring-ink/10 sm:p-2 lg:p-3">
         <Circuit net={net} state={st} onToggle={toggle} />
       </div>
-      <p className="mt-2 text-center text-xs text-ink/45">সুইচে চাপ দিয়ে ইনপুট বদলাও; সবুজ তারে সিগন্যাল 1 চলছে।</p>
+      <p className="mt-2 text-center text-xs text-ink/45">সুইচে ক্লিক করে ইনপুট বদলাও; সবুজ তারে সিগন্যাল 1 চলছে।</p>
       {typeof below === "function" ? below(st) : below}
       {!hideTable && (
         <div className="mt-3">

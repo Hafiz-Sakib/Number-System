@@ -59,7 +59,7 @@ export default function Home({ onOpen }) {
               );
             })}
           </div>
-          <p className="mt-3 text-sm text-ink/50">যে সারির হিসাব দেখতে চাও, সেটিতে চাপ দাও।</p>
+          <p className="mt-3 text-sm text-ink/50">যে সারির হিসাব দেখতে চাও, সেটিতে ক্লিক করো।</p>
         </TiltCard>
       </section>
 

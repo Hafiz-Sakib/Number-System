@@ -259,7 +259,7 @@ function MagicCards() {
   const total = picked.reduce((s, c) => s + c, 0);
   const bin = pad(total, 5);
   return (
-    <Block tag="মন-পড়া কার্ড" title="মনে মনে একটা সংখ্যা ভাবো" desc="1 থেকে 31-এর মধ্যে যেকোনো একটি সংখ্যা ভাবো। যে কার্ডগুলোতে সেটি আছে, শুধু সেগুলোতে চাপ দাও: নিচে সংখ্যাটি বলে দেওয়া হবে। জাদু নয়, বাইনারি!">
+    <Block tag="মন-পড়া কার্ড" title="মনে মনে একটা সংখ্যা ভাবো" desc="1 থেকে 31-এর মধ্যে যেকোনো একটি সংখ্যা ভাবো। যে কার্ডগুলোতে সেটি আছে, শুধু সেগুলোতে ক্লিক করো: নিচে সংখ্যাটি বলে দেওয়া হবে। জাদু নয়, বাইনারি!">
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 sm:gap-3">
         {CARDS.map((c) => {
           const on = picked.includes(c);
@@ -283,7 +283,7 @@ function MagicCards() {
             <p className="num text-[15px] font-semibold text-ink/70">{[...picked].sort((a, b) => a - b).join(" + ")} = <span className="text-2xl font-extrabold text-ink"><DigitRoll text={String(total)} /></span></p>
             <p className="num mt-1 text-sm font-semibold text-ink/55">বাইনারি: {bin.split("").map((ch, i) => <span key={i} className={ch === "1" ? "font-extrabold text-emerald-600 dark:text-emerald-300" : ""}>{ch}</span>)}: কার্ড বাছা মানে বিট 1, না বাছা মানে বিট 0</p>
           </>
-        ) : <p className="font-semibold text-ink/55">এখনো কোনো কার্ড বাছা হয়নি। সংখ্যাটি যে কার্ডে আছে তাতে চাপ দাও।</p>}
+        ) : <p className="font-semibold text-ink/55">এখনো কোনো কার্ড বাছা হয়নি। সংখ্যাটি যে কার্ডে আছে তাতে ক্লিক করো।</p>}
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
         <button type="button" onClick={() => setPicked([])} className="rounded-full bg-ink px-4 py-1.5 text-sm font-semibold text-paper transition hover:bg-ink/85 active:scale-95">নতুন করে শুরু</button>
@@ -302,7 +302,7 @@ function MiniGate() {
   const [t, setT] = useState("AND");
   const net = useMemo(() => gateNet(t, t === "NOT" ? 1 : 2), [t]);
   return (
-    <Block tag="লজিক গেট" title="মিনি লজিক গেট ল্যাব" desc="গেট বেছে নাও, সুইচ টেপো। আউটপুট 1 হলে LED সবুজ আলোয় জ্বলে ওঠে।">
+    <Block tag="লজিক গেট" title="মিনি লজিক গেট ল্যাব" desc="গেট বেছে নাও, সুইচে ক্লিক করো। আউটপুট 1 হলে LED সবুজ আলোয় জ্বলে ওঠে।">
       <PillChoice id="home-gate" value={t} onChange={setT} options={Object.keys(GSAY).map((g) => ({ id: g, label: g }))} />
       <p className="mb-3 mt-3 text-ink/70">{GSAY[t]}</p>
       <Lab key={t} net={net} />
@@ -501,7 +501,7 @@ function BcdClock() {
   const terms = BIT4.filter((w) => d & w);
   const colonOn = new Date(ms).getSeconds() % 2 === 0;
   return (
-    <Block tag="BCD কোড" title="ডিজিটাল ঘড়ির ভেতরের বাইনারি" desc="ঘড়ির পর্দায় আমরা অঙ্ক দেখি, কিন্তু ভেতরে প্রতিটি দশমিক অঙ্ক আলাদা 4 বিটে জমা থাকে: একে বলে BCD (Binary Coded Decimal)। যেকোনো অঙ্কের কলামে চাপ দিলে ব্যাখ্যা পাবে।">
+    <Block tag="BCD কোড" title="ডিজিটাল ঘড়ির ভেতরের বাইনারি" desc="ঘড়ির পর্দায় আমরা অঙ্ক দেখি, কিন্তু ভেতরে প্রতিটি দশমিক অঙ্ক আলাদা 4 বিটে জমা থাকে: একে বলে BCD (Binary Coded Decimal)। যেকোনো অঙ্কের কলামে ক্লিক করলে ব্যাখ্যা পাবে।">
       <div className="rounded-2xl bg-zinc-950 px-3 py-4 ring-1 ring-white/10 sm:px-6 sm:py-5" role="img" aria-label={`সময় ${t.slice(0, 2)}:${t.slice(2, 4)}:${t.slice(4)} ${pm ? "PM" : "AM"}`}>
         <div className="mx-auto flex max-w-lg items-center justify-center gap-0.5 sm:gap-1.5">
           {digits.map((x, i) => (
@@ -560,14 +560,14 @@ function SevenSegLab() {
   const out = "abcdefg".split("").map((c) => (lit.includes(c) ? 1 : 0));
   const setBits = (f) => { setAuto(false); setV(f); };
   return (
-    <Block tag="ডিজিটাল ডিসপ্লে" title="4 বিট কীভাবে একটি অঙ্ক হয়ে জ্বলে?" desc="ঘড়ি বা ক্যালকুলেটরের প্রতিটি অঙ্ক আঁকা হয় 7টি আলাদা দাগ (a থেকে g) দিয়ে। BCD-র 4 বিট একটি ডিকোডার সার্কিটে ঢোকে, আর সেটি ঠিক করে কোন কোন দাগ জ্বলবে। বিট টিপে নিজে দেখো।">
+    <Block tag="ডিজিটাল ডিসপ্লে" title="4 বিট কীভাবে একটি অঙ্ক হয়ে জ্বলে?" desc="ঘড়ি বা ক্যালকুলেটরের প্রতিটি অঙ্ক আঁকা হয় 7টি আলাদা দাগ (a থেকে g) দিয়ে। BCD-র 4 বিট একটি ডিকোডার সার্কিটে ঢোকে, আর সেটি ঠিক করে কোন কোন দাগ জ্বলবে। বিটে ক্লিক করে নিজে দেখো।">
       <div className="grid items-center gap-4 sm:grid-cols-[minmax(0,12rem)_minmax(0,1fr)]">
         <div className="rounded-2xl bg-zinc-950 p-4 ring-1 ring-white/10">
           <SevenSeg digit={valid ? v : null} on="#34d399" labels className="mx-auto h-44 w-auto sm:h-52" />
         </div>
         <div className="min-w-0 space-y-3">
           <div>
-            <p className="mb-1.5 text-xs font-bold text-ink/50">ইনপুট: BCD-র 4 বিট (টিপে বদলাও)</p>
+            <p className="mb-1.5 text-xs font-bold text-ink/50">ইনপুট: BCD-র 4 বিট (ক্লিক করে বদলাও)</p>
             <div className="grid grid-cols-4 gap-2">
               {BIT4.map((w) => {
                 const on = (v & w) !== 0;

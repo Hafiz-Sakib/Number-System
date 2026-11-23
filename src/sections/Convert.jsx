@@ -60,7 +60,7 @@ export default function Convert({ s, set, onUse }) {
 
               <div className="card p-4 sm:p-6">
                 <h2 className="text-lg font-bold">চারটি সংখ্যা পদ্ধতিতে ফলাফল</h2>
-                <p className="text-sm text-ink/55">চার পদ্ধতির ফল পাশাপাশি দেখো। যে ফলের হিসাব দেখতে চাও, সেটিতে চাপ দাও।</p>
+                <p className="text-sm text-ink/55">চার পদ্ধতির ফল পাশাপাশি দেখো। যে ফলের হিসাব দেখতে চাও, সেটিতে ক্লিক করো।</p>
                 <div className="mt-3 grid grid-cols-2 gap-2 2xl:grid-cols-4">
                   {all.map((a) => (
                     <button key={a.base} type="button" onClick={() => set({ from: s.from, to: a.base, value: s.value })}

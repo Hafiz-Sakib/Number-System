@@ -39,19 +39,19 @@ function Path({ items }) {
   return (
     <ol ref={ref} className="relative space-y-8">
       <span aria-hidden className="absolute bottom-3 left-[13px] top-3 w-[3px] rounded-full bg-ink/10" />
-      <motion.span aria-hidden className="absolute bottom-3 left-[13px] top-3 w-[3px] origin-top rounded-full bg-gradient-to-b from-violet-500 to-pink-500" style={{ scaleY: reduce ? 1 : fill }} />
+      <motion.span aria-hidden className="absolute bottom-3 left-[13px] top-3 w-[3px] origin-top rounded-full bg-ink" style={{ scaleY: reduce ? 1 : fill }} />
       {items.map((r) => (
         <li key={r.t} className="relative grid grid-cols-[28px_1fr] gap-x-5 sm:grid-cols-[28px_9rem_1fr]">
           <span className="relative z-10 mt-0.5 grid h-7 w-7 place-items-center">
             {r.now && !reduce && <motion.span aria-hidden className="absolute h-7 w-7 rounded-full ring-2 ring-emerald-400" animate={{ scale: [1, 1.6], opacity: [0.7, 0] }} transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }} />}
-            <span className={`grid h-7 w-7 place-items-center rounded-full text-white ring-4 ring-surface ${r.now ? "bg-emerald-500" : "bg-gradient-to-br from-violet-500 to-pink-500"}`}>
+            <span className={`grid h-7 w-7 place-items-center rounded-full text-paper ring-4 ring-surface ${r.now ? "bg-emerald-500" : "bg-ink text-paper"}`}>
               {r.now ? <span className="h-2 w-2 rounded-full bg-white" /> : r.icon ? <r.icon aria-hidden className="h-4 w-4" strokeWidth={2.4} /> : <svg viewBox="0 0 24 24" aria-hidden className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 5 5 9-10" /></svg>}
             </span>
           </span>
           <p className="col-start-2 text-sm font-semibold text-ink/50 sm:pt-1"><span className="whitespace-nowrap">{r.p}</span>{r.done && <span className="mt-1 block w-fit rounded-full bg-mint px-2 py-0.5 text-xs text-ink">Graduated</span>}</p>
           <div className="col-start-2 mt-1 sm:col-start-3 sm:mt-0">
             <h3 className="font-display text-lg font-bold leading-snug sm:text-xl">{r.t}</h3>
-            <p className="text-sm font-semibold text-violet-600 dark:text-violet-300">{r.o}</p>
+            <p className="text-sm font-semibold text-ink/70">{r.o}</p>
             <p className="mt-2 max-w-xl text-ink/65">{r.d}</p>
           </div>
         </li>
