@@ -128,49 +128,111 @@ function CountRace() {
   );
 }
 
-/* ---------- ৩) ২ দিয়ে ভাগ ---------- */
+/* ---------- ৩) ২ দিয়ে ভাগ (পূর্ণ অংশ) ও ২ দিয়ে গুণ (ভগ্নাংশ) ---------- */
 const divSteps = (n) => { const r = []; let x = n; if (!x) return [{ x: 0, q: 0, r: 0 }]; while (x > 0) { r.push({ x, q: x >> 1, r: x & 1 }); x >>= 1; } return r; };
+const MAXI = 1023, MAXFD = 6, MAXFB = 8; // পূর্ণ অংশের সর্বোচ্চ মান, দশমিকের পর সর্বোচ্চ অঙ্ক, ভগ্নাংশের সর্বোচ্চ বাইনারি বিট
+const trimZ = (s) => { const t = s.replace(/0+$/, ""); return t.endsWith(".") ? t + "0" : t; };
+/* ভগ্নাংশ: BigInt দিয়ে নির্ভুলভাবে বারবার ×2 (ফ্লোটিং-পয়েন্ট ভুল এড়াতে) */
+function fracSteps(f) {
+  if (!f) return { rows: [], cut: false };
+  const den = 10n ** BigInt(f.length);
+  let num = BigInt(f);
+  const rows = [];
+  while (num > 0n && rows.length < MAXFB) {
+    const p = num * 2n, bit = p >= den ? 1 : 0, rest = bit ? p - den : p;
+    rows.push({ a: trimZ("0." + num.toString().padStart(f.length, "0")), p: trimZ(`${bit}.` + rest.toString().padStart(f.length, "0")), bit });
+    num = rest;
+  }
+  return { rows, cut: num > 0n };
+}
 function DivideLab() {
-  const [n, setN] = useState(25);
+  const [val, setVal] = useState({ i: 25, f: "" });
+  const [txt, setTxt] = useState("25");
   const [shown, setShown] = useState(0);
   const [go, setGo] = useState(true);
-  const steps = useMemo(() => divSteps(n), [n]);
-  const L = steps.length;
+  const key = val.i + (val.f ? "." + val.f : "");
+  const steps = useMemo(() => divSteps(val.i), [val.i]);
+  const fr = useMemo(() => fracSteps(val.f), [val.f]);
+  const iL = steps.length, fL = fr.rows.length, L = iL + fL;
   const playing = go && shown < L;
   useInterval(() => setShown((s) => s + 1), 650, playing);
-  const pick = (v) => { setN(v); setShown(0); setGo(true); };
+  const restart = () => { setShown(0); setGo(true); };
+  const pick = (v) => { setVal(v); setTxt(v.i + (v.f ? "." + v.f : "")); restart(); };
+  const typed = (raw) => { // বাংলা অঙ্ক ও একটি দশমিক বিন্দু চলবে; খালি রাখলে আগের সংখ্যাই থাকে
+    const d = raw.replace(/[০-৯]/g, (c) => "০১২৩৪৫৬৭৮৯".indexOf(c)).replace(/[^\d.]/g, "");
+    const dot = d.indexOf(".");
+    let ip = (dot < 0 ? d : d.slice(0, dot)).slice(0, 4);
+    const fp = dot < 0 ? "" : d.slice(dot + 1).replace(/\./g, "").slice(0, MAXFD);
+    if (ip !== "" && parseInt(ip, 10) > MAXI) ip = String(MAXI);
+    setTxt(dot < 0 ? ip : `${ip}.${fp}`);
+    if (ip === "" && fp === "") return;
+    const v = { i: ip === "" ? 0 : parseInt(ip, 10), f: fp.replace(/0+$/, "") };
+    if (v.i !== val.i || v.f !== val.f) { setVal(v); restart(); }
+  };
+  const iShown = Math.min(shown, iL), fShown = Math.max(0, shown - iL);
   const done = shown >= L;
+  const bin = val.i.toString(2) + (fL ? "." + fr.rows.map((r) => r.bit).join("") : "");
+  const bit = (b) => `grid h-6 w-6 place-items-center rounded-md text-sm font-extrabold ${b ? "bg-emerald-500 text-white" : "bg-ink/10"}`;
   return (
-    <Block tag="ভাগের পদ্ধতি" title="২ দিয়ে ভাগ করে বাইনারি" desc="ডেসিমাল থেকে বাইনারিতে যেতে বারবার 2 দিয়ে ভাগ করি। ভাগশেষগুলো নিচ থেকে ওপরে পড়লেই উত্তর।">
+    <Block tag="ভাগের পদ্ধতি" title="২ দিয়ে ভাগ করে বাইনারি" desc="ডেসিমাল থেকে বাইনারিতে যেতে বারবার 2 দিয়ে ভাগ করি। ভাগশেষগুলো নিচ থেকে ওপরে সাজালেই উত্তর।">
       <div className="flex flex-wrap items-center gap-3">
-        <input type="range" min="1" max="255" value={n} aria-label="ডেসিমাল সংখ্যা" onChange={(e) => pick(+e.target.value)} className="h-2 min-w-0 flex-1 accent-emerald-500" />
-        <span className="num rounded-xl bg-sky px-3 py-1 text-lg font-extrabold">{n}</span>
-        <button type="button" onClick={() => { setShown(0); setGo(true); }} className="rounded-full bg-ink px-4 py-1.5 text-sm font-semibold text-paper transition hover:bg-ink/85 active:scale-95">আবার চালাও</button>
+        <input type="range" min="1" max="255" value={Math.max(1, Math.min(255, val.i))} aria-label="ডেসিমাল সংখ্যা" onChange={(e) => pick({ i: +e.target.value, f: "" })} className="h-2 min-w-0 flex-1 accent-emerald-500" />
+        <input type="text" inputMode="decimal" autoComplete="off" value={txt} aria-label="ডেসিমাল সংখ্যা লিখুন (ভগ্নাংশও চলবে)" placeholder="0"
+          onChange={(e) => typed(e.target.value)} onFocus={(e) => e.target.select()} onBlur={() => setTxt(key)}
+          className="num h-11 w-32 rounded-xl bg-sky px-2 text-center text-xl font-extrabold outline-none ring-1 ring-ink/10 transition focus:ring-2 focus:ring-violet-500" />
+        <button type="button" onClick={restart} className="rounded-full bg-ink px-4 py-1.5 text-sm font-semibold text-paper transition hover:bg-ink/85 active:scale-95">আবার চালাও</button>
       </div>
+      <p className="mt-2 text-xs text-ink/45">slider টানুন, অথবা পাশের ঘরে সংখ্যা লিখুন। ভগ্নাংশও চলবে, যেমন 25.625।</p>
       <div className="mt-4 min-h-[8.5rem] rounded-2xl bg-ink/[.04] p-3 ring-1 ring-ink/[.06]">
+        {fL > 0 && <p className="mb-1.5 text-xs font-bold text-ink/50">পূর্ণ অংশ ({val.i}): বারবার 2 দিয়ে ভাগ</p>}
         <ul className="num space-y-1.5 text-[15px]">
           <AnimatePresence initial={false}>
-            {steps.slice(0, shown).map((s, i) => (
-              <motion.li key={`${n}-${i}`} layout initial={{ opacity: 0, x: -14 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.28 }} className="flex items-center gap-2">
+            {steps.slice(0, iShown).map((s, i) => (
+              <motion.li key={`${key}-${i}`} layout initial={{ opacity: 0, x: -14 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.28 }} className="flex items-center gap-2">
                 <span className="w-24 shrink-0 font-semibold sm:w-28">{s.x} ÷ 2 = {s.q}</span>
                 <span className="text-ink/50">ভাগশেষ</span>
-                <motion.span initial={{ scale: 0.4 }} animate={{ scale: 1 }} className={`grid h-6 w-6 place-items-center rounded-md text-sm font-extrabold ${s.r ? "bg-emerald-500 text-white" : "bg-ink/10"}`}>{s.r}</motion.span>
+                <motion.span initial={{ scale: 0.4 }} animate={{ scale: 1 }} className={bit(s.r)}>{s.r}</motion.span>
               </motion.li>
             ))}
           </AnimatePresence>
         </ul>
         {shown === 0 && <p className="text-ink/45">ধাপ শুরু হচ্ছে…</p>}
+        {fL > 0 && fShown > 0 && (
+          <>
+            <p className="mb-1.5 mt-4 text-xs font-bold text-ink/50">ভগ্নাংশ অংশ (0.{val.f}): বারবার 2 দিয়ে গুণ, গুণফলের পূর্ণ অংশ লিখি</p>
+            <ul className="num space-y-1.5 text-[15px]">
+              <AnimatePresence initial={false}>
+                {fr.rows.slice(0, fShown).map((s, i) => (
+                  <motion.li key={`${key}-f${i}`} layout initial={{ opacity: 0, x: -14 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.28 }} className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="w-44 shrink-0 font-semibold sm:w-52">{s.a} × 2 = {s.p}</span>
+                    <span className="text-ink/50">পূর্ণ অংশ</span>
+                    <motion.span initial={{ scale: 0.4 }} animate={{ scale: 1 }} className={bit(s.bit)}>{s.bit}</motion.span>
+                  </motion.li>
+                ))}
+              </AnimatePresence>
+            </ul>
+            {fr.cut && fShown >= fL && <p className="mt-2 text-xs text-ink/50">ভগ্নাংশ শেষ হচ্ছে না (অসীম বাইনারি), তাই {MAXFB} বিট পর্যন্ত নিয়ে প্রায় মান (≈) দেখানো হলো।</p>}
+          </>
+        )}
       </div>
-      <p className="mt-3 text-sm font-bold text-ink/55">ভাগশেষ নিচ থেকে ওপরে ↑</p>
+      <p className="mt-3 text-sm font-bold text-ink/55">পূর্ণ অংশের ভাগশেষ নিচ থেকে ওপরে ↑{fL > 0 ? "  ·  ভগ্নাংশের বিট ওপর থেকে নিচে ↓" : ""}</p>
       <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-        {Array.from({ length: L }, (_, j) => {
-          const si = L - 1 - j, filled = si < shown;
+        {Array.from({ length: iL }, (_, j) => {
+          const si = iL - 1 - j, filled = si < iShown;
           return (
-            <motion.span key={`${n}-${j}`} initial={false} animate={{ backgroundColor: filled ? (steps[si].r ? "#10b981" : "rgba(120,124,150,.25)") : "rgba(120,124,150,.08)", scale: filled ? [1, 1.25, 1] : 1, boxShadow: filled && steps[si].r ? "0 0 12px rgba(16,185,129,.7)" : "0 0 0 rgba(0,0,0,0)" }} transition={{ duration: 0.3 }}
+            <motion.span key={`${key}-${j}`} initial={false} animate={{ backgroundColor: filled ? (steps[si].r ? "#10b981" : "rgba(120,124,150,.25)") : "rgba(120,124,150,.08)", scale: filled ? [1, 1.25, 1] : 1, boxShadow: filled && steps[si].r ? "0 0 12px rgba(16,185,129,.7)" : "0 0 0 rgba(0,0,0,0)" }} transition={{ duration: 0.3 }}
               className={`num grid h-10 w-8 place-items-center rounded-lg text-lg font-extrabold ${filled ? (steps[si].r ? "text-white" : "text-ink") : "text-transparent ring-1 ring-dashed ring-ink/20"}`}>{filled ? steps[si].r : "·"}</motion.span>
           );
         })}
-        <AnimatePresence>{done && <motion.span initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} className="num ml-2 rounded-xl bg-lilac px-3 py-1.5 text-lg font-extrabold">({n})₁₀ = ({n.toString(2)})₂</motion.span>}</AnimatePresence>
+        {fL > 0 && <span aria-label="দশমিক বিন্দু" className="num mx-0.5 text-[1.9rem] font-black leading-none text-ink">.</span>}
+        {fr.rows.map((r, k) => {
+          const filled = k < fShown;
+          return (
+            <motion.span key={`${key}-fb${k}`} initial={false} animate={{ backgroundColor: filled ? (r.bit ? "#10b981" : "rgba(120,124,150,.25)") : "rgba(120,124,150,.08)", scale: filled ? [1, 1.25, 1] : 1, boxShadow: filled && r.bit ? "0 0 12px rgba(16,185,129,.7)" : "0 0 0 rgba(0,0,0,0)" }} transition={{ duration: 0.3 }}
+              className={`num grid h-10 w-8 place-items-center rounded-lg text-lg font-extrabold ${filled ? (r.bit ? "text-white" : "text-ink") : "text-transparent ring-1 ring-dashed ring-ink/20"}`}>{filled ? r.bit : "·"}</motion.span>
+          );
+        })}
+        <AnimatePresence>{done && <motion.span initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} className="num ml-2 rounded-xl bg-lilac px-3 py-1.5 text-lg font-extrabold">({key})₁₀ {fr.cut ? "≈" : "="} ({bin})₂</motion.span>}</AnimatePresence>
       </div>
     </Block>
   );
