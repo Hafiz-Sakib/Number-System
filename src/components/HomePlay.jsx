@@ -173,6 +173,11 @@ function DivideLab() {
   const done = shown >= L;
   const bin = val.i.toString(2) + (fL ? "." + fr.rows.map((r) => r.bit).join("") : "");
   const bit = (b) => `grid h-6 w-6 place-items-center rounded-md text-sm font-extrabold ${b ? "bg-emerald-500 text-white" : "bg-ink/10"}`;
+  const dotEl = (k) => <span key={k} aria-label="দশমিক বিন্দু" className="num mx-1 text-[1.9rem] font-black leading-none text-ink">.</span>;
+  const aChip = (k, filled, b) => (
+    <motion.span key={k} initial={false} animate={{ backgroundColor: filled ? (b ? "#10b981" : "rgba(120,124,150,.25)") : "rgba(120,124,150,.08)", scale: filled ? [1, 1.25, 1] : 1, boxShadow: filled && b ? "0 0 12px rgba(16,185,129,.7)" : "0 0 0 rgba(0,0,0,0)" }} transition={{ duration: 0.3 }}
+      className={`num grid h-10 w-8 place-items-center rounded-lg text-lg font-extrabold ${filled ? (b ? "text-white" : "text-ink") : "text-transparent ring-1 ring-dashed ring-ink/20"}`}>{filled ? b : "·"}</motion.span>
+  );
   return (
     <Block tag="ভাগের পদ্ধতি" title="২ দিয়ে ভাগ করে বাইনারি" desc="ডেসিমাল থেকে বাইনারিতে যেতে বারবার 2 দিয়ে ভাগ করি। ভাগশেষগুলো নিচ থেকে ওপরে সাজালেই উত্তর।">
       <div className="flex flex-wrap items-center gap-3">
@@ -215,25 +220,32 @@ function DivideLab() {
           </>
         )}
       </div>
-      <p className="mt-3 text-sm font-bold text-ink/55">পূর্ণ অংশের ভাগশেষ নিচ থেকে ওপরে ↑{fL > 0 ? "  ·  ভগ্নাংশের বিট ওপর থেকে নিচে ↓" : ""}</p>
+      <p className="mt-4 text-sm font-bold text-ink/55">পূর্ণ অংশের ভাগশেষ নিচ থেকে ওপরে সাজালে উত্তর পেয়ে যাবেন ↑</p>
       <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-        {Array.from({ length: iL }, (_, j) => {
-          const si = iL - 1 - j, filled = si < iShown;
-          return (
-            <motion.span key={`${key}-${j}`} initial={false} animate={{ backgroundColor: filled ? (steps[si].r ? "#10b981" : "rgba(120,124,150,.25)") : "rgba(120,124,150,.08)", scale: filled ? [1, 1.25, 1] : 1, boxShadow: filled && steps[si].r ? "0 0 12px rgba(16,185,129,.7)" : "0 0 0 rgba(0,0,0,0)" }} transition={{ duration: 0.3 }}
-              className={`num grid h-10 w-8 place-items-center rounded-lg text-lg font-extrabold ${filled ? (steps[si].r ? "text-white" : "text-ink") : "text-transparent ring-1 ring-dashed ring-ink/20"}`}>{filled ? steps[si].r : "·"}</motion.span>
-          );
-        })}
-        {fL > 0 && <span aria-label="দশমিক বিন্দু" className="num mx-0.5 text-[1.9rem] font-black leading-none text-ink">.</span>}
-        {fr.rows.map((r, k) => {
-          const filled = k < fShown;
-          return (
-            <motion.span key={`${key}-fb${k}`} initial={false} animate={{ backgroundColor: filled ? (r.bit ? "#10b981" : "rgba(120,124,150,.25)") : "rgba(120,124,150,.08)", scale: filled ? [1, 1.25, 1] : 1, boxShadow: filled && r.bit ? "0 0 12px rgba(16,185,129,.7)" : "0 0 0 rgba(0,0,0,0)" }} transition={{ duration: 0.3 }}
-              className={`num grid h-10 w-8 place-items-center rounded-lg text-lg font-extrabold ${filled ? (r.bit ? "text-white" : "text-ink") : "text-transparent ring-1 ring-dashed ring-ink/20"}`}>{filled ? r.bit : "·"}</motion.span>
-          );
-        })}
-        <AnimatePresence>{done && <motion.span initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} className="num ml-2 rounded-xl bg-lilac px-3 py-1.5 text-lg font-extrabold">({key})₁₀ {fr.cut ? "≈" : "="} ({bin})₂</motion.span>}</AnimatePresence>
+        {Array.from({ length: iL }, (_, j) => { const si = iL - 1 - j; return aChip(`${key}-${j}`, si < iShown, steps[si].r); })}
+        {fL === 0 && <AnimatePresence>{done && <motion.span initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} className="num ml-2 rounded-xl bg-lilac px-3 py-1.5 text-lg font-extrabold">({key})₁₀ = ({bin})₂</motion.span>}</AnimatePresence>}
       </div>
+      {fL > 0 && (
+        <>
+          <p className="mt-4 text-sm font-bold text-ink/55">ভগ্নাংশের বিট ওপর থেকে নিচে সাজালে উত্তর পেয়ে যাবেন ↓</p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            {fr.rows.map((r, k) => aChip(`${key}-fb${k}`, k < fShown, r.bit))}
+          </div>
+          <AnimatePresence>
+            {done && (
+              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-5 rounded-2xl bg-lilac/60 p-3 ring-1 ring-violet-500/20">
+                <p className="text-sm font-bold text-ink/60">দুটি অংশ জোড়া লাগিয়ে সাজালে চূড়ান্ত উত্তর</p>
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  {[...bin].map((c, k) => c === "." ? dotEl(k) : (
+                    <span key={k} className={`num grid h-10 w-8 place-items-center rounded-lg text-lg font-extrabold ${c === "1" ? "bg-emerald-500 text-white shadow-[0_0_12px_rgba(16,185,129,.7)]" : "bg-ink/10 text-ink"}`}>{c}</span>
+                  ))}
+                </div>
+                <p className="num mt-3 inline-block rounded-xl bg-lilac px-3 py-1.5 text-lg font-extrabold">({key})₁₀ {fr.cut ? "≈" : "="} ({bin})₂</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </>
+      )}
     </Block>
   );
 }
