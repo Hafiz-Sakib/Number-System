@@ -7,7 +7,7 @@ import { HighlightText, ProfileCard } from "../components/devui";
 import { Icon } from "../components/icons";
 import { GlobeCard } from "@/components/globe-card";
 import { DuoFlip } from "@/components/duo-flip";
-import { ME, SOCIAL } from "../lib/site";
+import { ME, SOCIAL, brand } from "../lib/site";
 import { HUB, team } from "../lib/team";
 
 /* Developer page (English): profile card, marker-highlighted bio, education, four projects shown in a Motion Brew DuoFlip gallery, and the Motion Brew GlobeCard.
@@ -20,16 +20,16 @@ const EDU = [
   { t: "Secondary School Certificate", o: "Govt. Muslim High School", p: "2015 – 2017", d: "Science group, GPA 5.00.", icon: School },
 ];
 const PROJECTS = [
-  { img: "cp-pathshala", t: "CP Pathshala", k: "Educational PWA", u: "https://cp-pathshala.vercel.app/", tags: ["React", "Vite", "PWA", "Python"], bg: "bg-lilac",
+  { img: "cp-pathshala", t: "CP Pathshala", k: "Educational PWA", u: "https://cp-pathshala.vercel.app/", c: "#7c6cf6", tags: ["React", "Vite", "PWA", "Python"], bg: "bg-lilac",
     d: "Competitive programming is hard to start in a second language, so I wrote the whole C++ course in plain Bangla. It runs offline once installed and every code sample was checked against a real compiler before it went in.",
     pts: ["144 lessons and 200 runnable C++ examples, grouped into 5 learning tracks", "Covers STL, bit manipulation, number theory, recursion/DP and graph theory", "Small interactive widgets such as a bit playground, an animated sieve and BFS/DFS"] },
-  { img: "subcalc", t: "SubCalc Pro", k: "Networking tool", u: "https://subcalc-pro.vercel.app/", tags: ["React", "Tailwind", "IPv4", "VLSM"], bg: "bg-peach",
+  { img: "subcalc", t: "SubCalc Pro", k: "Networking tool", u: "https://subcalc-pro.vercel.app/", c: "#ea7a2f", tags: ["React", "Tailwind", "IPv4", "VLSM"], bg: "bg-peach",
     d: "A subnetting helper for students and network engineers. Type a network and it works out the splits live, then explains each step instead of only showing the answer.",
     pts: ["Fixed and variable length (FLSM and VLSM) splits with a step-by-step breakdown", "Catches overlapping subnets and expands CIDR blocks", "A visual subnet tree showing the network and host details of every branch"] },
-  { img: "algoviz", t: "AlgoViz", k: "Algorithm visualizer", u: "https://algorithm-hunter.vercel.app/", tags: ["React", "TypeScript", "Three.js", "Tailwind v4"], bg: "bg-mint",
+  { img: "algoviz", t: "AlgoViz", k: "Algorithm visualizer", u: "https://algorithm-hunter.vercel.app/", c: "#10a56b", tags: ["React", "TypeScript", "Three.js", "Tailwind v4"], bg: "bg-mint",
     d: "A place to watch algorithms think. Each one is written as a generator, so playback can step, pause and rewind frame by frame while the matching C++ code lights up line by line.",
     pts: ["60+ classics in 11 categories: sorting, searching, graphs, DP, pathfinding, backtracking and more", "Live C++ STL code panel that follows the active line", "A Three.js hero scene that animates Quick Sort and Binary Search in 3D"] },
-  { img: "nova", t: "NOVA MathPlot", k: "2D / 3D math plots", u: "https://nova-mathplot.vercel.app/", tags: ["React", "Three.js", "R3F", "Math.js"], bg: "bg-sky",
+  { img: "nova", t: "NOVA MathPlot", k: "2D / 3D math plots", u: "https://nova-mathplot.vercel.app/", c: "#2f7fe0", tags: ["React", "Three.js", "R3F", "Math.js"], bg: "bg-sky",
     d: "A math playground for students and teachers that runs completely in the browser, with no backend. Plot a function, spin a surface or watch a curve draw itself with a glow trail.",
     pts: ["60+ ready 3D surfaces: topology, attractors, fractals, minimal surfaces", "17 neural activation functions, each with a derivative overlay", "40+ animated parametric curves, from Lissajous and Fourier to polar and 3D"] },
 ];
@@ -37,8 +37,8 @@ const IMAGES = PROJECTS.map((p) => ({ src: `/dev/${p.img}.webp`, alt: `${p.t} sc
 
 
 const Arrow = () => <svg viewBox="0 0 24 24" aria-hidden className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17 17 7M8 7h9v9" /></svg>;
-const btnDark = "inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-paper transition hover:bg-ink/85";
-const btnSoft = "inline-flex items-center gap-2 rounded-full bg-ink/10 px-5 py-2.5 text-sm font-semibold transition hover:bg-ink/15";
+const btnDark = "inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-paper transition";
+const btnSoft = "inline-flex items-center gap-2 rounded-full bg-ink/10 px-5 py-2.5 text-sm font-semibold transition";
 const pill = "mb-3 inline-block rounded-full bg-ink/10 px-3 py-1 text-xs font-semibold tracking-wide text-ink/70";
 
 /* Education path: the line on the left fills as you scroll, the current step pulses */
@@ -89,7 +89,7 @@ function Showcase() {
               {p.pts.map((x) => <li key={x} className="flex gap-2"><span aria-hidden className="mt-[0.7em] size-1.5 shrink-0 rounded-full bg-ink/35" />{x}</li>)}
             </ul>
             <div className="mt-4 flex flex-wrap gap-1.5">{p.tags.map((x) => <span key={x} className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-ink/[.06] ${p.bg}`}>{x}</span>)}</div>
-            <a href={p.u} target="_blank" rel="noreferrer" className={`${btnDark} mt-5`}>Open live site<Arrow /></a>
+            <a href={p.u} target="_blank" rel="noreferrer" style={{ "--b": p.c }} className={`${btnDark} brand mt-5`}>Open live site<Arrow /></a>
           </motion.article>
         </AnimatePresence>
       </div>
@@ -118,7 +118,7 @@ export default function Dev() {
       <div className="grid gap-6 lg:grid-cols-[22rem_1fr] lg:gap-10">
         <Reveal x={-28} y={0}>
           <ProfileCard name={ME.full} line="Full-stack developer · Competitive programmer · NLP researcher" place={ME.place}>
-            <a href={portfolio.href} target="_blank" rel="noreferrer" className={btnDark}><Icon name="Portfolio" className="h-4 w-4 !text-paper" />Visit portfolio</a>
+            <a href={portfolio.href} target="_blank" rel="noreferrer" className={`${btnDark} ${brand("Portfolio")}`}><Icon name="Portfolio" className="h-4 w-4 !text-paper" />Visit portfolio</a>
           </ProfileCard>
         </Reveal>
         <Reveal x={28} y={0} delay={0.08}>
@@ -143,12 +143,12 @@ export default function Dev() {
           <p className="mt-4 max-w-md text-ink/60">A new idea, freelance work or an open-source project, anything is worth a chat. I work with designers, engineers and writers from many parts of the world. Wherever you are, I'm happy to hear from you.</p>
           <ul className="mt-6 flex flex-wrap gap-2.5" aria-label="Links">
             {SOCIAL.map((s) => (
-              <li key={s.name}><a href={s.href} target="_blank" rel="noreferrer" className={btnSoft}><Icon name={s.name} className="h-4 w-4" />{s.name}</a></li>
+              <li key={s.name}><a href={s.href} target="_blank" rel="noreferrer" className={`${btnSoft} ${brand(s.name)}`}><Icon name={s.name} className="h-4 w-4" />{s.name}</a></li>
             ))}
           </ul>
         </Reveal>
         <Reveal x={28} y={0} delay={0.08} className="lg:order-2">
-          <GlobeCard title="Global team" subtitle="AI, NLP, machine learning and full-stack work, all wired back to one place. Drag the globe to look around." cta="Meet the team" href="/team" members={team} hub={HUB} turn={22} arcs={9} className="mx-auto lg:mx-0" />
+          <GlobeCard title="Global team" eyebrow="Network" subtitle="AI, NLP, machine learning and full-stack work, all wired back to one place." stats={[{ value: String(team.length - 1), label: "Focus areas" }, { value: "BD", label: "Home base" }]} cta="Meet the team" href="/team" members={team} hub={HUB} turn={22} arcs={9} className="mx-auto lg:mx-0" />
         </Reveal>
       </section>
     </motion.div>

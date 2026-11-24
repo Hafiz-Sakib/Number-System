@@ -184,7 +184,7 @@ function GhostButton({
     {
       ...href ? { href } : { type: "button", onClick },
       className: cn(
-        "group pointer-events-auto inline-flex h-10 cursor-pointer items-center gap-2 rounded-full bg-[#242423]/[.06] px-4 text-sm font-medium text-[#242423] outline-none transition-[background-color,transform] duration-200 hover:bg-[#242423]/10 focus-visible:ring-2 focus-visible:ring-zinc-400 active:bg-[#242423]/[0.14] dark:bg-white/[.08] dark:text-zinc-100 dark:hover:bg-white/[.12]",
+        "group pointer-events-auto inline-flex h-10 cursor-pointer items-center gap-2 rounded-full bg-ink/[.07] px-4 text-sm font-semibold text-ink outline-none transition-[background-color,transform] duration-200 hover:bg-ink/[.12] focus-visible:ring-2 focus-visible:ring-violet-500/60 active:bg-ink/[.16]",
         !still && "active:scale-[0.97]"
       ),
       children: [
@@ -218,6 +218,8 @@ var GlobeCard = React.forwardRef(
     title = "Global team",
     subtitle = "We are designers, engineers and writers spread across ten countries. Wherever you are, someone on the team is awake and building.",
     cta = "Meet the team",
+    eyebrow,
+    stats,
     href,
     members = DEFAULT_MEMBERS,
     hub,
@@ -265,9 +267,9 @@ var GlobeCard = React.forwardRef(
       renderer.domElement.style.display = "block";
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 50);
-      camera.position.set(0, 0, 4.4);
+      camera.position.set(0, 0, 5.1);
       const pivot = new THREE.Group();
-      pivot.position.set(0, -1.32, 0);
+      pivot.position.set(0, 0, 0);
       scene.add(pivot);
       const tilt = new THREE.Group();
       tilt.rotation.x = 0.38;
@@ -326,6 +328,14 @@ var GlobeCard = React.forwardRef(
         })
       );
       globe.add(dots);
+      const paintTheme = () => {
+        const night = document.documentElement.classList.contains("dark");
+        sphere.material.color.set(night ? 0x15172b : 0xf0f0ef);
+        dots.material.color.set(night ? 0x8b90c8 : 0xa9a9a5);
+      };
+      paintTheme();
+      const themeObs = new MutationObserver(paintTheme);
+      themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
       const cityGeo = new THREE.BufferGeometry();
       const cityPos = [];
       const cityCol = [];
@@ -639,6 +649,7 @@ var GlobeCard = React.forwardRef(
       return () => {
         cancelAnimationFrame(raf);
         ro.disconnect();
+        themeObs.disconnect();
         io.disconnect();
         host.removeEventListener("pointerenter", onEnter);
         host.removeEventListener("pointerleave", onLeave);
@@ -666,74 +677,69 @@ var GlobeCard = React.forwardRef(
         renderer.domElement.remove();
       };
     }, []);
-    return jsxs(
-      "div",
-      {
-        ref: card,
-        className: cn(
-          "relative h-[400px] w-[440px] max-w-full overflow-hidden rounded-3xl bg-white text-zinc-900 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_32px_-16px_rgba(0,0,0,0.18)] dark:bg-zinc-900 dark:text-zinc-100",
+    return (
+      <div
+        ref={card}
+        className={cn(
+          "relative flex w-[440px] max-w-full flex-col overflow-hidden rounded-3xl bg-surface text-ink shadow-[0_1px_2px_rgba(20,21,26,.04),0_16px_40px_-16px_rgba(20,21,26,.18)] ring-1 ring-ink/[.06]",
           className
-        ),
-        children: [
-          jsx(
-            "div",
-            {
-              "aria-hidden": true,
-              className: "pointer-events-none absolute inset-x-0 bottom-0 h-3/5 opacity-[0.09]",
-              style: {
-                background: "radial-gradient(70% 90% at 50% 100%, #9150e0 0%, #3d66d6 45%, transparent 80%)"
-              }
-            }
-          ),
-          jsx(
-            "div",
-            {
-              ref: mount,
-              "aria-hidden": true,
-              className: "absolute inset-0 cursor-grab touch-none active:cursor-grabbing"
-            }
-          ),
-          jsxs("div", { className: "pointer-events-none relative px-6 pt-6", children: [
-            jsx(
-              Reveal,
-              {
-                text: title,
-                show,
-                still,
-                className: "block text-2xl font-semibold tracking-tight"
-              }
-            ),
-            jsx(
-              Reveal,
-              {
-                text: subtitle,
-                show,
-                delay: 0.12,
-                still,
-                className: "mt-2 block text-base leading-relaxed text-zinc-500 dark:text-zinc-400"
-              }
-            ),
-            jsx(
-              motion.div,
-              {
-                initial: still ? false : { opacity: 0, y: 8, filter: "blur(4px)" },
-                animate: show ? { opacity: 1, y: 0, filter: "blur(0px)" } : void 0,
-                transition: { duration: 0.5, ease: GLIDE, delay: 0.3 },
-                className: "mt-5",
-                children: jsx(
-                  GhostButton,
-                  {
-                    label: cta,
-                    href,
-                    onClick: onCta,
-                    still
-                  }
-                )
-              }
-            )
-          ] })
-        ]
-      }
+        )}
+      >
+        <div className="relative px-6 pb-5 pt-6">
+          {eyebrow && (
+            <motion.span
+              initial={still ? false : { opacity: 0, y: 6 }}
+              animate={show ? { opacity: 1, y: 0 } : void 0}
+              transition={{ duration: 0.5, ease: GLIDE }}
+              className="inline-flex items-center gap-2 rounded-full bg-ink/[.06] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[.12em] text-ink/60"
+            >
+              <span className="relative flex size-1.5">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400/70 motion-reduce:animate-none" />
+                <span className="relative inline-flex size-1.5 rounded-full bg-emerald-500" />
+              </span>
+              {eyebrow}
+            </motion.span>
+          )}
+          <Reveal text={title} show={show} still={still} className={cn("block text-2xl font-semibold tracking-tight", eyebrow && "mt-3")} />
+          <Reveal text={subtitle} show={show} delay={0.12} still={still} className="mt-1.5 block text-[15px] leading-relaxed text-ink/60" />
+          <motion.div
+            initial={still ? false : { opacity: 0, y: 8, filter: "blur(4px)" }}
+            animate={show ? { opacity: 1, y: 0, filter: "blur(0px)" } : void 0}
+            transition={{ duration: 0.5, ease: GLIDE, delay: 0.3 }}
+            className="mt-5 flex items-center justify-between gap-4"
+          >
+            <GhostButton label={cta} href={href} onClick={onCta} still={still} />
+            {stats && stats.length > 0 && (
+              <dl className="flex items-stretch">
+                {stats.map((x, k) => (
+                  <div key={x.label} className={cn("px-4 text-left", k > 0 && "border-l border-ink/10", k === stats.length - 1 && "pr-0")}>
+                    <dd className="num text-lg font-semibold leading-none">{x.value}</dd>
+                    <dt className="mt-1 text-[11px] font-medium text-ink/50">{x.label}</dt>
+                  </div>
+                ))}
+              </dl>
+            )}
+          </motion.div>
+        </div>
+        <div className="relative h-[330px] border-t border-ink/[.07]">
+          <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(55% 62% at 50% 52%, rgb(145 80 224 / .12), transparent 72%)" }} />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-70"
+            style={{
+              backgroundImage: "radial-gradient(rgb(var(--ink) / .10) 1px, transparent 1px)",
+              backgroundSize: "16px 16px",
+              WebkitMaskImage: "radial-gradient(closest-side at 50% 50%, #000 20%, transparent 100%)",
+              maskImage: "radial-gradient(closest-side at 50% 50%, #000 20%, transparent 100%)"
+            }}
+          />
+          <div ref={mount} aria-hidden className="absolute inset-0 cursor-grab touch-none active:cursor-grabbing" style={{ WebkitMaskImage: "linear-gradient(to bottom, transparent 0, #000 11%, #000 90%, transparent 100%)", maskImage: "linear-gradient(to bottom, transparent 0, #000 11%, #000 90%, transparent 100%)" }} />
+          <span className="pointer-events-none absolute bottom-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-surface/85 px-3 py-1 text-[11px] font-medium text-ink/55 ring-1 ring-ink/[.08] backdrop-blur">
+            <svg viewBox="0 0 24 24" aria-hidden className="size-3" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20" /></svg>
+            Drag to explore
+          </span>
+        </div>
+      </div>
     );
   }
 );

@@ -1,6 +1,6 @@
 import { Reveal } from "./ui";
 import { Icon } from "./icons";
-import { ME, SOCIAL } from "../lib/site";
+import { ME, SOCIAL, brand } from "../lib/site";
 import { navigate } from "../lib/router";
 
 /* Footer, same as the motion-brew portfolio: © chip that slides to Instagram on hover, full name, tagline, social icons, back to top. */
@@ -15,7 +15,7 @@ export default function Footer() {
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="min-w-0">
               <a href={insta.href} target="_blank" rel="noreferrer" aria-label={`© ${year} ${ME.full}. Open Instagram`} className="group inline-flex max-w-full flex-col items-start gap-2">
-                <span aria-hidden className="relative inline-grid overflow-hidden rounded-full bg-ink/[.06] px-3 py-1 text-xs font-semibold text-ink/60 transition-colors duration-300 group-hover:bg-ink/10 group-hover:text-ink group-focus-visible:bg-ink/10 group-focus-visible:text-ink">
+                <span aria-hidden className={`${brand("Instagram")} relative inline-grid overflow-hidden rounded-full bg-ink/[.06] px-3 py-1 text-xs font-semibold text-ink/60 transition-colors duration-300`}>
                   <span className="col-start-1 row-start-1 transition duration-300 group-hover:-translate-y-full group-hover:opacity-0 group-focus-visible:-translate-y-full group-focus-visible:opacity-0">© {year}</span>
                   <span className="col-start-1 row-start-1 inline-flex translate-y-full items-center gap-1.5 whitespace-nowrap opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100"><Icon name="Instagram" className="h-3 w-3" />Follow on Instagram</span>
                 </span>
@@ -29,7 +29,7 @@ export default function Footer() {
             <ul className="flex flex-wrap gap-2" aria-label="Social links">
               {SOCIAL.map((s) => (
                 <li key={s.name}>
-                  <a href={s.href} target="_blank" rel="noreferrer" aria-label={s.name} title={s.name} className="grid h-11 w-11 place-items-center rounded-full bg-surface shadow-sm ring-1 ring-ink/[.08] transition duration-200 hover:-translate-y-1 hover:shadow-md">
+                  <a href={s.href} target="_blank" rel="noreferrer" aria-label={s.name} title={s.name} className={`${brand(s.name)} grid h-11 w-11 place-items-center rounded-full bg-surface shadow-sm ring-1 ring-ink/[.08] transition duration-200 hover:-translate-y-1 hover:shadow-md`}>
                     <Icon name={s.name} className="h-5 w-5" />
                   </a>
                 </li>

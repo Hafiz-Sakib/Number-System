@@ -18,3 +18,6 @@ export const SOCIAL = [
   { name: "LinkedIn", label: "hafiz-sakib", href: "https://www.linkedin.com/in/hafiz-sakib-96b8b3229/" },
   { name: "Instagram", label: "___sakib.404", href: "https://www.instagram.com/___sakib.404/" },
 ];
+
+/* Hover colour: a link takes the brand colour of the site or app it opens (rules in index.css, `.brand`). */
+export const brand = (name) => `brand brand-${String(name).toLowerCase()}`;

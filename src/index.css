@@ -65,6 +65,22 @@ button { -webkit-tap-highlight-color: transparent; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
+/* ---------- লিংকে হোভার: যে সাইট/অ্যাপে যায় তার নিজের ব্র্যান্ড রঙ ব্যাকগ্রাউন্ডে ফোটে ----------
+   `.brand` + `.brand-<name>` (lib/site.js `brand()`); কাস্টম রঙ দিতে style={{ "--b": "#hex" }} */
+.brand { position: relative; isolation: isolate; --b: #7c3aed; }
+.brand::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--b); opacity: 0; transition: opacity .25s ease; pointer-events: none; }
+.brand:hover::before, .brand:focus-visible::before { opacity: 1; }
+.brand:hover, .brand:focus-visible, .brand:hover svg, .brand:focus-visible svg { color: #fff !important; }
+.brand:hover { --tw-ring-color: transparent; }
+.brand-portfolio { --b: linear-gradient(135deg, #7c3aed, #ec4899); }
+.brand-github { --b: #24292f; }
+:root.dark .brand-github { --b: #3a424c; }
+.brand-linkedin { --b: #0a66c2; }
+.brand-instagram { --b: linear-gradient(45deg, #f58529, #dd2a7b 45%, #8134af 75%, #515bd4); }
+/* বড় লিংকের (group) ভেতরের চিপ: লিংকে হোভার করলেই রঙ আসে */
+a.group:hover .brand::before, a.group:focus-visible .brand::before { opacity: 1; }
+a.group:hover .brand, a.group:focus-visible .brand, a.group:hover .brand svg, a.group:focus-visible .brand svg { color: #fff !important; }
+
 /* ইনপুটের চারপাশে আলাদা রিং আছে, তাই ডিফল্ট আউটলাইন দরকার নেই */
 input:focus-visible { outline: none; }
 
