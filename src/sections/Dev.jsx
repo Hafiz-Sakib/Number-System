@@ -12,7 +12,7 @@ import { HUB, team } from "../lib/team";
 
 /* Developer page (English): profile card, marker-highlighted bio, education, four projects shown in a Motion Brew DuoFlip gallery, and the Motion Brew GlobeCard.
    Links: only Portfolio, GitHub, LinkedIn and Instagram (lib/site.js). */
-const MARKS = ["full-stack", "clean UI", "competitive programming", "Competitive programming", "Natural Language Processing", "NLP", "Codeforces", "LeetCode"];
+const MARKS = ["software development", "competitive programming", "full-stack development", "Codeforces Pupil", "LeetCode", "Data Structures & Algorithms", "machine learning"];
 const WORDS = ["full-stack developer.", "competitive programmer.", "NLP researcher."];
 const EDU = [
   { t: "B.Sc in Computer Science & Engineering", o: "Premier University, Chittagong", p: "2022 – 2026", d: "Software engineering, algorithms and full-stack development. Undergraduate thesis on applied AI/ML.", done: true, icon: GraduationCap },
@@ -21,17 +21,17 @@ const EDU = [
 ];
 const PROJECTS = [
   { img: "cp-pathshala", t: "CP Pathshala", k: "Educational PWA", u: "https://cp-pathshala.vercel.app/", c: "#7c6cf6", tags: ["React", "Vite", "PWA", "Python"], bg: "bg-lilac",
-    d: "Competitive programming is hard to start in a second language, so I wrote the whole C++ course in plain Bangla. It runs offline once installed and every code sample was checked against a real compiler before it went in.",
-    pts: ["144 lessons and 200 runnable C++ examples, grouped into 5 learning tracks", "Covers STL, bit manipulation, number theory, recursion/DP and graph theory", "Small interactive widgets such as a bit playground, an animated sieve and BFS/DFS"] },
+    d: "A full C++ competitive programming course in plain Bangla. It works offline once installed, and every code sample was checked against a real compiler.",
+    pts: ["144 lessons and 200 runnable C++ examples in 5 tracks", "STL, bit manipulation, number theory, DP and graphs"] },
   { img: "subcalc", t: "SubCalc Pro", k: "Networking tool", u: "https://subcalc-pro.vercel.app/", c: "#ea7a2f", tags: ["React", "Tailwind", "IPv4", "VLSM"], bg: "bg-peach",
-    d: "A subnetting helper for students and network engineers. Type a network and it works out the splits live, then explains each step instead of only showing the answer.",
-    pts: ["Fixed and variable length (FLSM and VLSM) splits with a step-by-step breakdown", "Catches overlapping subnets and expands CIDR blocks", "A visual subnet tree showing the network and host details of every branch"] },
+    d: "A subnetting helper for students and network engineers. It works out the splits live and explains each step, not just the answer.",
+    pts: ["FLSM and VLSM splits with a step-by-step breakdown", "Overlap detection and a visual subnet tree"] },
   { img: "algoviz", t: "AlgoViz", k: "Algorithm visualizer", u: "https://algorithm-hunter.vercel.app/", c: "#10a56b", tags: ["React", "TypeScript", "Three.js", "Tailwind v4"], bg: "bg-mint",
-    d: "A place to watch algorithms think. Each one is written as a generator, so playback can step, pause and rewind frame by frame while the matching C++ code lights up line by line.",
-    pts: ["60+ classics in 11 categories: sorting, searching, graphs, DP, pathfinding, backtracking and more", "Live C++ STL code panel that follows the active line", "A Three.js hero scene that animates Quick Sort and Binary Search in 3D"] },
+    d: "Watch algorithms think. Playback can step, pause and rewind while the matching C++ code lights up line by line.",
+    pts: ["60+ algorithms in 11 categories", "Live C++ STL code panel and a Three.js hero scene"] },
   { img: "nova", t: "NOVA MathPlot", k: "2D / 3D math plots", u: "https://nova-mathplot.vercel.app/", c: "#2f7fe0", tags: ["React", "Three.js", "R3F", "Math.js"], bg: "bg-sky",
-    d: "A math playground for students and teachers that runs completely in the browser, with no backend. Plot a function, spin a surface or watch a curve draw itself with a glow trail.",
-    pts: ["60+ ready 3D surfaces: topology, attractors, fractals, minimal surfaces", "17 neural activation functions, each with a derivative overlay", "40+ animated parametric curves, from Lissajous and Fourier to polar and 3D"] },
+    d: "A browser-only math playground for students and teachers. Plot a function, spin a surface or watch a curve draw itself.",
+    pts: ["60+ ready 3D surfaces and 40+ animated curves", "17 neural activation functions with derivative overlay"] },
 ];
 const IMAGES = PROJECTS.map((p) => ({ src: `/dev/${p.img}.webp`, alt: `${p.t} screenshot`, label: p.t }));
 
@@ -77,8 +77,8 @@ function Showcase() {
   const [i, setI] = useState(0);
   const p = PROJECTS[i];
   return (
-    <div className="mx-auto mt-6 flex max-w-[40rem] flex-col gap-6 lg:mx-0">
-      <Reveal y={20} className="min-w-0"><DuoFlip images={IMAGES} onChange={setI} /></Reveal>
+    <div className="mx-auto mt-8 flex w-full max-w-[64rem] flex-col gap-8 lg:-mx-8 lg:w-[calc(100%+4rem)] lg:max-w-none">
+      <Reveal y={20} className="min-w-0"><DuoFlip images={IMAGES} onChange={setI} aspect={1.8} className="!w-full" /></Reveal>
       <div className="min-w-0" aria-live="polite">
         <AnimatePresence mode="wait" initial={false}>
           <motion.article key={p.t} initial={reduce ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={reduce ? { opacity: 0 } : { opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }} className="card p-5 sm:p-6">
@@ -115,14 +115,14 @@ export default function Dev() {
         </Reveal>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[22rem_1fr] lg:gap-10">
+      <div className="grid items-stretch gap-6 lg:grid-cols-[22rem_1fr] lg:gap-10">
         <Reveal x={-28} y={0}>
           <ProfileCard name={ME.full} line="Full-stack developer · Competitive programmer · NLP researcher" place={ME.place}>
             <a href={portfolio.href} target="_blank" rel="noreferrer" className={`${btnDark} ${brand("Portfolio")}`}><Icon name="Portfolio" className="h-4 w-4 !text-paper" />Visit portfolio</a>
           </ProfileCard>
         </Reveal>
-        <Reveal x={28} y={0} delay={0.08}>
-          <HighlightText className="text-xl leading-[1.75] text-ink/80 sm:text-2xl" text={ME.bio} marks={MARKS} />
+        <Reveal x={28} y={0} delay={0.08} className="flex items-center">
+          <HighlightText className="text-xl leading-[1.75] text-ink/80 sm:text-2xl" text={ME.bio} marks={MARKS} links={{ "Codeforces Pupil": ME.codeforces }} />
         </Reveal>
       </div>
 
@@ -148,7 +148,7 @@ export default function Dev() {
           </ul>
         </Reveal>
         <Reveal x={28} y={0} delay={0.08} className="lg:order-2 [&>*]:h-full">
-          <GlobeCard title="Global team" eyebrow="Network" subtitle="AI, NLP, machine learning and full-stack work, all wired back to one place." stats={[{ value: String(team.length - 1), label: "Focus areas" }, { value: "BD", label: "Home base" }]} cta="Meet the team" href="/team" members={team} hub={HUB} turn={22} arcs={6} className="mx-auto lg:mx-0" />
+          <GlobeCard title="Global team" eyebrow="Network" subtitle="AI, NLP, machine learning and full-stack work, all wired back to one place." stats={[{ value: String(team.length - 1), label: "Focus areas" }, { value: "BD", label: "Home base" }]} cta="Meet the team" href="https://hsakib.vercel.app" members={team} hub={HUB} turn={22} arcs={6} className="mx-auto lg:mx-0" />
         </Reveal>
       </section>
     </motion.div>

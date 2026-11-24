@@ -8,7 +8,8 @@ export const ME = {
   place: "Chattogram, Bangladesh",
   cv: "/Hafiz-Sakib-CV.pdf",
   tagline: "Full-stack developer and NLP researcher in Chattogram, Bangladesh.",
-  bio: "CSE student at Premier University who builds full-stack web apps with clean UI and solid architecture. Competitive programming on Codeforces and LeetCode keeps the fundamentals sharp, and Natural Language Processing is the main area for higher study.",
+  codeforces: "https://codeforces.com/profile/Hafiz_Sakib",
+  bio: "Hi! I'm a CSE graduate from Premier University, interested in software development, competitive programming, and emerging technologies. I enjoy building performant, scalable applications with a focus on full-stack development and system design, while also exploring Linux, DevOps, and machine learning.\nAs a Codeforces Pupil and a LeetCode user with a rating of 1532+, I enjoy solving algorithmic challenges and applying problem-solving skills to real-world projects.\nMy foundation includes Data Structures & Algorithms, OOP, Databases, AI, Machine Learning, Computer Graphics, and Image Processing.",
 };
 
 /* Only four links on the site (footer and Developer page). */

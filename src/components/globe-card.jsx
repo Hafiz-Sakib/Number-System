@@ -182,7 +182,7 @@ function GhostButton({
   return jsxs(
     Tag,
     {
-      ...href ? { href } : { type: "button", onClick },
+      ...href ? { href, ...(/^https?:/.test(href) ? { target: "_blank", rel: "noreferrer" } : {}) } : { type: "button", onClick },
       className: cn(
         "group pointer-events-auto inline-flex h-10 cursor-pointer items-center gap-2 rounded-full bg-ink/[.07] px-4 text-sm font-semibold text-ink outline-none transition-[background-color,transform] duration-200 hover:bg-ink/[.12] focus-visible:ring-2 focus-visible:ring-violet-500/60 active:bg-ink/[.16]",
         !still && "active:scale-[0.97]"

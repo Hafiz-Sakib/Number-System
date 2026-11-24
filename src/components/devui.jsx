@@ -42,24 +42,30 @@ export function ProfileCard({ name, line, place, children, className = "" }) {
 
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-/** Key words are set bold and a violet underline fades in under them when scrolled into view. */
-export function HighlightText({ text = "", marks = [], className = "" }) {
+/** Key words are set bold and a violet underline fades in under them when scrolled into view.
+    `text` may hold several paragraphs separated by a newline; `links` maps a marked phrase to a URL. */
+export function HighlightText({ text = "", marks = [], links = {}, className = "" }) {
   const ref = useRef(null);
   const seen = useInView(ref, { once: true, margin: "-10% 0px" });
   const still = !!useReducedMotion();
   const list = marks.filter((m) => m && text.includes(m));
-  const parts = list.length ? text.split(new RegExp(`(${list.map(esc).join("|")})`, "g")) : [text];
+  const re = list.length ? new RegExp(`(${list.map(esc).join("|")})`, "g") : null;
   let k = 0;
   return (
-    <p ref={ref} className={className}>
-      {parts.map((p, i) => {
-        if (!list.includes(p)) return <span key={i}>{p}</span>;
-        const n = k++;
-        return (
-          <motion.span key={i} className="font-semibold text-ink underline decoration-2 underline-offset-[6px] [box-decoration-break:clone]"
-            initial={false} animate={{ textDecorationColor: still || seen ? "rgb(139 92 246 / .85)" : "rgb(139 92 246 / 0)" }} transition={{ duration: 0.6, delay: 0.3 + n * 0.3 }}>{p}</motion.span>
-        );
-      })}
-    </p>
+    <div ref={ref} className={`space-y-5 ${className}`}>
+      {text.split("\n").filter(Boolean).map((para, pi) => (
+        <p key={pi}>
+          {(re ? para.split(re) : [para]).map((p, i) => {
+            if (!list.includes(p)) return <span key={i}>{p}</span>;
+            const n = k++;
+            const cls = "font-semibold text-ink underline decoration-2 underline-offset-[6px] [box-decoration-break:clone]";
+            const anim = { initial: false, animate: { textDecorationColor: still || seen ? "rgb(139 92 246 / .85)" : "rgb(139 92 246 / 0)" }, transition: { duration: 0.6, delay: 0.3 + n * 0.3 } };
+            return links[p]
+              ? <motion.a key={i} href={links[p]} target="_blank" rel="noreferrer" className={cls} {...anim}>{p}</motion.a>
+              : <motion.span key={i} className={cls} {...anim}>{p}</motion.span>;
+          })}
+        </p>
+      ))}
+    </div>
   );
 }
