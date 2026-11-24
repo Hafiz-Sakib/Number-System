@@ -1,15 +1,16 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { BookOpen, GraduationCap, School } from "lucide-react";
-import { motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
 import { BlurText, Reveal } from "../components/ui";
 import { BackspaceText } from "../components/BackspaceText";
 import { HighlightText, ProfileCard } from "../components/devui";
 import { Icon } from "../components/icons";
 import { GlobeCard } from "@/components/globe-card";
+import { DuoFlip } from "@/components/duo-flip";
 import { ME, SOCIAL } from "../lib/site";
 import { HUB, team } from "../lib/team";
 
-/* Developer page (English): profile card, marker-highlighted bio, education, four projects and the Motion Brew GlobeCard.
+/* Developer page (English): profile card, marker-highlighted bio, education, four projects shown in a Motion Brew DuoFlip gallery, and the Motion Brew GlobeCard.
    Links: only Portfolio, GitHub, LinkedIn and Instagram (lib/site.js). */
 const MARKS = ["full-stack", "clean UI", "competitive programming", "Competitive programming", "Natural Language Processing", "NLP", "Codeforces", "LeetCode"];
 const WORDS = ["full-stack developer.", "competitive programmer.", "NLP researcher."];
@@ -19,11 +20,21 @@ const EDU = [
   { t: "Secondary School Certificate", o: "Govt. Muslim High School", p: "2015 – 2017", d: "Science group, GPA 5.00.", icon: School },
 ];
 const PROJECTS = [
-  { img: "cp-pathshala", t: "CP Pathshala", k: "Educational PWA", d: "An offline app for learning C++ competitive programming in Bangla: 144 lessons and 200 runnable examples.", u: "https://cp-pathshala.vercel.app/", tags: ["React", "Vite", "PWA"], bg: "bg-lilac" },
-  { img: "subcalc", t: "SubCalc Pro", k: "Networking tool", d: "IPv4 subnetting with FLSM and VLSM splits, overlap detection and a subnet tree.", u: "https://subcalc-pro.vercel.app/", tags: ["React", "Tailwind", "VLSM"], bg: "bg-peach" },
-  { img: "algoviz", t: "AlgoViz", k: "Algorithm visualizer", d: "60+ algorithms play frame by frame, with live C++ code and Three.js scenes.", u: "https://algorithm-hunter.vercel.app/", tags: ["React", "Three.js", "TypeScript"], bg: "bg-mint" },
-  { img: "nova", t: "NOVA MathPlot", k: "2D / 3D math plots", d: "60+ surfaces, parametric curves and neural activation functions, right in the browser.", u: "https://nova-mathplot.vercel.app/", tags: ["React", "R3F", "Math.js"], bg: "bg-sky" },
+  { img: "cp-pathshala", t: "CP Pathshala", k: "Educational PWA", u: "https://cp-pathshala.vercel.app/", tags: ["React", "Vite", "PWA", "Python"], bg: "bg-lilac",
+    d: "Competitive programming is hard to start in a second language, so I wrote the whole C++ course in plain Bangla. It runs offline once installed and every code sample was checked against a real compiler before it went in.",
+    pts: ["144 lessons and 200 runnable C++ examples, grouped into 5 learning tracks", "Covers STL, bit manipulation, number theory, recursion/DP and graph theory", "Small interactive widgets such as a bit playground, an animated sieve and BFS/DFS"] },
+  { img: "subcalc", t: "SubCalc Pro", k: "Networking tool", u: "https://subcalc-pro.vercel.app/", tags: ["React", "Tailwind", "IPv4", "VLSM"], bg: "bg-peach",
+    d: "A subnetting helper for students and network engineers. Type a network and it works out the splits live, then explains each step instead of only showing the answer.",
+    pts: ["Fixed and variable length (FLSM and VLSM) splits with a step-by-step breakdown", "Catches overlapping subnets and expands CIDR blocks", "A visual subnet tree showing the network and host details of every branch"] },
+  { img: "algoviz", t: "AlgoViz", k: "Algorithm visualizer", u: "https://algorithm-hunter.vercel.app/", tags: ["React", "TypeScript", "Three.js", "Tailwind v4"], bg: "bg-mint",
+    d: "A place to watch algorithms think. Each one is written as a generator, so playback can step, pause and rewind frame by frame while the matching C++ code lights up line by line.",
+    pts: ["60+ classics in 11 categories: sorting, searching, graphs, DP, pathfinding, backtracking and more", "Live C++ STL code panel that follows the active line", "A Three.js hero scene that animates Quick Sort and Binary Search in 3D"] },
+  { img: "nova", t: "NOVA MathPlot", k: "2D / 3D math plots", u: "https://nova-mathplot.vercel.app/", tags: ["React", "Three.js", "R3F", "Math.js"], bg: "bg-sky",
+    d: "A math playground for students and teachers that runs completely in the browser, with no backend. Plot a function, spin a surface or watch a curve draw itself with a glow trail.",
+    pts: ["60+ ready 3D surfaces: topology, attractors, fractals, minimal surfaces", "17 neural activation functions, each with a derivative overlay", "40+ animated parametric curves, from Lissajous and Fourier to polar and 3D"] },
 ];
+const IMAGES = PROJECTS.map((p) => ({ src: `/dev/${p.img}.webp`, alt: `${p.t} screenshot`, label: p.t }));
+
 
 const Arrow = () => <svg viewBox="0 0 24 24" aria-hidden className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17 17 7M8 7h9v9" /></svg>;
 const btnDark = "inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-paper transition hover:bg-ink/85";
@@ -57,6 +68,32 @@ function Path({ items }) {
         </li>
       ))}
     </ol>
+  );
+}
+
+/* Project Showcase: Motion Brew DuoFlip gallery on one side, details of the picture on show on the other */
+function Showcase() {
+  const reduce = useReducedMotion();
+  const [i, setI] = useState(0);
+  const p = PROJECTS[i];
+  return (
+    <div className="mt-6 grid items-center gap-6 lg:grid-cols-[minmax(0,34rem)_minmax(0,1fr)] lg:gap-10">
+      <Reveal y={20} className="min-w-0"><DuoFlip images={IMAGES} onChange={setI} /></Reveal>
+      <div className="min-w-0" aria-live="polite">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.article key={p.t} initial={reduce ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={reduce ? { opacity: 0 } : { opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }} className="card p-5 sm:p-6">
+            <p className="text-xs font-bold text-ink/45"><span className="num">{String(i + 1).padStart(2, "0")} / {String(PROJECTS.length).padStart(2, "0")}</span> · {p.k}</p>
+            <h3 className="mt-1 font-display text-2xl font-extrabold sm:text-3xl">{p.t}</h3>
+            <p className="mt-2 text-[15px] leading-[1.75] text-ink/70">{p.d}</p>
+            <ul className="mt-3 space-y-1.5 text-[15px] leading-[1.7] text-ink/75">
+              {p.pts.map((x) => <li key={x} className="flex gap-2"><span aria-hidden className="mt-[0.7em] size-1.5 shrink-0 rounded-full bg-ink/35" />{x}</li>)}
+            </ul>
+            <div className="mt-4 flex flex-wrap gap-1.5">{p.tags.map((x) => <span key={x} className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-ink/[.06] ${p.bg}`}>{x}</span>)}</div>
+            <a href={p.u} target="_blank" rel="noreferrer" className={`${btnDark} mt-5`}>Open live site<Arrow /></a>
+          </motion.article>
+        </AnimatePresence>
+      </div>
+    </div>
   );
 }
 
@@ -95,22 +132,8 @@ export default function Dev() {
       </section>
 
       <section className="mt-20" aria-labelledby="pro-h">
-        <Reveal y={16}><p className={pill}>Projects</p><h2 id="pro-h" className="font-display text-3xl font-semibold leading-tight sm:text-4xl">Things I've built.</h2><p className="mt-2 text-ink/60">Tap a card to open the live site.</p></Reveal>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          {PROJECTS.map((p, k) => (
-            <Reveal key={p.t} y={20} delay={(k % 2) * 0.06}>
-              <a href={p.u} target="_blank" rel="noreferrer" className="group card flex h-full flex-col overflow-hidden transition hover:-translate-y-1">
-                <div className={`overflow-hidden ${p.bg}`}><img src={`/dev/${p.img}.webp`} alt={`${p.t} screenshot`} width="800" height="450" loading="lazy" className="aspect-video w-full object-cover object-top transition duration-500 group-hover:scale-[1.04]" /></div>
-                <div className="flex flex-1 flex-col p-4 sm:p-5">
-                  <p className="text-xs font-bold text-ink/45">{p.k}</p>
-                  <div className="mt-0.5 flex items-center justify-between gap-2"><h3 className="font-display text-xl font-extrabold">{p.t}</h3><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-ink/[.06] transition group-hover:bg-ink group-hover:text-paper"><Arrow /></span></div>
-                  <p className="mt-1.5 flex-1 text-[15px] leading-[1.75] text-ink/65">{p.d}</p>
-                  <div className="mt-3 flex flex-wrap gap-1.5">{p.tags.map((x) => <span key={x} className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-ink/[.06] ${p.bg}`}>{x}</span>)}</div>
-                </div>
-              </a>
-            </Reveal>
-          ))}
-        </div>
+        <Reveal y={16}><p className={pill}>Projects</p><h2 id="pro-h" className="font-display text-3xl font-semibold leading-tight sm:text-4xl">Things I've built.</h2><p className="mt-2 text-ink/60">Tap the picture or use the arrows to flip through. Each project has a link to its live site.</p></Reveal>
+        <Showcase />
       </section>
 
       <section aria-labelledby="globe-title" className="mt-20 grid items-center gap-10 lg:grid-cols-[1fr_minmax(0,27.5rem)] lg:gap-14">
