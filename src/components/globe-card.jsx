@@ -396,7 +396,7 @@ var GlobeCard = React.forwardRef(
           if (!isHub) {
             const edge = new THREE.Line(
               new THREE.BufferGeometry().setFromPoints(makePath(vh, v)),
-              new THREE.LineBasicMaterial({ color: m.color, transparent: true, opacity: 0.4 })
+              new THREE.LineBasicMaterial({ color: m.color, transparent: true, opacity: 0.22 })
             );
             globe.add(edge);
             statics.push(edge);
@@ -410,7 +410,7 @@ var GlobeCard = React.forwardRef(
           );
           badge.center.set(0.5, 0.1);
           badge.position.copy(v).multiplyScalar(1.006);
-          const sc = isHub ? 0.24 : 0.13;
+          const sc = isHub ? 0.32 : 0.2;
           badge.scale.set(sc, sc, 1);
           globe.add(badge);
           statics.push(badge);
@@ -433,7 +433,7 @@ var GlobeCard = React.forwardRef(
           new THREE.LineBasicMaterial({
             color: b.color,
             transparent: true,
-            opacity: 0.85
+            opacity: 0.6
           })
         );
         globe.add(line);
@@ -581,7 +581,7 @@ var GlobeCard = React.forwardRef(
             const at = j === 0 ? 0 : DRAW * 0.94;
             const k = Math.max(0, Math.min(1, (age - at) / 0.4));
             const pop = 1 + Math.sin(k * Math.PI) * 0.3 * (1 - k);
-            const sc = 0.13 * Math.min(1, k * 1.8) * pop * fade;
+            const sc = 0.2 * Math.min(1, k * 1.8) * pop * fade;
             h.scale.set(sc, sc, 1);
             h.material.opacity = fade;
           });

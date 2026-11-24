@@ -151,7 +151,7 @@ export default function Dev() {
           </ul>
         </Reveal>
         <Reveal x={28} y={0} delay={0.08} className="lg:order-2 [&>*]:h-full">
-          <GlobeCard title="Global team" eyebrow="Network" subtitle="AI, NLP, machine learning and full-stack work, all wired back to one place." stats={[{ value: String(team.length - 1), label: "Focus areas" }, { value: "BD", label: "Home base" }]} cta="Meet the team" href="https://hsakib.vercel.app" members={team} hub={HUB} turn={22} arcs={6} className="mx-auto lg:mx-0" />
+          <GlobeCard title="Global team" eyebrow="Network" subtitle="AI, NLP, machine learning and full-stack work, all wired back to one place." stats={[{ value: String(team.length - 1), label: "Focus areas" }, { value: "BD", label: "Home base" }]} cta="Meet the team" href="https://hsakib.vercel.app" members={team} hub={HUB} turn={22} arcs={3} className="mx-auto lg:mx-0" />
         </Reveal>
       </section>
     </motion.div>
