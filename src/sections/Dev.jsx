@@ -77,7 +77,7 @@ function Showcase() {
   const [i, setI] = useState(0);
   const p = PROJECTS[i];
   return (
-    <div className="mt-6 grid items-center gap-6 lg:grid-cols-[minmax(0,34rem)_minmax(0,1fr)] lg:gap-10">
+    <div className="mx-auto mt-6 flex max-w-[40rem] flex-col gap-6 lg:mx-0">
       <Reveal y={20} className="min-w-0"><DuoFlip images={IMAGES} onChange={setI} /></Reveal>
       <div className="min-w-0" aria-live="polite">
         <AnimatePresence mode="wait" initial={false}>
@@ -136,8 +136,8 @@ export default function Dev() {
         <Showcase />
       </section>
 
-      <section aria-labelledby="globe-title" className="mt-20 grid items-center gap-10 lg:grid-cols-[1fr_minmax(0,27.5rem)] lg:gap-14">
-        <Reveal x={-28} y={0} className="lg:order-1">
+      <section aria-labelledby="globe-title" className="mt-20 grid items-stretch gap-10 lg:grid-cols-2 lg:gap-14">
+        <Reveal x={-28} y={0} className="flex flex-col items-start justify-center lg:order-1">
           <p className={pill}>Let's build</p>
           <h2 id="globe-title" className="font-display text-3xl font-semibold leading-tight sm:text-4xl">Let's build something together.</h2>
           <p className="mt-4 max-w-md text-ink/60">A new idea, freelance work or an open-source project, anything is worth a chat. I work with designers, engineers and writers from many parts of the world. Wherever you are, I'm happy to hear from you.</p>
@@ -147,8 +147,8 @@ export default function Dev() {
             ))}
           </ul>
         </Reveal>
-        <Reveal x={28} y={0} delay={0.08} className="lg:order-2">
-          <GlobeCard title="Global team" eyebrow="Network" subtitle="AI, NLP, machine learning and full-stack work, all wired back to one place." stats={[{ value: String(team.length - 1), label: "Focus areas" }, { value: "BD", label: "Home base" }]} cta="Meet the team" href="/team" members={team} hub={HUB} turn={22} arcs={9} className="mx-auto lg:mx-0" />
+        <Reveal x={28} y={0} delay={0.08} className="lg:order-2 [&>*]:h-full">
+          <GlobeCard title="Global team" eyebrow="Network" subtitle="AI, NLP, machine learning and full-stack work, all wired back to one place." stats={[{ value: String(team.length - 1), label: "Focus areas" }, { value: "BD", label: "Home base" }]} cta="Meet the team" href="/team" members={team} hub={HUB} turn={22} arcs={6} className="mx-auto lg:mx-0" />
         </Reveal>
       </section>
     </motion.div>

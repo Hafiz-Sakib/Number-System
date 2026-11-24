@@ -15,7 +15,7 @@ function Glyph({ dark, still }) {
   const id = useId().replace(/:/g, "");
   const t = still ? { duration: 0 } : GLIDE;
   return (
-    <svg viewBox="0 0 24 24" className="h-[12px] w-[12px]" fill="none" aria-hidden>
+    <svg viewBox="0 0 24 24" className="h-[15px] w-[15px]" fill="none" aria-hidden>
       <mask id={`m${id}`}>
         <rect width="24" height="24" fill="#fff" />
         <motion.circle r="7" fill="#000" initial={false} animate={{ cx: dark ? 15.5 : 32, cy: dark ? 8.5 : -6 }} transition={t} />
@@ -28,7 +28,7 @@ function Glyph({ dark, still }) {
   );
 }
 
-const STARS = [[6, 5, 1], [14, 14, 0.7], [9, 15, 0.8], [17, 6, 0.6]];
+const STARS = [[7, 6, 1.1], [16, 16, 0.8], [11, 18, 0.9], [20, 7, 0.7]];
 
 export default function ThemeToggle({ className = "" }) {
   const dark = useDark();
@@ -42,7 +42,7 @@ export default function ThemeToggle({ className = "" }) {
       title={dark ? "দিনের মোডে যাও" : "রাতের মোডে যাও"}
       onClick={(e) => toggleTheme(e.currentTarget)}
       whileTap={still ? undefined : { scale: 0.94 }}
-      className={`relative h-6 w-11 shrink-0 cursor-pointer overflow-hidden rounded-full border border-ink/[.08] outline-none transition-colors duration-1000 focus-visible:ring-2 focus-visible:ring-violet-500/60 ${dark ? "bg-[#2E3160]" : "bg-[#E6F0FF]"} shadow-[0_2px_10px_-4px_rgba(20,21,26,.18)] ${className}`}
+      className={`relative h-7 w-[3.25rem] shrink-0 cursor-pointer overflow-hidden rounded-full border border-ink/[.08] outline-none transition-colors duration-1000 focus-visible:ring-2 focus-visible:ring-violet-500/60 ${dark ? "bg-[#2E3160]" : "bg-[#E6F0FF]"} shadow-[0_2px_10px_-4px_rgba(20,21,26,.18)] ${className}`}
     >
       {/* stars (night) */}
       {STARS.map(([x, y, r], i) => (
@@ -51,15 +51,15 @@ export default function ThemeToggle({ className = "" }) {
           transition={dark && !still ? { opacity: { duration: 2.4 + i * 0.5, repeat: Infinity }, scale: { duration: 0.6, delay: 0.5 + i * 0.08 } } : { duration: 0.2 }} />
       ))}
       {/* clouds (day) */}
-      <motion.span aria-hidden className="absolute bottom-[3px] right-1.5 h-1.5 w-3.5 rounded-full bg-white/80" initial={false} animate={{ opacity: dark ? 0 : 1, x: dark ? 8 : 0 }} transition={SPRING} />
-      <motion.span aria-hidden className="absolute bottom-[7px] right-3 h-1 w-2 rounded-full bg-white/70" initial={false} animate={{ opacity: dark ? 0 : 1, x: dark ? 10 : 0 }} transition={SPRING} />
+      <motion.span aria-hidden className="absolute bottom-[4px] right-2 h-2 w-4 rounded-full bg-white/80" initial={false} animate={{ opacity: dark ? 0 : 1, x: dark ? 8 : 0 }} transition={SPRING} />
+      <motion.span aria-hidden className="absolute bottom-[9px] right-3.5 h-1.5 w-2.5 rounded-full bg-white/70" initial={false} animate={{ opacity: dark ? 0 : 1, x: dark ? 10 : 0 }} transition={SPRING} />
       {/* knob */}
       <motion.span
         aria-hidden
         initial={false}
-        animate={{ x: dark ? 22 : 2 }}
+        animate={{ x: dark ? 26 : 2 }}
         transition={still ? { duration: 0 } : SPRING}
-        className={`absolute left-0 top-[2px] grid h-[18px] w-[18px] place-items-center rounded-full shadow-[0_1px_4px_rgba(0,0,0,.18)] transition-colors duration-1000 ${dark ? "bg-[#454A8A] text-[#EEEBFF]" : "bg-white text-amber-500"}`}
+        className={`absolute left-0 top-[2px] grid h-[22px] w-[22px] place-items-center rounded-full shadow-[0_1px_4px_rgba(0,0,0,.18)] transition-colors duration-1000 ${dark ? "bg-[#454A8A] text-[#EEEBFF]" : "bg-white text-amber-500"}`}
       >
         <Glyph dark={dark} still={still} />
       </motion.span>

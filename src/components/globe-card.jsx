@@ -267,7 +267,7 @@ var GlobeCard = React.forwardRef(
       renderer.domElement.style.display = "block";
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 50);
-      camera.position.set(0, 0, 5.1);
+      camera.position.set(0, 0, 4.7);
       const pivot = new THREE.Group();
       pivot.position.set(0, 0, 0);
       scene.add(pivot);
@@ -681,47 +681,41 @@ var GlobeCard = React.forwardRef(
       <div
         ref={card}
         className={cn(
-          "relative flex w-[440px] max-w-full flex-col overflow-hidden rounded-3xl bg-surface text-ink shadow-[0_1px_2px_rgba(20,21,26,.04),0_16px_40px_-16px_rgba(20,21,26,.18)] ring-1 ring-ink/[.06]",
+          "relative flex h-full min-h-[24rem] w-full flex-col overflow-hidden rounded-3xl bg-surface text-ink shadow-[0_1px_2px_rgba(20,21,26,.04),0_16px_40px_-16px_rgba(20,21,26,.18)] ring-1 ring-ink/[.06]",
           className
         )}
       >
-        <div className="relative px-6 pb-5 pt-6">
-          {eyebrow && (
-            <motion.span
-              initial={still ? false : { opacity: 0, y: 6 }}
-              animate={show ? { opacity: 1, y: 0 } : void 0}
-              transition={{ duration: 0.5, ease: GLIDE }}
-              className="inline-flex items-center gap-2 rounded-full bg-ink/[.06] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[.12em] text-ink/60"
+        <div className="relative px-6 pb-4 pt-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              {eyebrow && (
+                <motion.span
+                  initial={still ? false : { opacity: 0, y: 6 }}
+                  animate={show ? { opacity: 1, y: 0 } : void 0}
+                  transition={{ duration: 0.5, ease: GLIDE }}
+                  className="inline-flex items-center gap-2 rounded-full bg-ink/[.06] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[.12em] text-ink/60"
+                >
+                  <span className="relative flex size-1.5">
+                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400/70 motion-reduce:animate-none" />
+                    <span className="relative inline-flex size-1.5 rounded-full bg-emerald-500" />
+                  </span>
+                  {eyebrow}
+                </motion.span>
+              )}
+              <Reveal text={title} show={show} still={still} className={cn("block text-2xl font-semibold tracking-tight", eyebrow && "mt-2")} />
+            </div>
+            <motion.div
+              initial={still ? false : { opacity: 0, y: 8, filter: "blur(4px)" }}
+              animate={show ? { opacity: 1, y: 0, filter: "blur(0px)" } : void 0}
+              transition={{ duration: 0.5, ease: GLIDE, delay: 0.3 }}
+              className="shrink-0"
             >
-              <span className="relative flex size-1.5">
-                <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400/70 motion-reduce:animate-none" />
-                <span className="relative inline-flex size-1.5 rounded-full bg-emerald-500" />
-              </span>
-              {eyebrow}
-            </motion.span>
-          )}
-          <Reveal text={title} show={show} still={still} className={cn("block text-2xl font-semibold tracking-tight", eyebrow && "mt-3")} />
+              <GhostButton label={cta} href={href} onClick={onCta} still={still} />
+            </motion.div>
+          </div>
           <Reveal text={subtitle} show={show} delay={0.12} still={still} className="mt-1.5 block text-[15px] leading-relaxed text-ink/60" />
-          <motion.div
-            initial={still ? false : { opacity: 0, y: 8, filter: "blur(4px)" }}
-            animate={show ? { opacity: 1, y: 0, filter: "blur(0px)" } : void 0}
-            transition={{ duration: 0.5, ease: GLIDE, delay: 0.3 }}
-            className="mt-5 flex items-center justify-between gap-4"
-          >
-            <GhostButton label={cta} href={href} onClick={onCta} still={still} />
-            {stats && stats.length > 0 && (
-              <dl className="flex items-stretch">
-                {stats.map((x, k) => (
-                  <div key={x.label} className={cn("px-4 text-left", k > 0 && "border-l border-ink/10", k === stats.length - 1 && "pr-0")}>
-                    <dd className="num text-lg font-semibold leading-none">{x.value}</dd>
-                    <dt className="mt-1 text-[11px] font-medium text-ink/50">{x.label}</dt>
-                  </div>
-                ))}
-              </dl>
-            )}
-          </motion.div>
         </div>
-        <div className="relative h-[330px] border-t border-ink/[.07]">
+        <div className="relative min-h-[15rem] flex-1 border-t border-ink/[.07]">
           <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(55% 62% at 50% 52%, rgb(145 80 224 / .12), transparent 72%)" }} />
           <div
             aria-hidden
@@ -734,10 +728,15 @@ var GlobeCard = React.forwardRef(
             }}
           />
           <div ref={mount} aria-hidden className="absolute inset-0 cursor-grab touch-none active:cursor-grabbing" style={{ WebkitMaskImage: "linear-gradient(to bottom, transparent 0, #000 11%, #000 90%, transparent 100%)", maskImage: "linear-gradient(to bottom, transparent 0, #000 11%, #000 90%, transparent 100%)" }} />
-          <span className="pointer-events-none absolute bottom-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-surface/85 px-3 py-1 text-[11px] font-medium text-ink/55 ring-1 ring-ink/[.08] backdrop-blur">
-            <svg viewBox="0 0 24 24" aria-hidden className="size-3" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20" /></svg>
-            Drag to explore
-          </span>
+          <div className="pointer-events-none absolute inset-x-4 bottom-3 flex items-center justify-between gap-2 text-[11px] font-medium text-ink/55">
+            <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-surface/85 px-3 py-1 ring-1 ring-ink/[.08] backdrop-blur">
+              {stats && stats.length > 0 ? stats.map((x) => `${x.value} ${x.label.toLowerCase()}`).join(" · ") : "Global team"}
+            </span>
+            <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-surface/85 px-3 py-1 ring-1 ring-ink/[.08] backdrop-blur">
+              <svg viewBox="0 0 24 24" aria-hidden className="size-3" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20" /></svg>
+              Drag to explore
+            </span>
+          </div>
         </div>
       </div>
     );
