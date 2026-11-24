@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { AnimatePresence, motion, useInView, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useInView, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { useFmt } from "../lib/settings";
 
 /* motion-brew শৈলীর ছোট অ্যানিমেটেড টুকরোগুলো (পোর্টফোলিও থেকে নেওয়া, বাংলার জন্য মানিয়ে) */
@@ -101,11 +101,20 @@ export function Reveal({ children, className = "", delay = 0, y = 28, x = 0, as 
   const M = motion[as] || motion.div;
   if (reduce) { const T = as; return <T className={className}>{children}</T>; }
   return (
-    <M className={className} initial={{ opacity: 0, y, x }} whileInView={{ opacity: 1, y: 0, x: 0 }}
+    <M className={className} initial={{ opacity: 0, y, x, scale: 0.985 }} whileInView={{ opacity: 1, y: 0, x: 0, scale: 1 }}
       viewport={{ once: true, margin: "0px 0px -8% 0px" }} transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}>
       {children}
     </M>
   );
+}
+
+/* স্ক্রলের সাথে হালকা ধীরে সরে (parallax): পেজের ওপরের দিকে ব্যবহার করা ভালো */
+export function Parallax({ children, from = 0, to = -36, range = 700, className = "" }) {
+  const reduce = useReducedMotion();
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, range], [from, to]);
+  if (reduce) return <div className={className}>{children}</div>;
+  return <motion.div style={{ y }} className={className}>{children}</motion.div>;
 }
 
 export function SectionTitle({ title, sub, className = "" }) {

@@ -11,6 +11,8 @@ import { NOT_FOUND, ROUTES, navigate, useRoute } from "./lib/router";
 import { ICONS } from "./components/TabBar";
 import { AnimatePresence } from "framer-motion";
 import { APP_NAME } from "./lib/site";
+import ScrollProgress from "./components/ScrollProgress";
+import { useAutoReveal } from "./lib/autoReveal";
 
 /* বুলিয়ান ও লজিক গেট পেজ ভারী (সার্কিট ও 3D), তাই আলাদা চাঙ্কে; অ্যাপ খোলার পর অলস সময়ে আগেই নামিয়ে রাখি */
 const Loading = () => <div className="grid min-h-[60svh] place-items-center text-ink/50">লোড হচ্ছে…</div>;
@@ -78,6 +80,7 @@ export default function App() {
   const first = useRef(true);
   const [more, setMore] = useState(false);
   useEffect(() => { setMore(false); }, [path]);
+  useAutoReveal(path);
 
   /* শিরোনাম সবসময় একই: ওয়েব ও PWA দুই জায়গাতেই "সংখ্যা পদ্ধতি", পেজ বদলালেও বদলায় না */
   useEffect(() => { if (document.title !== APP_NAME) document.title = APP_NAME; }, [path]);
@@ -109,6 +112,7 @@ export default function App() {
   return (
     <>
       <TopBar />
+      <ScrollProgress />
       <MoreSheet open={more} onClose={() => setMore(false)} path={path} />
       {/* ফোন ও ট্যাবলেট: নিচে motion-brew TabBar; বড় পর্দায় মেনু হেডারে */}
       <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
@@ -116,7 +120,7 @@ export default function App() {
       </div>
       <main className="min-h-[100svh] pt-[calc(3.5rem+env(safe-area-inset-top))]">
         {/* কোনো "wait" বা ব্লার নেই: নতুন পেজ সাথে সাথে বসে, শুধু হালকা ফেড-ইন। তাই ট্যাব বদলে কখনো সাদা পর্দা থাকে না। */}
-        <motion.div key={path} initial={reduce ? false : { opacity: 0.001, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}>
+        <motion.div key={path} data-page="" initial={reduce ? false : { opacity: 0.001, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}>
           {view}
         </motion.div>
       </main>

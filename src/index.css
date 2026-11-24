@@ -106,3 +106,51 @@ input:focus-visible { outline: none; }
 :root.dark .bit-rain span { opacity: .14; }
 @keyframes bit-fall { from { top: -8%; } to { top: 104%; } }
 @media (prefers-reduced-motion: reduce) { .bit-rain { display: none; } }
+
+/* ======================================================================
+   সাইট জুড়ে অ্যানিমেশন: স্ক্রল রিভিল + হোভার (শুধু মাউস/ট্র্যাকপ্যাডে; reduced-motion মানা হয়)
+   ====================================================================== */
+@media (prefers-reduced-motion: no-preference) {
+  /* স্ক্রল রিভিল: lib/autoReveal.js ক্লাস বসায় ও অ্যানিমেশন শেষে সরায় */
+  .rv { opacity: 0; transform: translate3d(0, 26px, 0) scale(.985); will-change: opacity, transform;
+    transition: opacity .65s cubic-bezier(.22,1,.36,1) var(--rv-d, 0ms), transform .85s cubic-bezier(.22,1,.36,1) var(--rv-d, 0ms) !important; }
+  .rv.rv-in { opacity: 1; transform: none; }
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  :root { --ease-out: cubic-bezier(.22,1,.36,1); }
+
+  /* কার্ড: হোভারে সামান্য উঠে আসে, ছায়া গভীর হয়। ভেতরে ইনপুট থাকলে নড়ে না (লেখার সময় স্থির থাকবে)। */
+  main .card:not([style*="transform"]) {
+    transition-property: box-shadow, translate, background-color, color, border-color, opacity, transform;
+    transition-duration: .4s; transition-timing-function: var(--ease-out);
+  }
+  main .card:not([style*="transform"]):hover { box-shadow: 0 0 0 1px var(--card-edge), 0 2px 4px rgba(20,21,26,.05), 0 26px 56px -18px rgba(20,21,26,.2); }
+  :root.dark main .card:not([style*="transform"]):hover { box-shadow: 0 0 0 1px rgba(255,255,255,.12), 0 2px 4px rgba(0,0,0,.45), 0 26px 60px -18px rgba(0,0,0,.8); }
+  main .card:not([style*="transform"]):not(.absolute):not(.fixed):not(.sticky):not(:has(input, textarea, select, canvas)) { position: relative; }
+  main .card:not([style*="transform"]):not(.absolute):not(.fixed):not(.sticky):not(:has(input, textarea, select, canvas))::after { content: ""; position: absolute; inset: auto 0 -5px; height: 5px; }
+  main .card:not([style*="transform"]):not(.absolute):not(.fixed):not(.sticky):not(:has(input, textarea, select, canvas)):hover { translate: 0 -3px; }
+
+  /* বোতাম ও পিল: হোভারে ১px ওঠে (চাপলে আগের মতো ছোট হয়) */
+  main :is(button, a):is(.rounded-full, .rounded-2xl):not(.absolute):not(.fixed):not(.sticky),
+  main .lift {
+    position: relative;
+    transition-property: color, background-color, border-color, box-shadow, translate, opacity, transform, filter;
+    transition-duration: .28s; transition-timing-function: var(--ease-out);
+  }
+  main :is(button, a):is(.rounded-full, .rounded-2xl):not(.absolute):not(.fixed):not(.sticky)::after,
+  main .lift::after { content: ""; position: absolute; inset: auto 0 -4px; height: 4px; }
+  main :is(button, a):is(.rounded-full, .rounded-2xl):not(.absolute):not(.fixed):not(.sticky):not(:disabled):hover { translate: 0 -1px; }
+  /* গাঢ় (প্রধান) বোতামে ছায়াও বাড়ে */
+  main :is(button, a)[class~="bg-ink"]:not(:disabled):hover { box-shadow: 0 10px 22px -10px rgb(var(--ink) / .55); }
+
+  /* বড় ট্যাপযোগ্য টাইল (উদাহরণ, বিষয়, ফলাফল সারি): আরেকটু বেশি ওঠে */
+  main .lift:not(:disabled):hover { translate: 0 -3px; box-shadow: 0 14px 28px -14px rgb(var(--ink) / .35); }
+
+  /* হেডারের লোগো: হোভারে একটু ঘুরে বড় হয় */
+  header a img { transition: transform .45s var(--ease-out); }
+  header a:hover img { transform: rotate(-8deg) scale(1.1); }
+  /* হেডারের ডেস্কটপ মেনু আইটেম */
+  header nav a { transition: translate .25s var(--ease-out); }
+  header nav a:hover { translate: 0 -1px; }
+}

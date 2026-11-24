@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { BASES, BASE_NAME, parseNum, ratToBase, showVal } from "../lib/engine";
 import { usePrecision } from "../lib/settings";
 import { navigate } from "../lib/router";
-import { BlurText, DigitRoll, Pill, SwapWord, TiltCard } from "../components/ui";
+import { BlurText, DigitRoll, Parallax, Pill, SwapWord, TiltCard } from "../components/ui";
 import { BaseTabs, CLR, NumberField, disp } from "../components/controls";
 import HomePlay from "../components/HomePlay";
 import HomeExtra from "../components/HomeExtra";
@@ -40,6 +40,7 @@ export default function Home({ onOpen }) {
           </div>
         </div>
 
+        <Parallax className="min-w-0">
         <TiltCard className="card mx-auto w-full max-w-md p-5 sm:p-6">
           <p className="text-sm font-bold text-ink/55">একটি সংখ্যা দিয়ে দেখো</p>
           <div className="mt-3 space-y-4">
@@ -52,7 +53,7 @@ export default function Home({ onOpen }) {
               const v = r ? showVal(r) : "";
               return (
                 <button key={b} type="button" disabled={!p.ok} onClick={() => onOpen(live.base, b, p.neg ? "-" + p.int + (p.frac ? "." + p.frac : "") : p.int + (p.frac ? "." + p.frac : ""))}
-                  className={`flex w-full min-w-0 items-center justify-between gap-3 rounded-2xl px-4 py-2.5 text-left ring-1 transition enabled:active:scale-[.98] ${CLR[b].bg} ${CLR[b].ring}`}>
+                  className={`lift flex w-full min-w-0 items-center justify-between gap-3 rounded-2xl px-4 py-2.5 text-left ring-1 transition enabled:active:scale-[.98] ${CLR[b].bg} ${CLR[b].ring}`}>
                   <span className={`shrink-0 text-sm font-bold ${CLR[b].text}`}>{BASE_NAME[b]}</span>
                   <span className={`num min-w-0 break-all text-right text-lg font-bold ${CLR[b].text}`}>{r ? <>{!r.exact && "≈ "}<DigitRoll text={disp(v)} /></> : "—"}</span>
                 </button>
@@ -61,6 +62,7 @@ export default function Home({ onOpen }) {
           </div>
           <p className="mt-3 text-sm text-ink/50">যে সারির হিসাব দেখতে চাও, সেটিতে ক্লিক করো।</p>
         </TiltCard>
+        </Parallax>
       </section>
 
       <HomePlay />

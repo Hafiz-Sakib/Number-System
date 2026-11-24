@@ -123,7 +123,7 @@ export default function Quiz() {
                 const on = cat === t.id, count = t.id === "all" ? QUESTIONS.length : CAT_COUNT[t.id], b = best[t.id];
                 return (
                   <button key={t.id} type="button" role="radio" aria-checked={on} onClick={() => setCat(t.id)}
-                    className={`relative rounded-3xl p-4 text-left ring-1 transition active:scale-[.98] ${t.bg} ${on ? "ring-2 ring-ink" : "ring-ink/[.08] hover:ring-ink/25"} ${t.id === "all" ? "sm:col-span-2 xl:col-span-3" : ""}`}>
+                    className={`lift relative rounded-3xl p-4 text-left ring-1 transition active:scale-[.98] ${t.bg} ${on ? "ring-2 ring-ink" : "ring-ink/[.08] hover:ring-ink/25"} ${t.id === "all" ? "sm:col-span-2 xl:col-span-3" : ""}`}>
                     <span className="flex items-start justify-between gap-2">
                       <span className="text-lg font-extrabold">{t.label}</span>
                       <span aria-hidden className={`grid size-6 shrink-0 place-items-center rounded-full text-sm font-bold ${on ? "bg-ink text-paper" : "bg-ink/10 text-transparent"}`}>✓</span>

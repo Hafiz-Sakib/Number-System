@@ -49,7 +49,7 @@ export default function Calc({ s, set, onConvert }) {
                     const on = s.op === k;
                     return (
                       <button key={k} type="button" role="radio" aria-checked={on} onClick={() => set({ ...s, op: k })}
-                        className={`rounded-2xl py-2 text-center transition active:scale-95 sm:py-2.5 ${on ? "bg-ink text-paper shadow-md" : "bg-ink/[.06] hover:bg-ink/[.11]"}`}>
+                        className={`lift rounded-2xl py-2 text-center transition active:scale-95 sm:py-2.5 ${on ? "bg-ink text-paper shadow-md" : "bg-ink/[.06] hover:bg-ink/[.11]"}`}>
                         <span className="block text-2xl font-bold leading-none sm:text-3xl">{o.sign}</span>
                         <span className="mt-1 block text-[13px] font-semibold opacity-80">{o.name}</span>
                       </button>

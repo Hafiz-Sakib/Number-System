@@ -199,7 +199,7 @@ export function ExampleGrid({ items, onPick, limit = 4, label = "উদাহর
       </div>
       <div className={`grid gap-2 ${cols}`}>
         {list.map((it) => (
-          <button key={it.key ?? it.title} type="button" onClick={() => onPick(it)} className="group min-w-0 rounded-2xl bg-ink/[.04] px-3 py-2 text-left ring-1 ring-ink/[.05] transition hover:bg-ink/[.08] hover:ring-ink/10 active:scale-[.97]">
+          <button key={it.key ?? it.title} type="button" onClick={() => onPick(it)} className="lift group min-w-0 rounded-2xl bg-ink/[.04] px-3 py-2 text-left ring-1 ring-ink/[.05] transition hover:bg-ink/[.08] hover:ring-ink/10 active:scale-[.97]">
             <span className={`block truncate text-[15px] font-bold ${mono ? "num" : ""}`}>{it.title}</span>
             {it.sub && <span className="mt-0.5 block truncate text-xs text-ink/50">{it.sub}</span>}
           </button>

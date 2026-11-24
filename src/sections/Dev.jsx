@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BookOpen, GraduationCap, School } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
 import { BlurText, Reveal } from "../components/ui";
@@ -75,13 +75,28 @@ function Path({ items }) {
 }
 
 /* Project Showcase: Motion Brew DuoFlip gallery on one side, details of the picture on show on the other */
+/* ফোনে ছবির উচ্চতা বেশি (প্রায় ১.৫৫:১), ট্যাবলেট ও ডেস্কটপে আগের চওড়া ২.৪:১ */
+const useGalleryAspect = () => {
+  const q = "(max-width: 639px)";
+  const [phone, setPhone] = useState(() => typeof window !== "undefined" && window.matchMedia(q).matches);
+  useEffect(() => {
+    const m = window.matchMedia(q);
+    const on = () => setPhone(m.matches);
+    on();
+    m.addEventListener("change", on);
+    return () => m.removeEventListener("change", on);
+  }, []);
+  return phone ? 1.55 : 2.4;
+};
+
 function Showcase() {
   const reduce = useReducedMotion();
+  const aspect = useGalleryAspect();
   const [i, setI] = useState(0);
   const p = PROJECTS[i];
   return (
     <div className="mx-auto mt-8 flex w-full max-w-[64rem] flex-col gap-4 lg:-mx-8 lg:w-[calc(100%+4rem)] lg:max-w-none">
-      <Reveal y={20} className="min-w-0"><DuoFlip images={IMAGES} onChange={setI} aspect={2.4} className="!w-full" /></Reveal>
+      <Reveal y={20} className="min-w-0"><DuoFlip images={IMAGES} onChange={setI} aspect={aspect} className="!w-full" /></Reveal>
       <div className="min-w-0" aria-live="polite">
         <AnimatePresence mode="wait" initial={false}>
           <motion.article key={p.t} initial={reduce ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={reduce ? { opacity: 0 } : { opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }} className="card p-5 sm:p-6">
