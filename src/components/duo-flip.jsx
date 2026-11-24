@@ -545,7 +545,7 @@ var DuoFlip = React.forwardRef(
             "div",
             {
               className: "flex items-center justify-between gap-3 px-1",
-              style: { marginTop: `calc(${params.current.flare * 50 / aspect}% + 12px)` },
+              style: { marginTop: `calc(${params.current.flare * 50 / aspect * 0.3}% + 8px)` },
               children: [
                 /* @__PURE__ */ jsxs("div", { className: "flex min-w-0 items-baseline gap-2.5", children: [
                   /* @__PURE__ */ jsxs("span", { className: "shrink-0 text-xs font-medium tabular-nums text-zinc-400", children: [

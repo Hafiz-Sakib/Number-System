@@ -20,6 +20,9 @@ const EDU = [
   { t: "Secondary School Certificate", o: "Govt. Muslim High School", p: "2015 – 2017", d: "Science group, GPA 5.00.", icon: School },
 ];
 const PROJECTS = [
+  { img: "nikah", t: "Nikah Community Center", k: "Booking platform", u: "https://nikah-convention.vercel.app/", c: "#ea7a2f", tags: ["React", "Node.js", "Express", "Supabase"], bg: "bg-peach",
+    d: "A full-stack booking system for a wedding venue in Chattogram, with live availability and advance payments.",
+    pts: ["Live date availability and advance payments", "PDF invoices and an admin dashboard"] },
   { img: "cp-pathshala", t: "CP Pathshala", k: "Educational PWA", u: "https://cp-pathshala.vercel.app/", c: "#7c6cf6", tags: ["React", "Vite", "PWA", "Python"], bg: "bg-lilac",
     d: "A full C++ competitive programming course in plain Bangla. It works offline once installed, and every code sample was checked against a real compiler.",
     pts: ["144 lessons and 200 runnable C++ examples in 5 tracks", "STL, bit manipulation, number theory, DP and graphs"] },
@@ -77,8 +80,8 @@ function Showcase() {
   const [i, setI] = useState(0);
   const p = PROJECTS[i];
   return (
-    <div className="mx-auto mt-8 flex w-full max-w-[64rem] flex-col gap-8 lg:-mx-8 lg:w-[calc(100%+4rem)] lg:max-w-none">
-      <Reveal y={20} className="min-w-0"><DuoFlip images={IMAGES} onChange={setI} aspect={1.8} className="!w-full" /></Reveal>
+    <div className="mx-auto mt-8 flex w-full max-w-[64rem] flex-col gap-4 lg:-mx-8 lg:w-[calc(100%+4rem)] lg:max-w-none">
+      <Reveal y={20} className="min-w-0"><DuoFlip images={IMAGES} onChange={setI} aspect={2.4} className="!w-full" /></Reveal>
       <div className="min-w-0" aria-live="polite">
         <AnimatePresence mode="wait" initial={false}>
           <motion.article key={p.t} initial={reduce ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={reduce ? { opacity: 0 } : { opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }} className="card p-5 sm:p-6">
