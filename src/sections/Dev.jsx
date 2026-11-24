@@ -6,7 +6,7 @@ import { BackspaceText } from "../components/BackspaceText";
 import { HighlightText, ProfileCard } from "../components/devui";
 import { Icon } from "../components/icons";
 import { GlobeCard } from "@/components/globe-card";
-import { DuoFlip } from "@/components/duo-flip";
+import { PageFlip } from "../components/PageFlip";
 import { ME, SOCIAL, brand } from "../lib/site";
 import { HUB, team } from "../lib/team";
 
@@ -20,23 +20,23 @@ const EDU = [
   { t: "Secondary School Certificate", o: "Govt. Muslim High School", p: "2015 – 2017", d: "Science group, GPA 5.00.", icon: School },
 ];
 const PROJECTS = [
-  { img: "nikah", t: "Nikah Community Center", k: "Booking platform", u: "https://nikah-convention.vercel.app/", c: "#ea7a2f", tags: ["React", "Node.js", "Express", "Supabase"], bg: "bg-peach",
+  { img: "nikah", gh: "https://github.com/Hafiz-Sakib/Nikah-Community-Center", t: "Nikah Community Center", k: "Booking platform", u: "https://nikah-convention.vercel.app/", c: "#ea7a2f", tags: ["React", "Node.js", "Express", "Supabase"], bg: "bg-peach",
     d: "A full-stack booking system for a wedding venue in Chattogram, with live availability and advance payments.",
     pts: ["Live date availability and advance payments", "PDF invoices and an admin dashboard"] },
-  { img: "cp-pathshala", t: "CP Pathshala", k: "Educational PWA", u: "https://cp-pathshala.vercel.app/", c: "#7c6cf6", tags: ["React", "Vite", "PWA", "Python"], bg: "bg-lilac",
+  { img: "cp-pathshala", gh: "https://github.com/Hafiz-Sakib/CP-Pathshala", t: "CP Pathshala", k: "Educational PWA", u: "https://cp-pathshala.vercel.app/", c: "#7c6cf6", tags: ["React", "Vite", "PWA", "Python"], bg: "bg-lilac",
     d: "A full C++ competitive programming course in plain Bangla. It works offline once installed, and every code sample was checked against a real compiler.",
     pts: ["144 lessons and 200 runnable C++ examples in 5 tracks", "STL, bit manipulation, number theory, DP and graphs"] },
-  { img: "subcalc", t: "SubCalc Pro", k: "Networking tool", u: "https://subcalc-pro.vercel.app/", c: "#ea7a2f", tags: ["React", "Tailwind", "IPv4", "VLSM"], bg: "bg-peach",
+  { img: "subcalc", gh: "https://github.com/Hafiz-Sakib/SubCalc-Pro", t: "SubCalc Pro", k: "Networking tool", u: "https://subcalc-pro.vercel.app/", c: "#ea7a2f", tags: ["React", "Tailwind", "IPv4", "VLSM"], bg: "bg-peach",
     d: "A subnetting helper for students and network engineers. It works out the splits live and explains each step, not just the answer.",
     pts: ["FLSM and VLSM splits with a step-by-step breakdown", "Overlap detection and a visual subnet tree"] },
-  { img: "algoviz", t: "AlgoViz", k: "Algorithm visualizer", u: "https://algorithm-hunter.vercel.app/", c: "#10a56b", tags: ["React", "TypeScript", "Three.js", "Tailwind v4"], bg: "bg-mint",
+  { img: "algoviz", gh: "https://github.com/Hafiz-Sakib/algorithm-visualizer", t: "AlgoViz", k: "Algorithm visualizer", u: "https://algorithm-hunter.vercel.app/", c: "#10a56b", tags: ["React", "TypeScript", "Three.js", "Tailwind v4"], bg: "bg-mint",
     d: "Watch algorithms think. Playback can step, pause and rewind while the matching C++ code lights up line by line.",
     pts: ["60+ algorithms in 11 categories", "Live C++ STL code panel and a Three.js hero scene"] },
-  { img: "nova", t: "NOVA MathPlot", k: "2D / 3D math plots", u: "https://nova-mathplot.vercel.app/", c: "#2f7fe0", tags: ["React", "Three.js", "R3F", "Math.js"], bg: "bg-sky",
+  { img: "nova", gh: "https://github.com/Hafiz-Sakib/nova-mathplot", t: "NOVA MathPlot", k: "2D / 3D math plots", u: "https://nova-mathplot.vercel.app/", c: "#2f7fe0", tags: ["React", "Three.js", "R3F", "Math.js"], bg: "bg-sky",
     d: "A browser-only math playground for students and teachers. Plot a function, spin a surface or watch a curve draw itself.",
     pts: ["60+ ready 3D surfaces and 40+ animated curves", "17 neural activation functions with derivative overlay"] },
 ];
-const IMAGES = PROJECTS.map((p) => ({ src: `/dev/${p.img}.webp`, alt: `${p.t} screenshot`, label: p.t }));
+const IMAGES = PROJECTS.map((p) => ({ src: `/dev/${p.img}-hd.webp`, alt: `${p.t} screenshot`, label: p.t }));
 
 
 const Arrow = () => <svg viewBox="0 0 24 24" aria-hidden className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17 17 7M8 7h9v9" /></svg>;
@@ -74,44 +74,41 @@ function Path({ items }) {
   );
 }
 
-/* Project Showcase: Motion Brew DuoFlip gallery on one side, details of the picture on show on the other */
-/* ফোনে ছবির উচ্চতা বেশি (প্রায় ১.৫৫:১), ট্যাবলেট ও ডেস্কটপে আগের চওড়া ২.৪:১ */
-const useGalleryAspect = () => {
-  const q = "(max-width: 639px)";
-  const [phone, setPhone] = useState(() => typeof window !== "undefined" && window.matchMedia(q).matches);
-  useEffect(() => {
-    const m = window.matchMedia(q);
-    const on = () => setPhone(m.matches);
-    on();
-    m.addEventListener("change", on);
-    return () => m.removeEventListener("change", on);
-  }, []);
-  return phone ? 1.55 : 2.4;
-};
+/* Project Showcase (same style as the Spaital project): the screenshot turns like a page inside one card,
+   the details of the project on show sit underneath with its live site and source code. */
+const link = "inline-flex items-center gap-1.5 underline decoration-ink/30 underline-offset-4 transition hover:decoration-ink";
 
 function Showcase() {
   const reduce = useReducedMotion();
-  const aspect = useGalleryAspect();
   const [i, setI] = useState(0);
   const p = PROJECTS[i];
   return (
-    <div className="mx-auto mt-8 flex w-full max-w-[64rem] flex-col gap-4 lg:-mx-8 lg:w-[calc(100%+4rem)] lg:max-w-none">
-      <Reveal y={20} className="min-w-0"><DuoFlip images={IMAGES} onChange={setI} aspect={aspect} className="!w-full" /></Reveal>
-      <div className="min-w-0" aria-live="polite">
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.article key={p.t} initial={reduce ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={reduce ? { opacity: 0 } : { opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }} className="card p-5 sm:p-6">
-            <p className="text-xs font-bold text-ink/45"><span className="num">{String(i + 1).padStart(2, "0")} / {String(PROJECTS.length).padStart(2, "0")}</span> · {p.k}</p>
-            <h3 className="mt-1 font-display text-2xl font-extrabold sm:text-3xl">{p.t}</h3>
-            <p className="mt-2 text-[15px] leading-[1.75] text-ink/70">{p.d}</p>
-            <ul className="mt-3 space-y-1.5 text-[15px] leading-[1.7] text-ink/75">
-              {p.pts.map((x) => <li key={x} className="flex gap-2"><span aria-hidden className="mt-[0.7em] size-1.5 shrink-0 rounded-full bg-ink/35" />{x}</li>)}
-            </ul>
-            <div className="mt-4 flex flex-wrap gap-1.5">{p.tags.map((x) => <span key={x} className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-ink/[.06] ${p.bg}`}>{x}</span>)}</div>
-            <a href={p.u} target="_blank" rel="noreferrer" style={{ "--b": p.c }} className={`${btnDark} brand mt-5`}>Open live site<Arrow /></a>
+    <Reveal y={24} className="mt-8">
+      <div className="card p-3 sm:p-4">
+        <PageFlip images={IMAGES} index={i} onIndex={setI} className="mx-auto w-full lg:max-w-2xl" />
+        <AnimatePresence mode="wait">
+          <motion.article key={p.t} aria-live="polite"
+            initial={reduce ? false : { opacity: 0, y: 8, filter: "blur(8px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={reduce ? { opacity: 0 } : { opacity: 0, filter: "blur(8px)" }} transition={{ duration: 0.25 }}
+            className="grid gap-5 p-3 pt-6 sm:p-5 sm:pt-7 md:grid-cols-[1.1fr_1fr] md:gap-10">
+            <div>
+              <p className="text-sm font-semibold tabular-nums text-ink/40"><span className="num">{String(i + 1).padStart(2, "0")} / {String(PROJECTS.length).padStart(2, "0")}</span> · {p.k}</p>
+              <h3 className="mt-1 font-display text-3xl font-bold sm:text-4xl">{p.t}</h3>
+              <p className="mt-3 max-w-xl text-ink/70">{p.d}</p>
+              <ul className="mt-3 space-y-1.5 text-[15px] leading-[1.7] text-ink/75">
+                {p.pts.map((x) => <li key={x} className="flex gap-2"><span aria-hidden className="mt-[0.7em] size-1.5 shrink-0 rounded-full bg-ink/35" />{x}</li>)}
+              </ul>
+            </div>
+            <div className="md:self-end">
+              <div className="flex flex-wrap gap-2">{p.tags.map((x) => <span key={x} className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${p.bg}`}>{x}</span>)}</div>
+              <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold">
+                <a className={link} href={p.u} target="_blank" rel="noreferrer"><Icon name="Live" className="h-4 w-4" />Live site</a>
+                <a className={link} href={p.gh} target="_blank" rel="noreferrer"><Icon name="GitHub" className="h-4 w-4" />Source code</a>
+              </div>
+            </div>
           </motion.article>
         </AnimatePresence>
       </div>
-    </div>
+    </Reveal>
   );
 }
 
@@ -150,7 +147,7 @@ export default function Dev() {
       </section>
 
       <section className="mt-20" aria-labelledby="pro-h">
-        <Reveal y={16}><p className={pill}>Projects</p><h2 id="pro-h" className="font-display text-3xl font-semibold leading-tight sm:text-4xl">Things I've built.</h2><p className="mt-2 text-ink/60">Tap the picture or use the arrows to flip through. Each project has a link to its live site.</p></Reveal>
+        <Reveal y={16}><p className={pill}>Projects</p><h2 id="pro-h" className="font-display text-3xl font-semibold leading-tight sm:text-4xl">Things I've built.</h2><p className="mt-2 text-ink/60">Tap the picture or use the arrows to turn the page. Each project links to its live site and its source code.</p></Reveal>
         <Showcase />
       </section>
 
