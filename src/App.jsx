@@ -27,6 +27,8 @@ if (typeof window !== "undefined") (window.requestIdleCallback || ((f) => setTim
 /* ফোন-ট্যাবলেটের নিচের বারে ৪টি প্রধান পেজ + "আরও"; বাকি পেজ আরও-র শিটে। বড় পর্দায় সব মেনু হেডারে। */
 const PRIMARY = ["/", "/convert", "/calc", "/complement"];
 const byPath = Object.fromEntries(ROUTES.map((r) => [r.path, r]));
+/* নিচের বারে জায়গা কম, তাই লম্বা নামের ছোট রূপ */
+const SHORT = { "/algebra": "এলজেবরা", "/gates": "লজিক গেট", "/dev": "ডেভ" };
 
 function MoreSheet({ open, onClose, path }) {
   const reduce = useReducedMotion();
@@ -43,20 +45,20 @@ function MoreSheet({ open, onClose, path }) {
         <motion.div key="more" className="fixed inset-0 z-[60] lg:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
           <button type="button" aria-label="বন্ধ করো" onClick={onClose} className="absolute inset-0 bg-black/35 backdrop-blur-[2px]" />
           <motion.div role="dialog" aria-label="আরও পেজ" initial={reduce ? false : { y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={reduce ? { opacity: 0 } : { y: 40, opacity: 0 }} transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute inset-x-2 bottom-[max(5.25rem,calc(env(safe-area-inset-bottom)+4.75rem))] mx-auto max-w-[380px] rounded-3xl bg-surface p-3 shadow-[0_20px_60px_-20px_rgba(0,0,0,.45)] ring-1 ring-ink/[.08]">
+            className="absolute inset-x-2 bottom-[max(6.25rem,calc(env(safe-area-inset-bottom)+5.75rem))] mx-auto max-w-[380px] rounded-3xl bg-surface p-3 shadow-[0_20px_60px_-20px_rgba(0,0,0,.45)] ring-1 ring-ink/[.08]">
             <p className="px-2 pb-2 pt-1 text-sm font-bold text-ink/55">আরও পেজ</p>
             <ul className="grid gap-1">
-              {rest.map((r) => {
+              {rest.map((r, i) => {
                 const Icon = ICONS[r.icon];
                 const on = r.path === path;
                 return (
-                  <li key={r.path}>
+                  <motion.li key={r.path} initial={reduce ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1], delay: reduce ? 0 : 0.05 + i * 0.05 }}>
                     <button type="button" aria-current={on ? "page" : undefined} onClick={() => { onClose(); navigate(r.path); }}
                       className={`flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition active:scale-[.98] ${on ? "bg-ink text-paper" : "hover:bg-ink/[.06]"}`}>
                       <span className={`grid size-10 shrink-0 place-items-center rounded-xl ${on ? "bg-paper/15" : "bg-ink/[.06]"}`}><Icon className="size-[22px]" strokeWidth={2.1} active={on} /></span>
                       <span className="min-w-0"><span className="block font-bold leading-tight">{r.label}</span>{r.sub && <span className={`block text-[13px] ${on ? "text-paper/65" : "text-ink/50"}`}>{r.sub}</span>}</span>
                     </button>
-                  </li>
+                  </motion.li>
                 );
               })}
             </ul>
@@ -92,7 +94,7 @@ export default function App() {
 
   const inPrimary = PRIMARY.includes(path);
   /* খোলা পেজ প্রধান ৪টির বাইরে হলে পঞ্চম ট্যাবটি সেই পেজের নাম-আইকন দেখায় */
-  const mobileTabs = [...PRIMARY.map((p) => ({ id: p, label: byPath[p].label, icon: byPath[p].icon })), inPrimary ? { id: "more", label: "আরও", icon: "more" } : { id: "more", label: byPath[path]?.label ?? "আরও", icon: byPath[path]?.icon ?? "more" }];
+  const mobileTabs = [...PRIMARY.map((p) => ({ id: p, label: byPath[p].label, icon: byPath[p].icon })), inPrimary ? { id: "more", label: "আরও", icon: "more" } : { id: "more", label: SHORT[path] ?? byPath[path]?.label ?? "আরও", icon: byPath[path]?.icon ?? "more" }];
 
   const view =
     path === "/convert" ? <Convert s={cv} set={setCv} onUse={useInCalc} />
@@ -109,7 +111,7 @@ export default function App() {
       <TopBar />
       <MoreSheet open={more} onClose={() => setMore(false)} path={path} />
       {/* ফোন ও ট্যাবলেট: নিচে motion-brew TabBar; বড় পর্দায় মেনু হেডারে */}
-      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
         <TabBar tabs={mobileTabs} value={inPrimary ? path : "more"} onChange={(id) => (id === "more" ? setMore(true) : navigate(id))} onReselect={(id) => id === "more" && setMore(true)} className="pointer-events-auto" />
       </div>
       <main className="min-h-[100svh] pt-[calc(3.5rem+env(safe-area-inset-top))]">
