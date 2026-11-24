@@ -136,7 +136,7 @@ const GLIDE = [0.22, 1, 0.36, 1];
 const SPRING = { type: "spring", stiffness: 500, damping: 34 };
 const SLIDE = { type: "spring", stiffness: 210, damping: 27, mass: 1 }; // softer glide of the ink indicator
 
-/** tabs: [{ id, label, icon: key of ICONS }] (up to 5 fit comfortably) */
+/** tabs: [{ id, label, icon: key of ICONS }] (up to 7 fit in one row) */
 export const TabBar = React.forwardRef(function TabBar({ tabs = [], value, onChange, onReselect, className }, ref) {
   const still = !!useReducedMotion();
   const uid = React.useId();
@@ -144,7 +144,7 @@ export const TabBar = React.forwardRef(function TabBar({ tabs = [], value, onCha
   React.useImperativeHandle(ref, () => root.current);
   const seen = useInView(root, { once: true, amount: 0.4 });
   const shown = seen || still;
-  const list = tabs.slice(0, 6);
+  const list = tabs.slice(0, 7);
   const [own, setOwn] = React.useState(list[0]?.id ?? "");
   const current = value ?? own;
   const [playing, setPlaying] = React.useState(null);
@@ -209,7 +209,7 @@ export const TabBar = React.forwardRef(function TabBar({ tabs = [], value, onCha
         <motion.span
           animate={still ? undefined : { y: on ? 0 : 1, opacity: on ? 1 : 0.62 }}
           transition={{ duration: 0.3, ease: GLIDE }}
-          className={cn("relative w-full truncate px-0.5 text-center text-[11px] font-semibold leading-none transition-colors duration-300 min-[380px]:text-[11.5px]", on ? "text-ink" : "text-ink/55 group-hover:text-ink/80")}
+          className={cn("relative w-full truncate px-0 text-center text-[10px] font-semibold leading-none tracking-tight transition-colors duration-300 min-[360px]:text-[10.5px] min-[400px]:px-0.5 min-[400px]:text-[11.5px]", on ? "text-ink" : "text-ink/55 group-hover:text-ink/80")}
         >
           {t.label}
         </motion.span>
@@ -225,10 +225,10 @@ export const TabBar = React.forwardRef(function TabBar({ tabs = [], value, onCha
       initial={still ? false : { opacity: 0, y: 28, filter: "blur(6px)" }}
       animate={shown ? { opacity: 1, y: 0, filter: "blur(0px)" } : undefined}
       transition={{ duration: 0.6, ease: GLIDE }}
-      className={cn("relative w-[420px] max-w-full rounded-[28px] bg-surface/90 p-1.5 text-ink shadow-[0_1px_2px_rgba(0,0,0,0.05),0_16px_40px_-16px_rgba(0,0,0,0.28)] ring-1 ring-ink/[.08] backdrop-blur-xl", className)}
+      className={cn("relative w-[420px] max-w-full rounded-[28px] bg-surface/90 p-1 text-ink min-[380px]:p-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_16px_40px_-16px_rgba(0,0,0,0.28)] ring-1 ring-ink/[.08] backdrop-blur-xl", className)}
     >
       <LayoutGroup id={uid}>
-        <div className="flex items-stretch justify-between gap-0.5">{list.map(tab)}</div>
+        <div className="flex items-stretch justify-between gap-0 min-[380px]:gap-0.5">{list.map(tab)}</div>
       </LayoutGroup>
     </motion.nav>
   );
