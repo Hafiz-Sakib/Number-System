@@ -134,7 +134,7 @@ export const ICONS = { home: HomeIcon, convert: ConvertIcon, calc: CalcIcon, com
 
 const GLIDE = [0.22, 1, 0.36, 1];
 const SPRING = { type: "spring", stiffness: 500, damping: 34 };
-const SLIDE = { type: "spring", stiffness: 380, damping: 30, mass: 0.9 };
+const SLIDE = { type: "spring", stiffness: 210, damping: 27, mass: 1 }; // softer glide of the ink indicator
 
 /** tabs: [{ id, label, icon: key of ICONS }] (up to 5 fit comfortably) */
 export const TabBar = React.forwardRef(function TabBar({ tabs = [], value, onChange, onReselect, className }, ref) {
@@ -187,7 +187,7 @@ export const TabBar = React.forwardRef(function TabBar({ tabs = [], value, onCha
         animate={shown ? { opacity: 1, y: 0 } : undefined}
         whileTap={still ? undefined : { scale: 0.92 }}
         transition={{ ...SPRING, opacity: { duration: 0.4, delay: still ? 0 : 0.12 + i * 0.05 }, y: { ...SPRING, delay: still ? 0 : 0.12 + i * 0.05 } }}
-        className="group relative flex h-[58px] min-w-0 flex-1 cursor-pointer select-none flex-col items-center justify-center gap-1 rounded-2xl outline-none [-webkit-tap-highlight-color:transparent] focus-visible:ring-2 focus-visible:ring-ink/30"
+        className="group relative flex h-[50px] min-w-0 flex-1 cursor-pointer select-none flex-col items-center justify-center gap-1 rounded-2xl outline-none [-webkit-tap-highlight-color:transparent] focus-visible:ring-2 focus-visible:ring-ink/30"
       >
         <span className="relative grid h-[30px] w-full max-w-[3.5rem] place-items-center">
           {on && <motion.span layoutId={`${uid}-indicator`} transition={still ? { duration: 0 } : SLIDE} className="absolute inset-0 rounded-full bg-ink shadow-[0_6px_16px_-6px_rgb(var(--ink)/0.55)]" />}

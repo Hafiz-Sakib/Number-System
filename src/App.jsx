@@ -116,6 +116,7 @@ export default function App() {
       <MoreSheet open={more} onClose={() => setMore(false)} path={path} />
       {/* ফোন ও ট্যাবলেট: নিচে motion-brew TabBar; বড় পর্দায় মেনু হেডারে */}
       <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-[max(0.75rem,env(safe-area-inset-bottom))] bg-mist" />
         <TabBar tabs={mobileTabs} value={inPrimary ? path : "more"} onChange={(id) => (id === "more" ? setMore(true) : navigate(id))} onReselect={(id) => id === "more" && setMore(true)} className="pointer-events-auto" />
       </div>
       <main className="min-h-[100svh] pt-[calc(3.5rem+env(safe-area-inset-top))]">
