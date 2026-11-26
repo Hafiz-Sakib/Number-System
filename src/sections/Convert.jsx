@@ -1,25 +1,20 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { BASES, BASE_NAME, ratToBase, convert, showVal } from "../lib/engine";
 import { usePrecision } from "../lib/settings";
 import { navigate } from "../lib/router";
 import { Blocks } from "../components/Steps";
 import { SectionTitle, Reveal } from "../components/ui";
-import { BaseTabs, ExampleGrid, NumberField, PrecisionSelect, ResultCard, MobileResultBar, CopyButton, CLR, disp } from "../components/controls";
-
-const EXAMPLES = [
-  { from: 10, to: 2, v: "25.625", label: "25.625 ডেসিমাল → বাইনারি" },
-  { from: 2, to: 10, v: "1010.01", label: "1010.01 বাইনারি → ডেসিমাল" },
-  { from: 2, to: 16, v: "1011010.101", label: "1011010.101 বাইনারি → হেক্স" },
-  { from: 8, to: 16, v: "755", label: "755 অক্টাল → হেক্স" },
-  { from: 16, to: 10, v: "3A.8", label: "3A.8 হেক্স → ডেসিমাল" },
-];
+import { genConvertExample } from "../lib/exampleGen";
+import { BaseTabs, NumberField, PrecisionSelect, ResultCard, MobileResultBar, CopyButton, CLR, disp } from "../components/controls";
 
 export default function Convert({ s, set, onUse }) {
     const [prec] = usePrecision();
   const res = useMemo(() => convert(s.value, s.from, s.to, prec), [s.value, s.from, s.to, prec]);
   const err = !res.ok && !res.empty ? res.msg : null;
   const all = useMemo(() => (res.ok ? BASES.map((b) => ({ base: b, ...ratToBase(res.rat, b, prec) })) : []), [res, prec]);
+  const [exLabel, setExLabel] = useState("");
+  const generate = () => { const ex = genConvertExample(s.from); setExLabel(ex.label); set({ ...s, value: ex.value }); };
   const swap = () => set({ from: s.to, to: s.from, value: res.ok ? res.text : s.value });
 
   return (
@@ -41,13 +36,21 @@ export default function Convert({ s, set, onUse }) {
               </div>
               <BaseTabs id="to" label="যে সংখ্যা পদ্ধতিতে" value={s.to} onChange={(to) => set({ ...s, to })} />
               <NumberField label={`${BASE_NAME[s.from]} সংখ্যা`} base={s.from} value={s.value} onChange={(value) => set({ ...s, value })} error={err} />
+              <button type="button" onClick={generate} className="lift group flex w-full items-center justify-between gap-3 rounded-2xl bg-ink px-4 py-3 text-left text-paper shadow-md transition hover:bg-ink/85 active:scale-[.98]">
+                <span className="min-w-0">
+                  <span className="block text-[15px] font-bold">উদাহরণ জেনারেট করুন</span>
+                  <span className="mt-0.5 block truncate text-xs text-paper/70">{exLabel ? `${exLabel} · ${BASE_NAME[s.from]}` : `${BASE_NAME[s.from]} পদ্ধতির একটি র‍্যান্ডম উদাহরণ`}</span>
+                </span>
+                <motion.span whileTap={{ rotate: 180 }} className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-paper/15">
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5" /></svg>
+                </motion.span>
+              </button>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <PrecisionSelect />
                 <span className="hidden text-sm text-ink/50 min-[480px]:inline">ঋণাত্মক সংখ্যা ও ভগ্নাংশও লেখা যাবে</span>
               </div>
             </div>
           </Reveal>
-          <ExampleGrid items={EXAMPLES.map((e) => ({ ...e, key: e.label, title: e.v, sub: e.label.split(" ").slice(1).join(" ") }))} onPick={(e) => set({ from: e.from, to: e.to, value: e.v })} limit={4} cols="grid-cols-2" />
         </div>
 
         <div className="min-w-0 space-y-4">
@@ -82,7 +85,7 @@ export default function Convert({ s, set, onUse }) {
             <div className="card grid min-h-[9rem] place-items-center p-6 text-center sm:min-h-[16rem] sm:p-8">
               <div>
                 <p className="text-2xl font-extrabold">এখানে ফলাফল দেখানো হবে</p>
-                <p className="mx-auto mt-2 max-w-sm text-ink/55">{err ? "ইনপুটের ভুলটি ঠিক করো।" : "বাম পাশের ঘরে একটি সংখ্যা লেখো, অথবা উদাহরণ থেকে একটি বেছে নাও।"}</p>
+                <p className="mx-auto mt-2 max-w-sm text-ink/55">{err ? "ইনপুটের ভুলটি ঠিক করো।" : "বাম পাশের ঘরে একটি সংখ্যা লেখো, অথবা “উদাহরণ জেনারেট করুন” বোতামে ক্লিক করো।"}</p>
               </div>
             </div>
           )}
