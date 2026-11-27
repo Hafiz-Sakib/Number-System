@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Circuit, Lab, useInputs } from "../../components/Circuit";
-import { ExampleGrid, PillChoice } from "../../components/controls";
+import { GenButton, PillChoice } from "../../components/controls";
 import { astToSpec, autoLayout, parseExpr, tableOf } from "../../lib/logic";
+import { genFormExprExample, genTruthExample } from "../../lib/exampleGen";
 import { VARS, analyse, bits, evalTerm, expandForm, maxterm, minterm } from "../../lib/forms";
 import { Eq, Facts, P, Panel, spec } from "./shared";
 
@@ -77,13 +78,6 @@ function TermTable({ mode }) {
 }
 
 /* ================= সত্যক সারণী থেকে আদর্শ ও সরল রূপ (নিজে ছক ভরে দেখো) ================= */
-const PRESETS = [
-  { title: "XOR", sub: "২ চলক, A'·B + A·B'", n: 2, ones: [1, 2] },
-  { title: "সংখ্যাগরিষ্ঠ", sub: "৩টির ২টি বা বেশি 1", n: 3, ones: [3, 5, 6, 7] },
-  { title: "বিজোড় প্যারিটি", sub: "1-এর সংখ্যা বিজোড়", n: 3, ones: [1, 2, 4, 7] },
-  { title: "F = C", sub: "অনেক পদ, সরল হয় একটিতে", n: 3, ones: [1, 3, 5, 7] },
-  { title: "৪ চলক", sub: "সরল রূপ B'D' + BD", n: 4, ones: [0, 2, 5, 7, 8, 10, 13, 15] },
-];
 const DEFAULT_ONES = { 2: [1, 2], 3: [3, 5, 6, 7], 4: [0, 2, 5, 7, 8, 10, 13, 15] };
 const fromOnes = (n, ones) => Array.from({ length: 1 << n }, (_, k) => (ones.includes(k) ? 1 : 0));
 
@@ -110,7 +104,8 @@ function FormLab({ mode }) {
   const constant = min === "0" || min === "1";
 
   const changeN = (x) => { setN(x); setF(fromOnes(x, DEFAULT_ONES[x])); };
-  const pick = (p) => { setN(p.n); setF(fromOnes(p.n, p.ones)); };
+  const [exLabel, setExLabel] = useState("");
+  const generate = () => { const ex = genTruthExample(n, mode); setF(fromOnes(n, ex.ones)); setExLabel(ex.label); };
   const flip = (k) => setF((f) => f.map((v, i) => (i === k ? 1 - v : v)));
   const termOf = (k) => (sop ? minterm(k, vars) : maxterm(k, vars));
 
@@ -120,7 +115,7 @@ function FormLab({ mode }) {
         <span className="text-sm font-semibold text-ink/60">চলকের সংখ্যা</span>
         <PillChoice id={`fl-n-${mode}`} value={n} onChange={changeN} options={[2, 3, 4].map((x) => ({ id: x, label: `${bn(x)} চলক` }))} />
       </div>
-      <div className="mt-4"><ExampleGrid items={PRESETS} onPick={pick} limit={5} label="উদাহরণ ফাংশন" cols="grid-cols-2 sm:grid-cols-3 lg:grid-cols-5" mono={false} /></div>
+      <div className="mt-4"><GenButton onClick={generate} note={exLabel || `${bn(n)} চলকের একটি র‍্যান্ডম সত্যক সারণী`} /></div>
 
       <p className="mb-1.5 mt-5 text-sm font-semibold text-ink/55">F কলামের বোতামে ক্লিক করে 0/1 বদলাও। {sop ? "F = 1" : "F = 0"} সারিগুলো রঙিন হবে।</p>
       <div className="max-w-full overflow-x-auto no-sb rounded-2xl ring-1 ring-ink/10">
@@ -197,26 +192,12 @@ function FormLab({ mode }) {
 }
 
 /* ================= তোমার রাশি → আদর্শ রূপ (অনুপস্থিত চলক বসিয়ে বিস্তার) ================= */
-const EX = {
-  sop: [
-    { title: "A + B·C", sub: "২টি পদে অনুপস্থিত চলক" },
-    { title: "A·B + A'·C", sub: "প্রতিটিতে ১টি অনুপস্থিত" },
-    { title: "A·B + B'·C' + A'", sub: "তিনটি পদ" },
-    { title: "A·B + A'·B'", sub: "সব চলক আছে (XNOR)" },
-    { title: "A·(B + C)", sub: "SOP নয়, ভেঙে নিতে হয়" },
-  ],
-  pos: [
-    { title: "(A + B)·(A' + C)", sub: "প্রতিটিতে ১টি অনুপস্থিত" },
-    { title: "A·(B + C)", sub: "একচলক পদও POS-এর অংশ" },
-    { title: "(A + B + C)·(A' + B')", sub: "মিশ্র দৈর্ঘ্য" },
-    { title: "(A + B')·(A' + B)", sub: "সব চলক আছে (XNOR)" },
-    { title: "A·B + C", sub: "POS নয়, ভেঙে নিতে হয়" },
-  ],
-};
 
 function FormExpand({ mode }) {
   const sop = mode === "sop";
-  const [src, setSrc] = useState(EX[mode][0].title);
+  const [src, setSrc] = useState(sop ? "A·B + A'·C" : "(A + B)·(A' + C)");
+  const [exLabel, setExLabel] = useState("");
+  const generate = () => { const ex = genFormExprExample(mode); setSrc(ex.title); setExLabel(ex.label); };
   const r = useMemo(() => parseExpr(src, 4), [src]);
   const d = useMemo(() => (r.ok ? expandForm(r.ast, r.vars, mode) : null), [r, mode]);
   const vars = r.ok ? r.vars : [];
@@ -229,7 +210,7 @@ function FormExpand({ mode }) {
       <input id={`fx-${mode}`} value={src} onChange={(e) => setSrc(e.target.value)} spellCheck={false} autoCapitalize="off" autoCorrect="off" aria-invalid={!r.ok}
         className="num w-full rounded-2xl bg-surface px-4 py-3 text-xl font-semibold ring-1 ring-ink/10 transition focus:ring-2 focus:ring-violet-500/60" />
       <p className="mt-1.5 text-sm text-ink/50">যোগ <Eq>+</Eq> · গুণ <Eq>·</Eq> বা পাশাপাশি লেখো (<Eq>AB</Eq>) · পরিপূরক <Eq>'</Eq></p>
-      <div className="mt-3"><ExampleGrid items={EX[mode]} onPick={(e) => setSrc(e.title)} limit={4} cols="grid-cols-2 lg:grid-cols-4" /></div>
+      <div className="mt-3"><GenButton onClick={generate} note={exLabel || `২, ৩ বা ৪ চলকের একটি র‍্যান্ডম ${sop ? "SOP" : "POS"} রাশি`} /></div>
 
       {!r.ok ? (
         <p role="alert" className="mt-5 rounded-2xl bg-rose-500/10 px-4 py-3 font-semibold text-rose-700 dark:text-rose-300">{r.empty ? "উপরে একটি রাশি লেখো।" : r.error}</p>

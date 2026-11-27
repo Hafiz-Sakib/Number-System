@@ -5,10 +5,10 @@ import { useFmt } from "../lib/settings";
 import { navigate } from "../lib/router";
 import { Blocks, Detail, Rich } from "../components/Steps";
 import { SectionTitle, Reveal } from "../components/ui";
-import { ExampleGrid, MobileResultBar, NumberField, PillChoice } from "../components/controls";
+import { GenButton, MobileResultBar, NumberField, PillChoice } from "../components/controls";
+import { genComplementExample, genSignedExample } from "../lib/exampleGen";
 
 const dot = (i, f) => (f ? `${i}.${f}` : i);
-const EX_LIVE = ["1011.01", "0110.1", "10100", "1101.101", "0.011"];
 const EX_SOLVED = [
   { x: "10110", note: "পূর্ণসংখ্যা" },
   { x: "01101", note: "পূর্ণসংখ্যা, সামনে 0 সহ" },
@@ -79,6 +79,8 @@ function Why() {
 
 function Live() {
   const [v, setV] = useState("1011.01");
+  const [exLabel, setExLabel] = useState("");
+  const generate = () => { const ex = genComplementExample(); setV(ex.value); setExLabel(ex.label); };
   const p = useMemo(() => parseBits(v), [v]);
   const d = useMemo(() => (p.ok ? { c: complements(p.int, p.frac), blocks: complementBlocks(p.int, p.frac) } : null), [p]);
   return (
@@ -88,7 +90,7 @@ function Live() {
       <div className="mt-3 sm:mt-4">
         <NumberField label="বাইনারি সংখ্যা" base={2} value={v} onChange={setV} error={p.ok || p.empty ? null : p.msg} id="comp-in" />
       </div>
-      <div className="mt-3"><ExampleGrid items={EX_LIVE.map((e) => ({ key: e, title: e }))} onPick={(e) => setV(e.title)} limit={5} cols="grid-cols-3 sm:grid-cols-5" /></div>
+      <div className="mt-3"><GenButton onClick={generate} note={exLabel || "একটি র‍্যান্ডম বাইনারি সংখ্যা"} /></div>
       {d && (
         <div className="mt-4 sm:mt-5">
           <div id="comp-result" className="grid scroll-mt-20 grid-cols-2 gap-2 sm:gap-3">
@@ -156,6 +158,8 @@ function Solved() {
 function Signed() {
   const [d, setD] = useState("-5");
   const [n, setN] = useState(8);
+  const [exLabel, setExLabel] = useState("");
+  const generate = () => { const ex = genSignedExample(n); setD(String(ex.value)); setExLabel(ex.label); };
   const txt = String(d).replace(/[−–—]/g, "-").trim();
   const num = txt === "" || txt === "-" ? NaN : Number(txt);
   const f = useMemo(() => (Number.isNaN(num) ? { ok: false, msg: "একটি পূর্ণসংখ্যা লেখো (যেমন −5 বা 13)।" } : signedForms(num, n)), [num, n]);
@@ -175,6 +179,7 @@ function Signed() {
             </div>
             <PillChoice id="sg-n" value={n} onChange={setN} options={[{ id: 4, label: `${fmt(4)} বিট` }, { id: 8, label: `${fmt(8)} বিট` }]} />
           </div>
+          <div className="mt-3"><GenButton onClick={generate} note={exLabel || `${fmt(n)} বিটের একটি র‍্যান্ডম সংখ্যা`} /></div>
           {!f.ok ? (
             <p role="alert" className="mt-3 text-sm font-medium text-rose-600 dark:text-rose-300">{f.msg}</p>
           ) : (

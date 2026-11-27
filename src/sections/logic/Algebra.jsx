@@ -1,22 +1,13 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Circuit, TruthTable, useInputs } from "../../components/Circuit";
-import { ExampleGrid, PillChoice } from "../../components/controls";
+import { GenButton, PillChoice } from "../../components/controls";
 import { Rich } from "../../components/Steps";
+import { genExprExample } from "../../lib/exampleGen";
 import { astToSpec, autoLayout, equivalent, parseExpr, qmTrace, simplify, simplifySteps, tableOf, toStr } from "../../lib/logic";
 import { Eq, Facts, P, Panel } from "./shared";
 
 /* ---------- রাশি ল্যাব: যেকোনো বুলিয়ান রাশি → সরলীকরণের ধাপ + সার্কিট + সত্যক সারণী ---------- */
-const EXAMPLES = [
-  { title: "A + A'·B", sub: "অপ্রয়োজনীয়তা" },
-  { title: "A·B + A·B'", sub: "সাধারণ উৎপাদক" },
-  { title: "(A + B)'", sub: "ডি-মরগান" },
-  { title: "A·B + A'·C + B·C", sub: "কনসেনসাস" },
-  { title: "A + A·B", sub: "শোষণ" },
-  { title: "A'·B + A·B'", sub: "XOR (আগেই সরল)" },
-  { title: "(A + B)·(A + B')", sub: "দ্বৈত রূপ" },
-  { title: "A·B + A'·B' + A·B'", sub: "মিশ্র" },
-];
 const VARS = ["A", "B", "C", "D"];
 const OPS = ["+", "·", "'", "(", ")", "⊕"];
 const keyCls = "num grid h-9 min-w-9 place-items-center rounded-xl bg-ink/[.06] px-2 font-semibold transition hover:bg-ink/[.12] active:scale-90";
@@ -174,7 +165,8 @@ export function ExprLab({ initial = "A·B + A'·C", steps = false }) {
   const n = ids.length;
   const idx = ids.reduce((a, v) => (a << 1) | st[v], 0);
   const rows = d ? d.F.map((f, k) => ({ in: ids.map((_, i) => (k >> (n - 1 - i)) & 1), out: [f] })) : [];
-  const pick = (e) => { setSrc(e.title); setView("orig"); };
+  const [exLabel, setExLabel] = useState("");
+  const generate = () => { const ex = genExprExample(); setSrc(ex.title); setView("orig"); setExLabel(ex.label); };
 
   return (
     <div>
@@ -190,7 +182,7 @@ export function ExprLab({ initial = "A·B + A'·C", steps = false }) {
       <details className="mt-2 text-sm text-ink/50"><summary className="w-fit cursor-pointer select-none font-semibold">লেখার নিয়ম</summary>
         <p className="mt-1.5 leading-[2]">যোগ <Eq>+</Eq> · গুণ <Eq>·</Eq> বা পাশাপাশি লেখো (<Eq>AB</Eq>) · পরিপূরক <Eq>'</Eq> বা <Eq>!</Eq> · XOR <Eq>^</Eq> বা <Eq>⊕</Eq></p>
       </details>
-      <div className="mt-4"><ExampleGrid items={EXAMPLES} onPick={pick} limit={4} cols="grid-cols-2 lg:grid-cols-4" /></div>
+      <div className="mt-4"><GenButton onClick={generate} note={exLabel || "২, ৩ বা ৪ চলকের একটি র‍্যান্ডম রাশি"} /></div>
 
       {!r.ok ? (
         <p role="alert" className="mt-5 rounded-2xl bg-rose-500/10 px-4 py-3 font-semibold text-rose-700 dark:text-rose-300">{r.empty ? "উপরে একটি বুলিয়ান রাশি লেখো।" : r.error}</p>

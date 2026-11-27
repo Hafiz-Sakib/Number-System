@@ -6,6 +6,8 @@
    অন্য পাতার জন্য নতুন ফাংশন এই ফাইলেই যোগ করা যাবে। */
 
 import { parseNum } from "./engine.js";
+import { parseBits } from "./complement.js";
+import { parseExpr, tableOf } from "./logic.js";
 
 const DIGITS = "0123456789ABCDEF";
 const ri = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
@@ -198,4 +200,228 @@ export function genCalcExample(base, op) {
     return { a: r.a, b: r.b, more, label: r.label };
   }
   return { a: randInt(base, 4), b: randInt(base, 2), more: [], label: "পূর্ণসংখ্যা" };
+}
+
+
+/* =====================================================================
+   ৩) 1's ও 2's পরিপূরক পাতা
+   ===================================================================== */
+const lastComp = { v: null, d: null };
+
+/* বাইনারি সংখ্যা (পূর্ণ অংশ ১–১৩ বিট, দশমিকের পরে ১–৬ বিট; সীমা MAX_INT=16, MAX_FRAC=8-এর ভেতরে) */
+export function genComplementExample() {
+  for (let t = 0; t < 30; t++) {
+    const kind = wpick([["int", 33], ["frac", 45], ["fracOnly", 8], ["lead0", 14]]);
+    const size = wpick([["s", 3], ["m", 4], ["l", 3]]);
+    const intLen = size === "s" ? ri(3, 5) : size === "m" ? ri(6, 9) : ri(10, 13);
+    const fLen = size === "s" ? ri(1, 2) : size === "m" ? ri(2, 4) : ri(4, 6);
+    let v, label;
+    if (kind === "int") { v = randInt(2, intLen); label = `${SIZE_NAME[size === "s" ? "s" : size === "m" ? "m" : "l"]} পূর্ণসংখ্যা`; }
+    else if (kind === "frac") {
+      let fr = randFrac(2, fLen);
+      label = `${SIZE_NAME[size]} দশমিকসহ`;
+      if (fLen >= 2 && fLen <= 5 && chance(0.15)) { fr += "0"; label = "দশমিকের শেষে 0 সহ"; }
+      v = randInt(2, intLen) + "." + fr;
+    } else if (kind === "fracOnly") { v = "0." + randFrac(2, ri(2, 6)); label = "শুধু ভগ্নাংশ (0 . দিয়ে শুরু)"; }
+    else { v = "0" + randInt(2, ri(3, 8)); label = "সামনে 0 সহ"; if (chance(0.4)) { v += "." + randFrac(2, ri(1, 3)); label = "সামনে 0 ও দশমিকসহ"; } }
+    const p = parseBits(v);
+    if (!p.ok || !v.includes("1") || v === lastComp.v) continue;
+    if (label === lastComp.d && t < 12) continue;
+    lastComp.v = v; lastComp.d = label;
+    return { value: v, label };
+  }
+  return { value: "1011.01", label: "দশমিকসহ" };
+}
+
+/* n বিটে ঋণাত্মক/ধনাত্মক পূর্ণসংখ্যা। −2^(n−1) বাদ, কারণ ওটা 1's পরিপূরকে লেখা যায় না */
+const lastSigned = {};
+export function genSignedExample(n) {
+  const lim = 2 ** (n - 1) - 1;
+  for (let t = 0; t < 20; t++) {
+    const cls = wpick([["small", 3], ["mid", 4], ["big", 3]]);
+    const q = Math.ceil(lim / 4);
+    let mag = cls === "small" ? ri(1, Math.max(1, q)) : cls === "mid" ? ri(q, Math.ceil((3 * lim) / 4)) : ri(Math.ceil((3 * lim) / 4), lim);
+    mag = Math.min(lim, Math.max(1, mag));
+    const negv = chance(0.65);
+    const value = negv ? -mag : mag;
+    if (value === lastSigned[n]) continue;
+    lastSigned[n] = value;
+    return { value, label: `${negv ? "ঋণাত্মক" : "ধনাত্মক"} সংখ্যা (${{ small: "ছোট", mid: "মাঝারি", big: "সীমার কাছাকাছি" }[cls]})` };
+  }
+  return { value: -5, label: "ঋণাত্মক সংখ্যা" };
+}
+
+/* =====================================================================
+   ৪) বুলিয়ান এলজেবরা / লজিক পাতা
+   ===================================================================== */
+const BN = "০১২৩৪৫৬৭৮৯";
+const bn = (x) => String(x).replace(/\d/g, (d) => BN[d]);
+const LETTERS = ["A", "B", "C", "D"];
+const shuffle = (a) => { const r = [...a]; for (let i = r.length - 1; i > 0; i--) { const j = ri(0, i); [r[i], r[j]] = [r[j], r[i]]; } return r; };
+const litS = (l) => l.v + (l.n ? "'" : "");
+const lit = (v, n = chance(0.4)) => ({ v, n });
+const prod = (t) => t.map(litS).join("·");
+const sopStr = (terms) => terms.map(prod).join(" + ");
+const posStr = (terms) => terms.map((t) => (t.length > 1 ? `(${t.map(litS).join(" + ")})` : litS(t[0]))).join("·");
+const sub = (a, b) => a.every((l) => b.some((m) => m.v === l.v && m.n === l.n)); // a ⊆ b
+
+function randTerm(vars, k) {
+  return shuffle(vars).slice(0, k).sort().map((v) => lit(v));
+}
+/* count টি পদ/উৎপাদক; প্রতিটিতে minK–maxK টি লিটারাল; সব চলক কোথাও না কোথাও থাকবে;
+   একটি অন্যটির অংশ বা সমান নয়; একলিটারাল পদ সর্বোচ্চ maxSingles টি; পদগুলো গুছিয়ে সাজানো */
+const termKey = (t) => t.map((l) => l.v).join("") + t.map((l) => +l.n).join("");
+function genTerms(vars, count, minK, maxK, maxSingles = 1) {
+  const singles = vars.length === 2 ? Math.max(maxSingles, 2) : maxSingles;
+  for (let t = 0; t < 120; t++) {
+    const terms = Array.from({ length: count }, () => randTerm(vars, ri(minK, Math.min(maxK, vars.length))));
+    if (!vars.every((v) => terms.some((x) => x.some((l) => l.v === v)))) continue;
+    if (!terms.every((a, i) => terms.every((b, j) => i === j || !sub(a, b)))) continue;
+    if (terms.filter((x) => x.length === 1).length > singles) continue;
+    return terms.sort((a, b) => (termKey(a) < termKey(b) ? -1 : 1));
+  }
+  return null;
+}
+const termCount = (n) => (n === 2 ? ri(2, 3) : n === 3 ? ri(2, 4) : ri(3, 4));
+
+const EXPR_KINDS = [
+  { id: "sop", w: 24, min: 2, label: "SOP আকার", make: (V, n) => { const t = genTerms(V, termCount(n), 1, n); return t && sopStr(t); } },
+  { id: "pos", w: 16, min: 2, label: "POS আকার", make: (V, n) => { const t = genTerms(V, termCount(n), 1, n); return t && posStr(t); } },
+  { id: "red", w: 16, min: 2, label: "সরলীকরণযোগ্য (শোষণ / অপ্রয়োজনীয়তা)", make: (V, n) => {
+    const base = genTerms(V, Math.max(2, termCount(n) - 1), 1, Math.max(1, n - 1));
+    if (!base) return null;
+    if (chance(0.5)) { // শোষণ: t + t·x
+      const t = base[ri(0, base.length - 1)];
+      const free = V.filter((v) => !t.some((l) => l.v === v));
+      if (free.length) { const extra = [...t, lit(pick(free))].sort((a, b) => (a.v < b.v ? -1 : 1)); return sopStr([...base, extra]); }
+    }
+    // অপ্রয়োজনীয়তা: u + u'·w
+    const v = pick(V), w = pick(V.filter((x) => x !== v)), u = lit(v);
+    const terms = [[u], [{ v, n: !u.n }, lit(w)]];
+    const rest = V.filter((x) => x !== v && x !== w);
+    if (rest.length) terms.push([lit(pick([v, w])), ...rest.map((x) => lit(x))].sort((a, b) => (a.v < b.v ? -1 : 1)));
+    return sopStr(terms);
+  } },
+  { id: "cons", w: 8, min: 3, label: "কনসেনসাস (AB + A'C + BC)", make: (V, n) => {
+    const [x, ...others] = shuffle(V);
+    const cut = ri(1, others.length - 1);
+    const Y = others.slice(0, cut).sort().map((v) => lit(v)), Z = others.slice(cut).sort().map((v) => lit(v));
+    const s = (a) => a.sort((p, q) => (p.v < q.v ? -1 : 1));
+    const xl = lit(x);
+    return sopStr([s([xl, ...Y]), s([{ v: x, n: !xl.n }, ...Z]), s([...Y, ...Z])]);
+  } },
+  { id: "dm", w: 14, min: 2, label: "ডি-মরগান (NOT সহ)", make: (V, n) => {
+    if (chance(0.5)) { const t = genTerms(V, ri(2, Math.min(3, n)), 1, n); return t && `(${chance(0.5) ? sopStr(t) : posStr(t)})'`; }
+    const t = genTerms(V, termCount(n), 1, n);
+    if (!t) return null;
+    const cand = t.map((x, i) => i).filter((i) => t[i].length >= 2);
+    if (!cand.length) return null;
+    const k = pick(cand);
+    return t.map((x, i) => (i === k ? `(${x.slice(0, 2).map(litS).join("·")})'${x.length > 2 ? "·" + prod(x.slice(2)) : ""}` : prod(x))).join(" + ");
+  } },
+  { id: "xor", w: 8, min: 2, label: "XOR যুক্ত", make: (V, n) => {
+    const x = (i) => litS(lit(V[i - 1], chance(0.3)));
+    const T = {
+      2: [() => `${x(1)} ⊕ ${x(2)}`],
+      3: [() => `${x(1)} ⊕ ${x(2)} ⊕ ${x(3)}`, () => `(${x(1)} ⊕ ${x(2)})·${x(3)}`, () => `${x(1)} ⊕ (${x(2)}·${x(3)})`, () => `(${x(1)} ⊕ ${x(2)}) + ${x(3)}`],
+      4: [() => `${x(1)} ⊕ ${x(2)} ⊕ ${x(3)} ⊕ ${x(4)}`, () => `(${x(1)} ⊕ ${x(2)})·(${x(3)} ⊕ ${x(4)})`, () => `(${x(1)} ⊕ ${x(2)}) + ${x(3)}·${x(4)}`, () => `(${x(1)} ⊕ ${x(2)} ⊕ ${x(3)})·${x(4)}`],
+    };
+    return pick(T[n])();
+  } },
+  { id: "fac", w: 14, min: 3, label: "ফ্যাক্টর করা / বন্ধনীযুক্ত রূপ", make: (V, n) => {
+    const sh = shuffle(V);
+    const cn = n === 4 && chance(0.4) ? 2 : 1;
+    const C = sh.slice(0, cn).sort().map((v) => lit(v));
+    const rest = sh.slice(cn).sort();
+    const R = genTerms(rest, 2, 1, rest.length);
+    if (!R) return null;
+    return `${prod(C)}·(${sopStr(R)})`;
+  } },
+];
+
+const lastExpr = { src: null, key: null };
+
+/* যেকোনো বুলিয়ান রাশি (২, ৩ বা ৪ চলক): { title, label } */
+export function genExprExample() {
+  for (let t = 0; t < 60; t++) {
+    const n = wpick([[2, 25], [3, 45], [4, 30]]);
+    const V = LETTERS.slice(0, n);
+    const kind = wpick(EXPR_KINDS.filter((k) => k.min <= n).map((k) => [k, k.w]));
+    let src;
+    try { src = kind.make(V, n); } catch { src = null; }
+    if (!src) continue;
+    const r = parseExpr(src, 4);
+    if (!r.ok || r.vars.length !== n) continue;
+    const tb = tableOf(r.ast, r.vars);
+    if (tb.every((x) => x === tb[0])) continue; // ধ্রুবক (সবসময় 0 বা 1) হলে বাদ
+    const key = `${n}${kind.id}`;
+    if (src === lastExpr.src || (key === lastExpr.key && t < 25)) continue;
+    lastExpr.src = src; lastExpr.key = key;
+    return { title: src, label: `${bn(n)} চলক · ${kind.label}` };
+  }
+  return { title: "A·B + A'·C", label: "৩ চলক · SOP আকার" };
+}
+
+/* SOP/POS → আদর্শ রূপ পাতা: mode = "sop" | "pos" */
+const lastForm = {};
+export function genFormExprExample(mode) {
+  const sop = mode === "sop";
+  for (let t = 0; t < 60; t++) {
+    const n = wpick([[2, 20], [3, 50], [4, 30]]);
+    const V = LETTERS.slice(0, n);
+    const full = chance(0.12);
+    const terms = genTerms(V, termCount(n), full ? n : 1, full ? n : Math.max(1, n === 2 ? 2 : n - 1));
+    if (!terms) continue;
+    if (!full && !terms.some((x) => x.length < n)) continue;
+    const src = sop ? sopStr(terms) : posStr(terms);
+    const r = parseExpr(src, 4);
+    if (!r.ok || r.vars.length !== n) continue;
+    const tb = tableOf(r.ast, r.vars);
+    if (tb.every((x) => x === tb[0])) continue; // সবসময় 0 বা 1 হলে বাদ
+    const missing = terms.filter((x) => x.length < n).length;
+    if (src === lastForm[mode]) continue;
+    lastForm[mode] = src;
+    return { title: src, label: `${bn(n)} চলক · ${missing ? `${bn(missing)}টি পদে অনুপস্থিত চলক` : "সব পদে সব চলক আছে"}` };
+  }
+  return { title: sop ? "A + B·C" : "(A + B)·(A' + C)", label: "৩ চলক" };
+}
+
+/* সত্যক সারণী থেকে SOP/POS পাতা: n চলকের জন্য F=1 সারির তালিকা (ones) */
+const popcount = (k) => k.toString(2).split("").filter((c) => c === "1").length;
+const lastTT = {};
+export function genTruthExample(n, mode = "sop") {
+  const N = 1 << n;
+  const kinds = [
+    ["random", 28, "এলোমেলো সারণী"],
+    ["cubes", 30, "গুচ্ছ আকারের (সরলীকরণযোগ্য)"],
+    ["parity", 8, "প্যারিটি"],
+    ["majority", n >= 3 ? 8 : 0, "সংখ্যাগরিষ্ঠ"],
+    ["sparse", 12, "অল্প কয়েকটি সারি"],
+    ["dense", 8, "প্রায় সব সারি"],
+  ].filter((k) => k[1] > 0);
+  for (let t = 0; t < 40; t++) {
+    const [id, , name] = wpick(kinds.map((k) => [k, k[1]]));
+    const g = Array(N).fill(0);
+    if (id === "random") { const p = pick([0.25, 0.4, 0.5, 0.6]); for (let k = 0; k < N; k++) g[k] = chance(p) ? 1 : 0; }
+    else if (id === "cubes") {
+      const c = ri(1, n === 2 ? 2 : 3);
+      for (let i = 0; i < c; i++) {
+        const free = ri(0, Math.min(n - 1, 2)); // মুক্ত চলকের সংখ্যা: গুচ্ছের আকার 2^free
+        const freeIdx = shuffle([...Array(n).keys()]).slice(0, free);
+        const base = ri(0, N - 1);
+        for (let k = 0; k < N; k++) if ([...Array(n).keys()].every((b) => freeIdx.includes(b) || ((k >> b) & 1) === ((base >> b) & 1))) g[k] = 1;
+      }
+    } else if (id === "parity") { const odd = chance(0.5); for (let k = 0; k < N; k++) g[k] = popcount(k) % 2 === (odd ? 1 : 0) ? 1 : 0; }
+    else if (id === "majority") { for (let k = 0; k < N; k++) g[k] = popcount(k) >= Math.floor(n / 2) + 1 ? 1 : 0; }
+    else if (id === "sparse") { const c = ri(1, 2); for (let i = 0; i < c; i++) g[ri(0, N - 1)] = 1; }
+    else { g.fill(1); const c = ri(1, 2); for (let i = 0; i < c; i++) g[ri(0, N - 1)] = 0; }
+    const ones = [];
+    for (let k = 0; k < N; k++) if ((mode === "pos" ? 1 - g[k] : g[k]) === 1) ones.push(k);
+    if (ones.length === 0 || ones.length === N) continue; // ধ্রুবক ফাংশন নয়
+    const key = ones.join(",");
+    if (key === lastTT[`${n}${mode}`]) continue;
+    lastTT[`${n}${mode}`] = key;
+    return { ones, label: `${bn(n)} চলক · ${name}` };
+  }
+  return { ones: n === 2 ? [1, 2] : [3, 5, 6, 7], label: `${bn(n)} চলক` };
 }
