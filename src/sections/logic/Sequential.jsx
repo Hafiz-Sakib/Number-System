@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import Bits3D from "../../components/Bits3D";
-import { PillChoice } from "../../components/controls";
+import { GenButton, PillChoice } from "../../components/controls";
+import { genGateInputs } from "../../lib/exampleGen";
 import { BitBtn, Eq, Facts, P, Panel, useInterval } from "./shared";
 
 const SUB = ["₀", "₁", "₂", "₃"];
@@ -116,12 +117,24 @@ export function Register() {
   const pulse = () => { setQ((x) => (mode === "par" ? [...d] : [si, x[0], x[1], x[2]])); setClk((c) => c + 1); };
   const clear = () => { setQ([0, 0, 0, 0]); setClk(0); };
   const flip = (i) => setD((x) => x.map((v, j) => (j === i ? 1 - v : v)));
+  const [exLabel, setExLabel] = useState("");
+  /* প্যারালাল: D₃…D₀ চারটি বিট; শিফট: সিরিয়াল ইনপুট SI (একটি বিট, তাই সবসময় উল্টো মান আসে) */
+  const generate = () => {
+    if (mode === "par") {
+      const ids = ["D3", "D2", "D1", "D0"];
+      const ex = genGateInputs(ids, { cur: Object.fromEntries(ids.map((id, i) => [id, d[i]])), key: "reg-par" });
+      setD(ids.map((id) => ex.values[id])); setExLabel(ex.label.replace("ইনপুট", "D বিট"));
+    } else {
+      const ex = genGateInputs(["SI"], { cur: { SI: si }, key: "reg-si" });
+      setSi(ex.values.SI); setExLabel(`সিরিয়াল ইনপুট SI = ${ex.values.SI}`);
+    }
+  };
   return (
     <div className="space-y-4">
       <Panel>
         <P>**রেজিস্টার (Register)** হলো একগুচ্ছ **ফ্লিপ-ফ্লপ**, যা প্রতিটি একটি করে বিট ধরে রাখে। n বিটের রেজিস্টারে n টি ফ্লিপ-ফ্লপ লাগে। ক্লকের **প্রতিটি পালসেই** ফ্লিপ-ফ্লপ তার ইনপুট D এর মান আউটপুট Q তে তুলে নেয়; পরের পালস না আসা পর্যন্ত মান অপরিবর্তিত থাকে।</P>
         <div className="mt-3"><Facts items={[["প্যারালাল লোড", "সব বিট **একসাথে** এক ক্লকে ঢোকে (D₃ D₂ D₁ D₀ → Q₃ Q₂ Q₁ Q₀)।", "bg-lilac"], ["শিফট রেজিস্টার", "প্রতি ক্লকে বিটগুলো এক ঘর **ডানে সরে** যায়, বামে সিরিয়াল ইনপুট ঢোকে।", "bg-sky"]]} /></div>
-        <div className="mt-4"><PillChoice id="reg" value={mode} onChange={(m) => { setMode(m); clear(); }} options={[{ id: "par", label: "প্যারালাল লোড" }, { id: "shift", label: "শিফট (সিরিয়াল ইন)" }]} /></div>
+        <div className="mt-4"><PillChoice id="reg" value={mode} onChange={(m) => { setMode(m); clear(); setExLabel(""); }} options={[{ id: "par", label: "প্যারালাল লোড" }, { id: "shift", label: "শিফট (সিরিয়াল ইন)" }]} /></div>
       </Panel>
       <Panel title={mode === "par" ? "৪-বিট প্যারালাল রেজিস্টার" : "৪-বিট শিফট রেজিস্টার"} sub={mode === "par" ? "D এর বিটগুলো ঠিক করো, তারপর ক্লক পালস দাও।" : "সিরিয়াল ইনপুট (SI) ঠিক করে ক্লক পালস দিতে থাকো: বিটগুলো ডানে সরবে।"}>
         <div className="mx-auto max-w-xl">
@@ -134,6 +147,7 @@ export function Register() {
               </FF>
             ))}
           </div>
+          <div className="mt-3"><GenButton onClick={generate} note={exLabel || (mode === "par" ? "D₃ D₂ D₁ D₀-এর একটি র‍্যান্ডম মান" : "সিরিয়াল ইনপুট SI-এর নতুন মান")} /></div>
           <Bits3D bits={q} height={118} className="mt-3" />
           <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
             <ClockPanel onClick={pulse} count={clk} hi={edge} />

@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { GW, evalNet, pinY, truthRows } from "../lib/logic";
+import { genGateInputs } from "../lib/exampleGen";
+import { GenButton } from "./controls";
 
 /* লজিক সার্কিট আঁকার টুকরোগুলো: গেটের প্রতীক, তার (সিগন্যালে রং ও প্রবাহ), ইনপুট সুইচ, আউটপুট LED, সত্যক সারণী।
    সব SVG + framer-motion; সার্কিটের গঠন আসে lib/logic.js-এর নেটলিস্ট থেকে। */
@@ -157,6 +159,7 @@ export function Circuit({ net, state, onToggle, label = "লজিক সার�
     return { wires: ws, dots: [...dotSet.values()] };
   }, [net]);
 
+  const used = useMemo(() => new Set([...net.gates.flatMap((g) => g.in), ...net.outputs.map((o) => o.from)]), [net]); // কোনো গেট/আউটপুটে যুক্ত ইনপুট
   const off = wires.filter((w) => !vals[w.src]);
   const on = wires.filter((w) => vals[w.src]);
   return (
@@ -169,6 +172,12 @@ export function Circuit({ net, state, onToggle, label = "লজিক সার�
         <g key={g.id} transform={`translate(${g.x} ${g.y})`}>
           <GateShape type={g.type} h={g.h} ins={g.in.map((id) => vals[id])} out={vals[g.id]} />
           <text x={GW / 2 - 2} y={g.h + 12} textAnchor="middle" className="pointer-events-none fill-current text-[9.5px] font-semibold" opacity=".5">{g.label ?? g.type}</text>
+        </g>
+      ))}
+      {net.inputs.filter((p) => !used.has(p.id)).map((p) => (
+        <g key={`nc${p.id}`} className="pointer-events-none">
+          <circle cx={p.x + 3} cy={p.y} r="3.5" fill="none" stroke="rgb(var(--ink) / .5)" strokeWidth="1.5" />
+          <text x={p.x + 12} y={p.y + 4} className="fill-current text-[10.5px] font-semibold" opacity=".5">কোনো গেটে যায় না</text>
         </g>
       ))}
       {net.inputs.map((p) => <Switch key={p.id} x={p.x} y={p.y} label={p.label ?? p.id} on={!!state[p.id]} onToggle={() => onToggle(p.id)} />)}
@@ -218,17 +227,22 @@ export function useInputs(ids, { radio = false, init } = {}) {
 }
 
 /** সার্কিট + সত্যক সারণী একসাথে (সারণীর সারিতে ক্লিক করলে ইনপুট বদলায়) */
-export function Lab({ net, table, radio = false, init, className = "", hideTable = false, below }) {
+export function Lab({ net, table, radio = false, init, className = "", hideTable = false, below, gen = true }) {
   const ids = useMemo(() => net.inputs.map((i) => i.id), [net]);
   const { st, toggle, set } = useInputs(ids, { radio, init });
   const tbl = useMemo(() => table || truthRows(net), [net, table]);
   const active = tbl.rows.findIndex((r) => r.in.every((b, i) => b === st[ids[i]]));
+  const [exo, setExo] = useState({ k: "", t: "" });
+  const exLabel = exo.k === ids.join() ? exo.t : ""; // ইনপুটের গঠন (যেমন ২→৩ ইনপুট) বদলালে পুরনো লেখা মুছে যায়
+  /* ইনপুট সুইচের একটি র‍্যান্ডম (বর্তমানের থেকে ভিন্ন) অবস্থা বসায়; radio হলে একবারে সর্বোচ্চ একটি 1 */
+  const generate = () => { const ex = genGateInputs(ids, { radio, cur: st }); set(ex.values); setExo({ k: ids.join(), t: ex.label }); };
   return (
     <div className={`mx-auto max-w-2xl ${className}`}>
       <div className="board overflow-x-auto no-sb rounded-2xl p-1.5 ring-1 ring-ink/10 sm:p-2 lg:p-3">
         <Circuit net={net} state={st} onToggle={toggle} />
       </div>
       <p className="mt-2 text-center text-xs text-ink/45">সুইচে ক্লিক করে ইনপুট বদলাও; সবুজ তারে সিগন্যাল 1 চলছে।</p>
+      {gen && <div className="mt-3"><GenButton onClick={generate} note={exLabel || (radio ? "একটি র‍্যান্ডম সক্রিয় ইনপুট (বা কোনোটিই নয়)" : `${ids.length === 1 ? "ইনপুটের" : "ইনপুট সুইচগুলোর"} একটি র‍্যান্ডম অবস্থা`)} /></div>}
       {typeof below === "function" ? below(st) : below}
       {!hideTable && (
         <div className="mt-3">

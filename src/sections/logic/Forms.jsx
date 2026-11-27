@@ -285,7 +285,7 @@ function TwoLevel({ mode }) {
         <PillChoice id={`two-${mode}`} value={v} onChange={setV} options={T.opts.map((x) => ({ id: x.id, label: x.label }))} />
       </div>
       <P className="my-3">{T.say[v]}</P>
-      <Lab key={`${mode}-${v}`} net={net} />
+      <Lab key={`${mode}-${v}`} net={net} gen={false} />
     </div>
   );
 }

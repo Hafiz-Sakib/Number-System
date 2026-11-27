@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import Bits3D from "../../components/Bits3D";
 import { Lab, TruthTable } from "../../components/Circuit";
-import { PillChoice } from "../../components/controls";
+import { GenButton, PillChoice } from "../../components/controls";
+import { genGateInputs, genRippleExample } from "../../lib/exampleGen";
 import { autoLayout } from "../../lib/logic";
 import { BitBtn, Eq, Facts, P, Panel, spec } from "./shared";
 
@@ -44,6 +45,14 @@ function Dec38() {
   const k = b[0] * 4 + b[1] * 2 + b[2];
   const rows = [...Array(8)].map((_, i) => ({ in: [(i >> 2) & 1, (i >> 1) & 1, i & 1], out: [...Array(8)].map((__, j) => +(i === j)) }));
   const flip = (i) => setB((x) => x.map((v, j) => (j === i ? 1 - v : v)));
+  const [exLabel, setExLabel] = useState("");
+  const generate = () => {
+    const ex = genGateInputs(["A", "B", "C"], { cur: { A: b[0], B: b[1], C: b[2] }, key: "dec38" });
+    const nb = [ex.values.A, ex.values.B, ex.values.C];
+    setB(nb);
+    const c = nb[0] * 4 + nb[1] * 2 + nb[2];
+    setExLabel(c === 0 ? "প্রথম কোড 000 (Y₀ জ্বলবে)" : c === 7 ? "শেষ কোড 111 (Y₇ জ্বলবে)" : `কোড ${nb.join("")} → Y${SUB[c]} জ্বলবে`);
+  };
   return (
     <div>
       <div className="flex flex-wrap items-center gap-4">
@@ -52,6 +61,7 @@ function Dec38() {
         ))}
         <span className="text-ink/60">কোড <Eq>{b.join("")}</Eq> = ডেসিমাল {k}</span>
       </div>
+      <div className="mt-3"><GenButton onClick={generate} note={exLabel || "৩ বিটের একটি র‍্যান্ডম কোড"} /></div>
       <div className="mt-4 grid grid-cols-4 gap-2 sm:grid-cols-8">
         {[...Array(8)].map((_, i) => (
           <motion.div key={i} initial={false} animate={{ backgroundColor: i === k ? "#10b981" : "rgba(120,124,150,.14)", scale: i === k ? 1.06 : 1 }} transition={{ type: "spring", stiffness: 420, damping: 26 }} className={`rounded-2xl px-2 py-3 text-center ${i === k ? "text-white shadow-lg" : ""}`}>
@@ -111,6 +121,8 @@ function Ripple() {
   const total = av + bv + cin;
   const result = [calc.carries[4], calc.sum[3], calc.sum[2], calc.sum[1], calc.sum[0]];
   const flip = (set, i) => set((x) => x.map((v, j) => (j === i ? 1 - v : v)));
+  const [exLabel, setExLabel] = useState("");
+  const generate = () => { const ex = genRippleExample({ a, b, cin }); setA(ex.a); setB(ex.b); setCin(ex.cin); setExLabel(ex.label); };
   const col = [3, 2, 1, 0]; // বাম থেকে ডানে বিট নম্বর
   return (
     <div>
@@ -134,6 +146,7 @@ function Ripple() {
           <span />
         </div>
       </div>
+      <div className="mx-auto mt-4 max-w-xl"><GenButton onClick={generate} note={exLabel || "A, B ও Cin-এর একটি র‍্যান্ডম উদাহরণ"} /></div>
       <p className="mt-4 rounded-2xl bg-mint px-4 py-3 text-center text-lg font-semibold ring-1 ring-ink/[.06]">
         <span className="num">{av} + {bv}{cin ? " + 1" : ""} = <b>{total}</b></span> <span className="text-ink/50">→</span> <Eq>{bin(total, 5)}</Eq>
       </p>

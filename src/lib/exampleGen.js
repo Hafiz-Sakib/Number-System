@@ -425,3 +425,79 @@ export function genTruthExample(n, mode = "sop") {
   }
   return { ones: n === 2 ? [1, 2] : [3, 5, 6, 7], label: `${bn(n)} চলক` };
 }
+
+/* ═════════ লজিক গেট পাতা: ইনপুট সুইচের উদাহরণ ═════════
+   • সব ফাংশন বর্তমান ইনপুট (cur) থেকে ভিন্ন একটি অবস্থা দেয়, তাই বোতামে চাপলে সবসময় কিছু বদলায়।
+   • সব-0, সব-1, একটিমাত্র 1, মিশ্র; অ্যাডারে ওভারফ্লো ও ক্যারি-ছড়ানো; এনকোডারে "কোনো ইনপুট নেই" — এজ কেসগুলো ইচ্ছা করেই আসে।
+   • লেবেল সবসময় আসল মান দেখে বানানো হয় (আগে লেবেল ঠিক করে পরে মান বসানো হয় না), তাই বর্ণনা কখনো ভুল হয় না। */
+const lastBits = {};
+const bitsOf = (k, n) => Array.from({ length: n }, (_, i) => (k >> (n - 1 - i)) & 1);
+const sameBits = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+
+function describeBits(bits, radio, ids) {
+  const n = bits.length, ones = bits.filter(Boolean).length;
+  if (n === 1) return `ইনপুট ${ids[0]} = ${bits[0]}`;
+  if (radio) {
+    if (ones === 0) return "কোনো ইনপুট সক্রিয় নয়";
+    const k = bits.indexOf(1);
+    return k === 0 ? `প্রথম লাইন ${ids[k]} সক্রিয়` : k === n - 1 ? `শেষ লাইন ${ids[k]} সক্রিয়` : `${ids[k]} সক্রিয়`;
+  }
+  if (ones === 0) return "সব ইনপুট 0";
+  if (ones === n) return "সব ইনপুট 1";
+  if (n === 2) return "দুই ইনপুট ভিন্ন";
+  if (ones === 1) return "একটিমাত্র ইনপুট 1";
+  if (ones === n - 1) return "একটিমাত্র ইনপুট 0";
+  return "মিশ্র ইনপুট";
+}
+
+/* ids = ইনপুটের নাম তালিকা; radio = একবারে সর্বোচ্চ একটি 1 (এনকোডার); cur = এখনকার { id: 0|1 }
+   ফেরত: { values: { id: 0|1 }, label } */
+export function genGateInputs(ids, { radio = false, cur = {}, key = ids.join(",") + (radio ? "r" : "") } = {}) {
+  const n = ids.length;
+  const now = ids.map((i) => (cur[i] ? 1 : 0));
+  const cands = [];
+  if (radio) { cands.push([Array(n).fill(0), 10]); for (let k = 0; k < n; k++) cands.push([Array.from({ length: n }, (_, i) => +(i === k)), k === 0 || k === n - 1 ? 14 : 9]); }
+  else for (let k = 0; k < 1 << n; k++) {
+    const b = bitsOf(k, n), ones = b.filter(Boolean).length;
+    cands.push([b, ones === 0 || ones === n ? 14 : ones === 1 || ones === n - 1 ? 10 : 7]);
+  }
+  const pool = cands.filter(([b]) => !sameBits(b, now) && lastBits[key] !== b.join(""));
+  const from = pool.length ? pool : cands.filter(([b]) => !sameBits(b, now));
+  const bits = (from.length ? wpick(from) : cands[0][0]);
+  lastBits[key] = bits.join("");
+  return { values: Object.fromEntries(ids.map((id, i) => [id, bits[i]])), label: describeBits(bits, radio, ids) };
+}
+
+/* ৪-বিট রিপল-ক্যারি অ্যাডার: a, b = [MSB…LSB] বিট-তালিকা, cin = 0|1 */
+const nibble = (v) => bitsOf(v, 4);
+const val = (bits) => bits.reduce((s, b) => (s << 1) | b, 0);
+function carryChain(a, b, cin) { // কোন বিটে কোন ক্যারি তৈরি হয়, সবচেয়ে লম্বা ছড়ানো ক্যারির দৈর্ঘ্য
+  let c = cin, run = 0, best = 0;
+  for (let i = 0; i < 4; i++) { const x = (a >> i) & 1, y = (b >> i) & 1, co = (x & y) | (c & (x ^ y)); run = co ? run + 1 : 0; best = Math.max(best, run); c = co; }
+  return { cout: c, best };
+}
+const RIPPLE_KINDS = [
+  { id: "rand", w: 30, label: "এলোমেলো যোগ", ok: () => true, make: () => [ri(0, 15), ri(0, 15), ri(0, 1)] },
+  { id: "nocarry", w: 14, label: "কোনো ক্যারি হয় না", ok: (a, b, c) => carryChain(a, b, c).best === 0, make: () => { const a = ri(0, 15); return [a, ri(0, 15) & ~a & 15, 0]; } },
+  { id: "ripple", w: 14, label: "ক্যারি সব বিট পেরিয়ে ছড়ায়", ok: (a, b, c) => carryChain(a, b, c).best >= 4, make: () => (chance(0.5) ? [15, 0, 1] : [ri(0, 15) | 1, 0, 0].map((x, i) => (i === 0 ? 1 : i === 1 ? 15 : 0))) },
+  { id: "ovf", w: 12, label: "ওভারফ্লো: ফল ৫ বিটের (Cout = 1)", ok: (a, b, c) => a + b + c > 15, make: () => { const a = ri(8, 15), b = ri(Math.max(0, 16 - a), 15); return [a, b, ri(0, 1)]; } },
+  { id: "same", w: 8, label: "A = B (ফল A-র দ্বিগুণ)", ok: (a, b) => a === b, make: () => { const a = ri(1, 15); return [a, a, ri(0, 1)]; } },
+  { id: "zero", w: 7, label: "একটি সংখ্যা 0", ok: (a, b) => (a === 0) !== (b === 0), make: () => { const x = ri(1, 15); return chance(0.5) ? [0, x, ri(0, 1)] : [x, 0, ri(0, 1)]; } },
+  { id: "allzero", w: 4, label: "সব ইনপুট 0", ok: (a, b, c) => !a && !b && !c, make: () => [0, 0, 0] },
+  { id: "max", w: 4, label: "সর্বোচ্চ মান: 15 + 15 + 1", ok: (a, b, c) => a === 15 && b === 15 && c === 1, make: () => [15, 15, 1] },
+  { id: "cinonly", w: 5, label: "শুধু Cin = 1", ok: (a, b, c) => !a && !b && c === 1, make: () => [0, 0, 1] },
+];
+const lastRipple = { k: null };
+export function genRippleExample(cur = {}) {
+  const now = [val(cur.a || [0, 0, 0, 0]), val(cur.b || [0, 0, 0, 0]), cur.cin || 0].join(",");
+  for (let t = 0; t < 80; t++) {
+    const kind = wpick(RIPPLE_KINDS.map((k) => [k, k.w]));
+    const [a, b, cin] = kind.make();
+    if (a < 0 || a > 15 || b < 0 || b > 15 || (cin !== 0 && cin !== 1) || !kind.ok(a, b, cin)) continue; // মান ও বর্ণনা মিলল কিনা যাচাই
+    const key = [a, b, cin].join(",");
+    if (key === now || key === lastRipple.k) continue;
+    lastRipple.k = key;
+    return { a: nibble(a), b: nibble(b), cin, label: kind.label };
+  }
+  return { a: nibble(11), b: nibble(6), cin: 0, label: "এলোমেলো যোগ" };
+}

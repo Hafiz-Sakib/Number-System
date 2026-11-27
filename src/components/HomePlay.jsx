@@ -305,7 +305,7 @@ function MiniGate() {
     <Block tag="লজিক গেট" title="মিনি লজিক গেট ল্যাব" desc="গেট বেছে নাও, সুইচে ক্লিক করো। আউটপুট 1 হলে LED সবুজ আলোয় জ্বলে ওঠে।">
       <PillChoice id="home-gate" value={t} onChange={setT} options={Object.keys(GSAY).map((g) => ({ id: g, label: g }))} />
       <p className="mb-3 mt-3 text-ink/70">{GSAY[t]}</p>
-      <Lab key={t} net={net} />
+      <Lab key={t} net={net} gen={false} />
       <button type="button" onClick={() => navigate("/gates")} className="mt-3 rounded-full bg-ink px-5 py-2 text-sm font-semibold text-paper transition hover:bg-ink/85 active:scale-95">সব গেট ও অ্যাডার →</button>
     </Block>
   );
