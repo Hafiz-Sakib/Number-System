@@ -14,7 +14,7 @@ export default function Convert({ s, set, onUse }) {
   const err = !res.ok && !res.empty ? res.msg : null;
   const all = useMemo(() => (res.ok ? BASES.map((b) => ({ base: b, ...ratToBase(res.rat, b, prec) })) : []), [res, prec]);
   const [exLabel, setExLabel] = useState("");
-  const generate = () => { const ex = genConvertExample(s.from); setExLabel(ex.label); set({ ...s, value: ex.value }); };
+  const generate = () => { const ex = genConvertExample(s.from, s.to); setExLabel(ex.label); set({ ...s, value: ex.value }); };
   const swap = () => set({ from: s.to, to: s.from, value: res.ok ? res.text : s.value });
 
   return (

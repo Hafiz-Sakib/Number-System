@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { BASE_NAME, MAX_OPERANDS, OPS, availableMethods, calc, calcMulti, ordinal, parseNum, showVal } from "../lib/engine";
 import { useFmt, usePrecision } from "../lib/settings";
+import { genCalcExample } from "../lib/exampleGen";
 import { Blocks } from "../components/Steps";
 import { SectionTitle, Reveal } from "../components/ui";
 import { BaseTabs, NumberField, PrecisionSelect, ResultCard, MobileResultBar, CopyButton, PillChoice, CLR, disp } from "../components/controls";
@@ -29,6 +30,8 @@ export default function Calc({ s, set, onConvert }) {
   const addMore = () => { if (list.length >= MAX_OPERANDS) return; set({ ...s, more: [...more, ""] }); setFocus(`m${more.length}`); };
   const removeMore = (i) => { set({ ...s, more: more.filter((_, k) => k !== i) }); setFocus("a"); };
   const nextRound = () => set({ ...s, a: res.text.replace(/^-/, "−"), b: "", more: [] });
+  const [exLabel, setExLabel] = useState("");
+  const generate = () => { const ex = genCalcExample(s.base, s.op); setExLabel(ex.label); setFocus("a"); set({ ...s, a: ex.a, b: ex.b, more: ex.more }); };
   const total = multi ? calcList.length : 2;
   const slots = 2 + more.length;
 
@@ -73,6 +76,15 @@ export default function Calc({ s, set, onConvert }) {
                   ) : <p className="text-center text-sm text-ink/50">সর্বোচ্চ {fmt(MAX_OPERANDS)}টি সংখ্যা একসাথে যোগ করা যাবে।</p>}
                 </>
               )}
+              <button type="button" onClick={generate} className="lift group flex w-full items-center justify-between gap-3 rounded-2xl bg-ink px-4 py-3 text-left text-paper shadow-md transition hover:bg-ink/85 active:scale-[.98]">
+                <span className="min-w-0">
+                  <span className="block text-[15px] font-bold">উদাহরণ জেনারেট করুন</span>
+                  <span className="mt-0.5 block truncate text-xs text-paper/70">{exLabel ? `${exLabel} · ${BASE_NAME[s.base]} ${OPS[s.op].name}` : `${BASE_NAME[s.base]} ${OPS[s.op].name}-এর একটি র‍্যান্ডম উদাহরণ`}</span>
+                </span>
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-paper/15">
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5" /></svg>
+                </span>
+              </button>
               {(s.op === "/" || method === "decimal") && <PrecisionSelect />}
             </div>
           </Reveal>
@@ -115,7 +127,7 @@ export default function Calc({ s, set, onConvert }) {
             <div className="card grid min-h-[9rem] place-items-center p-6 text-center sm:min-h-[16rem] sm:p-8">
               <div>
                 <p className="text-2xl font-extrabold">এখানে ফলাফল দেখানো হবে</p>
-                <p className="mx-auto mt-2 max-w-sm text-ink/55">{anyErr ? "ইনপুটের ভুলটি ঠিক করো।" : s.op === "+" ? "বাম পাশের ঘরগুলোতে সংখ্যা লেখো।" : "বাম পাশের ঘরে দুটি সংখ্যা লেখো।"}</p>
+                <p className="mx-auto mt-2 max-w-sm text-ink/55">{anyErr ? "ইনপুটের ভুলটি ঠিক করো।" : s.op === "+" ? "বাম পাশের ঘরগুলোতে সংখ্যা লেখো, অথবা “উদাহরণ জেনারেট করুন” বোতামে ক্লিক করো।" : "বাম পাশের ঘরে দুটি সংখ্যা লেখো, অথবা “উদাহরণ জেনারেট করুন” বোতামে ক্লিক করো।"}</p>
               </div>
             </div>
           )}
